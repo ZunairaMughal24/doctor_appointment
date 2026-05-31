@@ -68,23 +68,25 @@ class _DoctorSignUpScreenState extends State<DoctorSignUpScreen> {
           .set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        "password": _passwordController.text.trim(),
-        "speciality": _specialityController.text.trim(),
-        "experience": _experienceController.text.trim(),
-        "number": _numberController.text.trim(),
-        "location": _locationController.text.trim(),
-        "availability": _availabilityController.text.trim(),
-        "services": _servicesController.text.trim(),
+        'role': 'doctor',
+        'speciality': _specialityController.text.trim(),
+        'experience': _experienceController.text.trim(),
+        'number': _numberController.text.trim(),
+        'location': _locationController.text.trim(),
+        'availability': _availabilityController.text.trim(),
+        'services': _servicesController.text.trim(),
+        'description': '',
+        'rating': 4.5,
+        'isSeed': false,
+        'createdAt': FieldValue.serverTimestamp(),
       });
       if (userCredential.user != null) {
-        // ignore: use_build_context_synchronously
-        Navigator.popUntil(context, (route) => route.isFirst);
-
-        // ignore: use_build_context_synchronously
-        Navigator.pushReplacement(
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => const MyAppointmentsScreen(isUser: false)));
+                builder: (_) => const MyAppointmentsScreen(isUser: false)),
+            (_) => false);
         //   }
         // } catch (e) {
         //   if (e is TypeError) {

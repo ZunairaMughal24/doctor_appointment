@@ -1,0 +1,32 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/user_entity.dart';
+
+abstract class AuthRepository {
+  Future<Either<Failure, UserEntity>> signIn({
+    required String email,
+    required String password,
+  });
+
+  Future<Either<Failure, UserEntity>> signUpPatient({
+    required String name,
+    required String email,
+    required String password,
+  });
+
+  Future<Either<Failure, UserEntity>> signUpDoctor({
+    required String name,
+    required String email,
+    required String password,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  });
+
+  Future<Either<Failure, void>> signOut();
+
+  Future<Either<Failure, UserEntity?>> getCurrentUser();
+}

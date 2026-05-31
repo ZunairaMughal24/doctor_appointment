@@ -34,18 +34,31 @@ class _SignInScreenState extends State<SignInScreen> {
         UserCredential userCredential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
         if (userCredential.user != null) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushReplacement(
+          if (!mounted) return;
+          Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                   builder: (context) => isDoctor
                       ? const MyAppointmentsScreen(isUser: false)
-                      : const HomeScreen()));
+                      : const HomeScreen()),
+              (_) => false);
+        }
+      } on FirebaseAuthException catch (e) {
+        final msg = switch (e.code) {
+          'user-not-found' => 'No account found for this email.',
+          'wrong-password' || 'invalid-credential' => 'Incorrect password.',
+          'invalid-email' => 'Enter a valid email address.',
+          'user-disabled' => 'This account has been disabled.',
+          'too-many-requests' => 'Too many attempts. Try again later.',
+          _ => e.message ?? 'Sign in failed.',
+        };
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(msg)),
+          );
         }
       } catch (e) {
-        if (e is TypeError) {
-          log(e.toString());
-        }
+        log(e.toString());
       }
     }
   }
@@ -215,7 +228,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                 child: SwitchListTile(
-                    activeColor: const Color.fromARGB(255, 11, 77, 105),
+                    activeThumbColor: const Color.fromARGB(255, 11, 77, 105),
                     title: const Text(
                       "Sign in as doctor",
                       style: TextStyle(
@@ -267,11 +280,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       ]),
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()));
-                      // if (formkey.currentState!.validate()) {
-                      //   login();
-                      // }
+                      if (formkey.currentState!.validate()) {
+                        login();
+                      }
                     },
                     child: const Text("Sign In",
                         style: TextStyle(

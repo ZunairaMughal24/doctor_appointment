@@ -1,0 +1,96 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/user_entity.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_remote_data_source.dart';
+
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthRemoteDataSource remoteDataSource;
+
+  const AuthRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, UserEntity>> signIn({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final user =
+          await remoteDataSource.signIn(email: email, password: password);
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> signUpPatient({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final user = await remoteDataSource.signUpPatient(
+        name: name,
+        email: email,
+        password: password,
+      );
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> signUpDoctor({
+    required String name,
+    required String email,
+    required String password,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  }) async {
+    try {
+      final user = await remoteDataSource.signUpDoctor(
+        name: name,
+        email: email,
+        password: password,
+        speciality: speciality,
+        experience: experience,
+        phoneNumber: phoneNumber,
+        location: location,
+        availability: availability,
+        services: services,
+      );
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      await remoteDataSource.signOut();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity?>> getCurrentUser() async {
+    try {
+      final user = await remoteDataSource.getCurrentUser();
+      return Right(user);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+}

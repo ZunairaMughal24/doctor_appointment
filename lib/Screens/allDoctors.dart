@@ -1,457 +1,198 @@
-// import 'package:flutter/material.dart';
-// import 'package:fyp/screens/doctorDetail.dart';
-
-// // Replace this with your actual widget for your "allSpecialist" screen
-// class allSpecialist extends StatelessWidget {
-//   const allSpecialist({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // Dummy data for doctors
-//     var doctors = [
-//       {
-//         'name': 'Dr. Ryle',
-//         'specialty': 'Cardiologist',
-//         'experience': '10 years',
-//         'image': 'assets/images/MD2RYLE.png'
-//       },
-//       {
-//         'name': 'Dr. Sofia',
-//         'specialty': 'Dermatologist',
-//         'experience': '8 years',
-//         'image': 'assets/images/FD3.png'
-//       },
-//       {
-//         'name': 'Dr. Lilly',
-//         'specialty': 'Pediatrician',
-//         'experience': '5 years',
-//         'image': 'assets/images/FD5.png'
-//       },
-//       {
-//         'name': 'Dr. Altas',
-//         'specialty': 'Orthopedist',
-//         'experience': '15 years',
-//         'image': 'assets/images/MD3.png'
-//       },
-//       {
-//         'name': 'Dr. Michal',
-//         'specialty': 'Surgeon',
-//         'experience': '20 years',
-//         'image': 'assets/images/MD1.png'
-//       },
-//     ];
-
-//     return Scaffold(
-//       backgroundColor: const Color.fromARGB(255, 249, 253, 255),
-//       appBar: AppBar(
-//         backgroundColor: Color.fromARGB(255, 11, 77, 105),
-//         title: const Text(
-//           "All Specialist",
-//           style: TextStyle(color: Colors.white, fontSize: 17),
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: ListView.builder(
-//           itemCount: doctors.length,
-//           itemBuilder: (context, index) {
-//             var doctor = doctors[index];
-//             return GestureDetector(
-//               onTap: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => DetailScr(
-//                       docId: doctor[
-//                           'name']!, // You can pass other data too like ID
-//                     ),
-//                   ),
-//                 );
-//               },
-//               child: Padding(
-//                 padding: const EdgeInsets.only(bottom: 16.0),
-//                 child: Container(
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.circular(12),
-//                     boxShadow: [
-//                       BoxShadow(
-//                         color: Colors.black26,
-//                         blurRadius: 4,
-//                         offset: Offset(0, 2),
-//                       ),
-//                     ],
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       // Doctor Image
-//                       Padding(
-//                         padding: const EdgeInsets.all(10.0),
-//                         child: ClipRRect(
-//                           borderRadius: BorderRadius.circular(8),
-//                           child: Image.asset(
-//                             doctor['image']!,
-//                             width: 100,
-//                             height: 100,
-//                             fit: BoxFit.cover,
-//                           ),
-//                         ),
-//                       ),
-//                       // Doctor Info
-//                       Expanded(
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(
-//                               vertical: 10.0, horizontal: 8.0),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 doctor['name']!,
-//                                 style: const TextStyle(
-//                                   fontSize: 18,
-//                                   fontWeight: FontWeight.bold,
-//                                   color: Color.fromARGB(255, 11, 77, 105),
-//                                 ),
-//                               ),
-//                               const SizedBox(height: 5),
-//                               Text(
-//                                 "${doctor['specialty']}",
-//                                 style: const TextStyle(
-//                                   fontSize: 14,
-//                                   color: Color.fromARGB(255, 109, 4, 4),
-//                                 ),
-//                               ),
-//                               const SizedBox(height: 5),
-//                               Text(
-//                                 '${doctor['experience']} of Experience',
-//                                 style: const TextStyle(
-//                                   fontSize: 14,
-//                                   color: Color.fromARGB(255, 123, 123, 123),
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       // Right Arrow Icon for navigation
-//                       Padding(
-//                         padding: const EdgeInsets.all(10.0),
-//                         child: Icon(
-//                           Icons.arrow_forward_ios,
-//                           size: 16,
-//                           color: Color.fromARGB(255, 11, 77, 105),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-// import 'package:flutter/material.dart';
-// import 'package:fyp/screens/doctorDetail.dart';
-
-// class allSpecialist extends StatelessWidget {
-//   const allSpecialist({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // Dummy data for doctors
-//     var doctors = [
-//       {
-//         'name': 'Dr. Ryle',
-//         'specialty': 'Cardiologist',
-//         'experience': '10 years',
-//         'rating': 4.5,
-//         'image': 'assets/images/MD2RYLE.png',
-//         'hospital': 'Heart Clinic',
-//         'availability': 'Mon-Fri: 9 AM - 5 PM',
-//         'color': const Color(0xFFFFF3E0), // Light Orange
-//       },
-//       {
-//         'name': 'Dr. Sofia',
-//         'specialty': 'Dermatologist',
-//         'experience': '8 years',
-//         'rating': 4.8,
-//         'image': 'assets/images/FD3.png',
-//         'hospital': 'Skin Care Center',
-//         'availability': 'Tue-Sat: 10 AM - 4 PM',
-//         'color': const Color(0xFFF1F8E9), // Light Green
-//       },
-//       {
-//         'name': 'Dr. Lilly',
-//         'specialty': 'Pediatrician',
-//         'experience': '5 years',
-//         'rating': 4.2,
-//         'image': 'assets/images/FD5.png',
-//         'hospital': 'Children’s Clinic',
-//         'availability': 'Mon-Sun: 8 AM - 6 PM',
-//         'color': const Color(0xFFE3F2FD), // Light Blue
-//       },
-//       {
-//         'name': 'Dr. Altas',
-//         'specialty': 'Orthopedist',
-//         'experience': '15 years',
-//         'rating': 4.7,
-//         'image': 'assets/images/MD3.png',
-//         'hospital': 'Bone Care Hospital',
-//         'availability': 'Mon-Fri: 8 AM - 4 PM',
-//         'color': const Color(0xFFFCE4EC), // Light Pink
-//       },
-//       {
-//         'name': 'Dr. Michal',
-//         'specialty': 'Surgeon',
-//         'experience': '20 years',
-//         'rating': 4.9,
-//         'image': 'assets/images/MD1.png',
-//         'hospital': 'Surgical Center',
-//         'availability': 'Mon-Sat: 9 AM - 6 PM',
-//         'color': const Color(0xFFFFF9C4), // Light Yellow
-//       },
-//     ];
-
-//     return Scaffold(
-//       backgroundColor: const Color.fromARGB(255, 249, 253, 255),
-//       appBar: AppBar(
-//         backgroundColor: const Color.fromARGB(255, 11, 77, 105),
-//         title: const Text(
-//           "All Specialist",
-//           style: TextStyle(color: Colors.white, fontSize: 19),
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: ListView.builder(
-//           itemCount: doctors.length,
-//           itemBuilder: (context, index) {
-//             var doctor = doctors[index];
-//             return GestureDetector(
-//               onTap: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => DetailScr(
-//                       docId: doctor['name'] as String,
-//                     ),
-//                   ),
-//                 );
-//               },
-//               child: Padding(
-//                 padding: const EdgeInsets.only(bottom: 12.0),
-//                 child: Container(
-//                   decoration: BoxDecoration(
-//                     color: doctor['color'] as Color,
-//                     borderRadius: BorderRadius.circular(12),
-//                     boxShadow: [
-//                       BoxShadow(
-//                         color: Colors.black12,
-//                         blurRadius: 3,
-//                         offset: const Offset(0, 2),
-//                       ),
-//                     ],
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       // Doctor Image
-//                       Padding(
-//                         padding: const EdgeInsets.all(0.0),
-//                         child: ClipRRect(
-//                           borderRadius: BorderRadius.circular(8),
-//                           child: Image.asset(
-//                             doctor['image'] as String,
-//                             width: 90,
-//                             height: 90,
-//                             fit: BoxFit.cover,
-//                           ),
-//                         ),
-//                       ),
-//                       // Doctor Info
-//                       Expanded(
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(vertical: 10.0),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 doctor['name'] as String,
-//                                 style: const TextStyle(
-//                                   fontSize: 16,
-//                                   fontWeight: FontWeight.bold,
-//                                   color: Color.fromARGB(255, 11, 77, 105),
-//                                 ),
-//                               ),
-//                               Text(
-//                                 doctor['specialty'] as String,
-//                                 style: const TextStyle(
-//                                   fontSize: 13,
-//                                   color: Color.fromARGB(255, 109, 4, 4),
-//                                 ),
-//                               ),
-//                               Text(
-//                                 '${doctor['experience']} of Experience',
-//                                 style: const TextStyle(
-//                                   fontSize: 13,
-//                                   color: Color.fromARGB(255, 123, 123, 123),
-//                                 ),
-//                               ),
-//                               Row(
-//                                 children: [
-//                                   const Icon(
-//                                     Icons.star,
-//                                     color: Colors.amber,
-//                                     size: 16,
-//                                   ),
-//                                   const SizedBox(width: 4),
-//                                   Text(
-//                                     '${doctor['rating']}',
-//                                     style: const TextStyle(
-//                                       fontSize: 13,
-//                                       color: Color.fromARGB(255, 11, 77, 105),
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                               Text(
-//                                 'Hospital: ${doctor['hospital']}',
-//                                 style: const TextStyle(
-//                                   fontSize: 13,
-//                                   color: Color.fromARGB(255, 11, 77, 105),
-//                                 ),
-//                               ),
-//                               const SizedBox(height: 2),
-//                               Text(
-//                                 '${doctor['availability']}',
-//                                 style: const TextStyle(
-//                                   fontSize: 13,
-//                                   color: Color.fromARGB(255, 11, 77, 105),
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       // Right Arrow Icon for navigation
-//                       Padding(
-//                         padding: const EdgeInsets.all(10.0),
-//                         child: const Icon(
-//                           Icons.arrow_forward_ios,
-//                           size: 16,
-//                           color: Color.fromARGB(255, 11, 77, 105),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fyp/Screens/doctorDetail.dart';
 
+// Hardcoded fallback (same doctors as home screen)
+final List<Map<String, dynamic>> _fallbackDoctors = [
+  {
+    'id': 'fallback_1',
+    'name': 'Dr. Ahmed Ali',
+    'speciality': 'Cardiologist',
+    'experience': '12 years',
+    'number': '0300-1234567',
+    'location': 'Shaukat Khanum Hospital, Lahore',
+    'availability': 'Mon–Fri: 9am–5pm',
+    'services': 'ECG, Echo, Stress Test, Angioplasty',
+    'description':
+        'Dr. Ahmed Ali is a highly experienced cardiologist with over 12 years of practice at leading cardiac care centers.',
+    'rating': 4.8,
+    'tileColor': Color.fromARGB(255, 248, 238, 238),
+  },
+  {
+    'id': 'fallback_2',
+    'name': 'Dr. Sarah Khan',
+    'speciality': 'Dermatologist',
+    'experience': '8 years',
+    'number': '0321-9876543',
+    'location': 'Skin Care Clinic, Karachi',
+    'availability': 'Tue–Sat: 10am–4pm',
+    'services': 'Acne Treatment, Laser Therapy, Chemical Peel',
+    'description':
+        'Dr. Sarah Khan is a board-certified dermatologist known for her expertise in cosmetic and medical dermatology.',
+    'rating': 4.9,
+    'tileColor': Color.fromARGB(255, 243, 253, 244),
+  },
+  {
+    'id': 'fallback_3',
+    'name': 'Dr. Muhammad Hassan',
+    'speciality': 'Neurologist',
+    'experience': '15 years',
+    'number': '0333-5556677',
+    'location': 'JPMC Hospital, Karachi',
+    'availability': 'Mon–Thu: 8am–3pm',
+    'services': 'Epilepsy, Migraine, Stroke Management, EEG',
+    'description':
+        'Dr. Muhammad Hassan is a senior neurologist with 15 years of experience in complex neurological conditions.',
+    'rating': 4.7,
+    'tileColor': Color.fromARGB(255, 237, 247, 255),
+  },
+  {
+    'id': 'fallback_4',
+    'name': 'Dr. Ayesha Malik',
+    'speciality': 'Pediatrician',
+    'experience': '10 years',
+    'number': '0311-4443322',
+    'location': "Children's Hospital, Islamabad",
+    'availability': 'Mon–Sun: 8am–6pm',
+    'services': 'Well-child Visits, Vaccinations, Allergy Testing',
+    'description':
+        'Dr. Ayesha Malik is a compassionate pediatrician dedicated to the health of children from newborns to teenagers.',
+    'rating': 4.9,
+    'tileColor': Color.fromARGB(255, 247, 241, 248),
+  },
+  {
+    'id': 'fallback_5',
+    'name': 'Dr. Usman Raza',
+    'speciality': 'Orthopedist',
+    'experience': '14 years',
+    'number': '0345-7788990',
+    'location': 'Bone & Joint Center, Lahore',
+    'availability': 'Mon–Fri: 8am–4pm',
+    'services': 'Joint Replacement, Sports Injuries, Fracture Care',
+    'description':
+        'Dr. Usman Raza is a highly skilled orthopedic surgeon with 14 years of expertise in musculoskeletal conditions.',
+    'rating': 4.6,
+    'tileColor': Color.fromARGB(255, 248, 247, 236),
+  },
+  {
+    'id': 'fallback_6',
+    'name': 'Dr. Fatima Siddiqui',
+    'speciality': 'Gynecologist',
+    'experience': '9 years',
+    'number': '0312-6655441',
+    'location': 'Lady Aitchison Hospital, Lahore',
+    'availability': 'Mon–Sat: 9am–5pm',
+    'services': 'Prenatal Care, Normal & C-Section Delivery, PCOS',
+    'description':
+        'Dr. Fatima Siddiqui provides comprehensive obstetric and gynecological care with a focus on patient comfort and safety.',
+    'rating': 4.8,
+    'tileColor': Color.fromARGB(255, 248, 238, 238),
+  },
+];
 
+final List<Color> _tileColors = const [
+  Color.fromARGB(255, 248, 238, 238),
+  Color.fromARGB(255, 243, 253, 244),
+  Color.fromARGB(255, 237, 247, 255),
+  Color.fromARGB(255, 247, 241, 248),
+  Color.fromARGB(255, 248, 247, 236),
+  Color.fromARGB(255, 243, 253, 244),
+];
 
-class AllSpecialistScreen extends StatelessWidget {
+final List<String> _images = const [
+  'assets/images/Doctors/MDryle.png',
+  'assets/images/Doctors/FD3.png',
+  'assets/images/Doctors/FD5.png',
+  'assets/images/Doctors/MD2.png',
+  'assets/images/Doctors/MD1.png',
+];
+
+class AllSpecialistScreen extends StatefulWidget {
   const AllSpecialistScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy data for doctors
-    var doctors = [
-      {
-        'name': 'Dr. Ryle',
-        'specialty': 'Cardiologist',
-        'experience': '10 years',
-        'rating': 4.5,
-        'image': 'assets/images/Doctors/MDryle.png',
-        'hospital': 'Heart Clinic',
-        'availability': 'Mon-Fri: 9 AM - 5 PM',
-        'tileColor': const Color.fromARGB(255, 248, 238, 238), // Light peach
-      },
-      {
-        'name': 'Dr. Sofia',
-        'specialty': 'Dermatologist',
-        'experience': '8 years',
-        'rating': 4.8,
-        'image': 'assets/images/Doctors/FD3.png',
-        'hospital': 'Skin Care Center',
-        'availability': 'Tue-Sat: 10 AM - 4 PM',
-        'tileColor': const Color.fromARGB(255, 243, 253, 244), // Light green
-      },
-      {
-        'name': 'Dr. Lilly',
-        'specialty': 'Pediatrician',
-        'experience': '5 years',
-        'rating': 4.2,
-        'image': 'assets/images/Doctors/FD5.png',
-        'hospital': 'Children’s Clinic',
-        'availability': 'Mon-Sun: 8 AM - 6 PM',
-        'tileColor': const Color.fromARGB(255, 237, 247, 255), // Light blue
-      },
-      {
-        'name': 'Dr. Altas',
-        'specialty': 'Orthopedist',
-        'experience': '15 years',
-        'rating': 4.7,
-        'image': 'assets/images/Doctors/MD2.png',
-        'hospital': 'Bone Care Hospital',
-        'availability': 'Mon-Fri: 8 AM - 4 PM',
-        'tileColor': const Color.fromARGB(255, 247, 241, 248), // Light purple
-      },
-      {
-        'name': 'Dr. Michal',
-        'specialty': 'Surgeon',
-        'experience': '20 years',
-        'rating': 4.9,
-        'image': 'assets/images/Doctors/MD1.png',
-        'hospital': 'Surgical Center',
-        'availability': 'Mon-Sat: 9 AM - 6 PM',
-        'tileColor': const Color.fromARGB(255, 248, 247, 236), // Light yellow
-      },
-    ];
+  State<AllSpecialistScreen> createState() => _AllSpecialistScreenState();
+}
 
+class _AllSpecialistScreenState extends State<AllSpecialistScreen> {
+  List<Map<String, dynamic>> doctors = List.from(_fallbackDoctors);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFromFirestore();
+  }
+
+  Future<void> _loadFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('doctors')
+          .orderBy('createdAt', descending: true)
+          .get();
+      final list = snapshot.docs.map((doc) {
+        final d = doc.data();
+        d['id'] = doc.id;
+        return d;
+      }).toList();
+      if (list.isNotEmpty && mounted) setState(() => doctors = list);
+    } catch (_) {
+      try {
+        final snapshot =
+            await FirebaseFirestore.instance.collection('doctors').get();
+        final list = snapshot.docs.map((doc) {
+          final d = doc.data();
+          d['id'] = doc.id;
+          return d;
+        }).toList();
+        if (list.isNotEmpty && mounted) setState(() => doctors = list);
+      } catch (_) {}
+    }
+  }
+
+  void _openDetail(Map<String, dynamic> item) {
+    final id = item['id'] as String? ?? '';
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DoctorDetailScreen(
+          docId: id,
+          doctorData: id.startsWith('fallback_') ? item : null,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 249, 253, 255),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 11, 77, 105),
         title: const Text(
-          "All Specialist",
+          'All Specialist',
           style: TextStyle(color: Colors.white, fontSize: 17),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(14.0),
         child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
           itemCount: doctors.length,
           itemBuilder: (context, index) {
-            var doctor = doctors[index];
+            final doctor = doctors[index];
+            final tileColor = (doctor['tileColor'] as Color?) ??
+                _tileColors[index % _tileColors.length];
+            final image = _images[index % _images.length];
+
             return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DoctorDetailScreen(
-                        docId: doctor['name'] as String,
-                        ),
-                  ),
-                );
-              },
+              onTap: () => _openDetail(doctor),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: doctor['tileColor'] as Color,
+                    color: tileColor,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 4,
@@ -461,21 +202,19 @@ class AllSpecialistScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      // Doctor Image
                       Padding(
                         padding:
                             const EdgeInsets.only(left: 8, top: 6, bottom: 6),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.asset(
-                            doctor['image'] as String,
+                            image,
                             width: 80,
                             height: 110,
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                      // Doctor Info
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -484,7 +223,7 @@ class AllSpecialistScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                doctor['name'] as String,
+                                doctor['name'] ?? '',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -492,7 +231,7 @@ class AllSpecialistScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                doctor['specialty'] as String,
+                                doctor['speciality'] ?? '',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Color.fromARGB(255, 109, 4, 4),
@@ -500,7 +239,7 @@ class AllSpecialistScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${doctor['experience']} of Experience',
+                                '${doctor['experience'] ?? ''} of Experience',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Color.fromARGB(255, 123, 123, 123),
@@ -508,14 +247,11 @@ class AllSpecialistScreen extends StatelessWidget {
                               ),
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
+                                  const Icon(Icons.star,
+                                      color: Colors.amber, size: 16),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${doctor['rating']}',
+                                    '${(doctor['rating'] as num? ?? 4.5)}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Color.fromARGB(255, 11, 77, 105),
@@ -524,14 +260,14 @@ class AllSpecialistScreen extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                'Hospital: ${doctor['hospital']}',
+                                doctor['location'] ?? '',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Color.fromARGB(255, 11, 77, 105),
                                 ),
                               ),
                               Text(
-                                '${doctor['availability']}',
+                                doctor['availability'] ?? '',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Color.fromARGB(255, 11, 77, 105),
@@ -541,7 +277,6 @@ class AllSpecialistScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // Right Arrow Icon for navigation
                       const Padding(
                         padding: EdgeInsets.all(10.0),
                         child: Icon(
