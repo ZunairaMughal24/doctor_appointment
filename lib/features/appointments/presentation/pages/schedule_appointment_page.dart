@@ -1,15 +1,17 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
 
+import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/core/utils/app_feedback.dart';
+import 'package:fyp/core/utils/app_pickers.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
 
 class ScheduleAppointmentPage extends StatefulWidget {
   final String docId;
@@ -26,19 +28,44 @@ class ScheduleAppointmentPage extends StatefulWidget {
       _ScheduleAppointmentPageState();
 }
 
+/// Thin view — owns no logic.
+/// All form state, date formatting, and entity construction live in the ViewModel.
 class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
-  final _appointmentDayController = TextEditingController();
-  final _appointmentDateController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _numberController = TextEditingController();
+  late final ScheduleAppointmentViewModel _vm;
+
+  @override
+  void initState() {
+    super.initState();
+    _vm = ScheduleAppointmentViewModel();
+  }
 
   @override
   void dispose() {
-    _appointmentDayController.dispose();
-    _appointmentDateController.dispose();
-    _nameController.dispose();
-    _numberController.dispose();
+    _vm.dispose();
     super.dispose();
+  }
+
+  Future<void> _openDatePicker() async {
+    final picked = await AppPickers.pickDate(context);
+    if (picked != null) _vm.onDatePicked(picked);
+  }
+
+  String get _currentUid {
+    final state = context.read<AuthBloc>().state;
+    return state is AuthAuthenticated ? state.user.uid : '';
+  }
+
+  void _submit() {
+    if (!_vm.validate()) return;
+    context.read<AppointmentBloc>().add(
+          BookAppointment(
+            _vm.buildAppointment(
+              patientId: _currentUid,
+              doctorId: widget.docId,
+              doctorName: widget.name,
+            ),
+          ),
+        );
   }
 
   @override
@@ -60,89 +87,59 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
       body: BlocListener<AppointmentBloc, AppointmentState>(
         listener: (context, state) {
           if (state is AppointmentBooked) {
+            AppFeedback.showSuccess(context, 'Appointment booked successfully!');
             context.go(AppRoutes.appointments);
           } else if (state is AppointmentError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            AppFeedback.showError(context, state.message);
           }
         },
         child: Container(
           color: AppColors.background,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
+          child: Form(
+            key: _vm.formKey,
             child: ListView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               physics: const BouncingScrollPhysics(),
               children: [
-                _buildLabel("Name"),
-                _buildInputField(_nameController, "Enter your full name"),
-                _buildLabel("Contact number"),
-                _buildInputField(_numberController, "Enter number"),
-                _buildLabel("Select Appointment day"),
-                _buildInputField(_appointmentDayController, "Select day"),
-                _buildLabel("Select Appointment date"),
-                _buildInputField(_appointmentDateController, "Select date"),
-                const SizedBox(height: 50),
+                _AppointmentFormField(
+                  label: 'Name',
+                  controller: _vm.nameController,
+                  hint: 'Enter your full name',
+                  validator: _vm.nameValidator,
+                ),
+                _AppointmentFormField(
+                  label: 'Contact number',
+                  controller: _vm.phoneController,
+                  hint: 'Enter number',
+                  keyboardType: TextInputType.phone,
+                  validator: _vm.phoneValidator,
+                ),
+                _AppointmentFormField(
+                  label: 'Appointment date',
+                  controller: _vm.dateController,
+                  hint: 'Tap to pick a date',
+                  readOnly: true,
+                  onTap: _openDatePicker,
+                  suffixIcon: const Icon(
+                    Icons.calendar_today,
+                    color: AppColors.primary,
+                  ),
+                  validator: _vm.dateValidator,
+                ),
+                _AppointmentFormField(
+                  label: 'Appointment day',
+                  controller: _vm.dayController,
+                  hint: 'Auto-filled when you pick a date',
+                  readOnly: true,
+                  validator: _vm.dayValidator,
+                ),
+                const SizedBox(height: 32),
                 BlocBuilder<AppointmentBloc, AppointmentState>(
-                  builder: (context, state) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: state is AppointmentLoading
-                            ? null
-                            : () {
-                                final authState = context.read<AuthBloc>().state;
-                                final currentUserId = authState is AuthAuthenticated
-                                    ? authState.user.uid
-                                    : '';
-                                final appointment = AppointmentEntity(
-                                  id: '', // Will be set by Firestore
-                                  patientId: currentUserId,
-                                  patientName: _nameController.text.trim(),
-                                  patientPhone: _numberController.text.trim(),
-                                  doctorId: widget.docId,
-                                  doctorName: widget.name,
-                                  appointmentDay:
-                                      _appointmentDayController.text.trim(),
-                                  appointmentDate:
-                                      _appointmentDateController.text.trim(),
-                                );
-                                context
-                                    .read<AppointmentBloc>()
-                                    .add(BookAppointment(appointment));
-                              },
-                        child: Container(
-                          height: 53,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 1.0),
-                              borderRadius: BorderRadius.circular(16),
-                              color: AppColors.primary,
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 181, 185, 187),
-                                    offset: Offset(02, 03),
-                                    blurRadius: 0.5,
-                                    spreadRadius: 0.1),
-                              ]),
-                          child: Center(
-                            child: state is AppointmentLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : const Text(
-                                    "Submit",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  builder: (context, state) => _SubmitButton(
+                    loading: state is AppointmentLoading,
+                    onTap: _submit,
+                  ),
                 ),
               ],
             ),
@@ -151,48 +148,108 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
       ),
     );
   }
+}
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, top: 5),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: AppColors.primary,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
+// ── Private widgets ───────────────────────────────────────────────────────────
+
+class _AppointmentFormField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final String hint;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+
+  const _AppointmentFormField({
+    required this.label,
+    required this.controller,
+    required this.hint,
+    this.readOnly = false,
+    this.onTap,
+    this.suffixIcon,
+    this.keyboardType,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, top: 12, bottom: 4),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
-      ),
+        TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          onTap: onTap,
+          keyboardType: keyboardType,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            suffixIcon: suffixIcon,
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle:
+                const TextStyle(fontSize: 14, color: AppColors.textHint),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.inputBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.inputBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide:
+                  const BorderSide(color: AppColors.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.error),
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildInputField(TextEditingController controller, String hint) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: const Color.fromARGB(255, 238, 235, 235), width: 1.0),
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                  color: Color.fromARGB(255, 221, 218, 218),
-                  offset: Offset(02, 03),
-                  blurRadius: 0.5,
-                  spreadRadius: 0.1),
-            ]),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hint,
-              hintStyle: const TextStyle(
-                  fontSize: 16, color: Color.fromARGB(255, 149, 160, 165)),
-            ),
+class _SubmitButton extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onTap;
+  const _SubmitButton({required this.loading, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.primary,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: loading ? null : onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 53,
+          child: Center(
+            child: loading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+                    'Confirm Appointment',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
           ),
         ),
       ),

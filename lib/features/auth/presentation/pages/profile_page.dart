@@ -2,6 +2,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_feedback.dart';
+import '../../../../core/utils/validators.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/user_entity.dart';
@@ -66,8 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
         if (state is AuthUnauthenticated) {
           context.go(AppRoutes.signIn);
         } else if (state is AuthFailureState) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          AppFeedback.showError(context, state.message);
         } else if (state is AuthAuthenticated) {
           _nameController.text = state.user.name;
           _emailController.text = state.user.email;
@@ -87,7 +88,10 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: AppColors.primary,
               title: const Text(
                 'Profile',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               actions: [
                 if (!_editing)
@@ -164,8 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _nameController,
                               icon: Icons.person_outline,
                               enabled: _editing,
-                              validator: (v) =>
-                                  v!.isEmpty ? 'Name is required' : null,
+                              validator: (v) => Validators.required(v, 'Name'),
                             ),
                             const SizedBox(height: 12),
                             _buildField(
@@ -174,8 +177,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.email_outlined,
                               enabled: _editing,
                               keyboardType: TextInputType.emailAddress,
-                              validator: (v) =>
-                                  v!.isEmpty ? 'Email is required' : null,
+                              validator: Validators.email,
                             ),
                           ],
                         ),
@@ -232,8 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               Switch(
                                 value: user.isDoctor,
-                                activeThumbColor:
-                                    AppColors.primary,
+                                activeThumbColor: AppColors.primary,
                                 onChanged: (_) => _switchRole(user),
                               ),
                             ],
@@ -250,8 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: const CircleAvatar(
-                              backgroundColor:
-                                  AppColors.primaryLight,
+                              backgroundColor: AppColors.primaryLight,
                               child: Icon(
                                 Icons.medical_services_outlined,
                                 color: AppColors.primary,
@@ -276,7 +276,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             onTap: () => context.push(
                               AppRoutes.registerAsDoctor,
-                              extra: {'name': user.name, 'email': user.email, 'uid': user.uid},
+                              extra: {
+                                'name': user.name,
+                                'email': user.email,
+                                'uid': user.uid
+                              },
                             ),
                           ),
                         ),
@@ -289,8 +293,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           contentPadding: EdgeInsets.zero,
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.dangerLight,
-                            child: Icon(Icons.logout,
-                                color: AppColors.error),
+                            child: Icon(Icons.logout, color: AppColors.error),
                           ),
                           title: const Text(
                             'Sign Out',
@@ -300,10 +303,22 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: AppColors.error,
                             ),
                           ),
-                          onTap: () {
-                            context
-                                .read<AuthBloc>()
-                                .add(const AuthSignOutRequested());
+                          onTap: () async {
+                            final confirmed =
+                                await AppFeedback.showConfirmation(
+                              context,
+                              title: 'Sign Out',
+                              message:
+                                  'Are you sure you want to sign out of your account?',
+                              confirmLabel: 'Sign Out',
+                              cancelLabel: 'Cancel',
+                              isDanger: true,
+                            );
+                            if (confirmed && context.mounted) {
+                              context
+                                  .read<AuthBloc>()
+                                  .add(const AuthSignOutRequested());
+                            }
                           },
                         ),
                       ),
@@ -355,9 +370,7 @@ class _ProfilePageState extends State<ProfilePage> {
         color: enabled ? Colors.white : AppColors.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: enabled
-              ? AppColors.primary
-              : AppColors.primaryLight,
+          color: enabled ? AppColors.primary : AppColors.primaryLight,
         ),
       ),
       child: TextFormField(
@@ -367,10 +380,8 @@ class _ProfilePageState extends State<ProfilePage> {
         validator: validator,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(
-              color: AppColors.primary, fontSize: 14),
-          prefixIcon:
-              Icon(icon, color: AppColors.primary, size: 20),
+          labelStyle: const TextStyle(color: AppColors.primary, fontSize: 14),
+          prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
