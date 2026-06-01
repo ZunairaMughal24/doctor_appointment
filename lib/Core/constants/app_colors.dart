@@ -62,6 +62,12 @@ class AppColors {
     ],
   );
 
+  // ── Form / input helpers ─────────────────────────────────────────────────
+  static const Color fieldBgBlue = Color(0xFFA7CEE0);
+  static const Color tabUnselected = Color(0xFFB4D2E1);
+  static const Color navUnselected = Color(0xFFA0AEB9);
+  static const Color dangerLight = Color(0xFFFFEBEB);
+
   // ── UI / Theme helpers ────────────────────────────────────────────────────
   /// Used by ColorScheme.secondary in AppTheme
   static const Color accent = Color(0xFF00BCD4);
