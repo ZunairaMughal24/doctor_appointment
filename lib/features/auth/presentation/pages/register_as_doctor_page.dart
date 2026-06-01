@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_feedback.dart';
+import '../../../../core/utils/validators.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -78,13 +80,10 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated && state.user.hasDoctorProfile) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Doctor profile created successfully!')),
-          );
+          AppFeedback.showSuccess(context, 'Doctor profile created successfully!');
           context.go(AppRoutes.profile);
         } else if (state is AuthFailureState) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          AppFeedback.showError(context, state.message);
         }
       },
       child: Scaffold(
@@ -130,51 +129,51 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                         controller: _nameController,
                         hint: 'Full Name',
                         icon: Icons.person,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Full name'),
                       ),
                       _buildField(
                         controller: _emailController,
                         hint: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: Validators.email,
                       ),
                       _buildField(
                         controller: _specialityController,
                         hint: 'Speciality (e.g. Cardiologist)',
                         icon: Icons.medical_services,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Speciality'),
                       ),
                       _buildField(
                         controller: _experienceController,
                         hint: 'Experience (e.g. 10 years)',
                         icon: Icons.workspace_premium,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Experience'),
                       ),
                       _buildField(
                         controller: _phoneController,
                         hint: 'Phone Number',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: Validators.phone,
                       ),
                       _buildField(
                         controller: _locationController,
                         hint: 'Clinic / Hospital Location',
                         icon: Icons.location_on,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Location'),
                       ),
                       _buildField(
                         controller: _availabilityController,
                         hint: 'Availability (e.g. Mon–Fri: 9am–5pm)',
                         icon: Icons.access_time,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Availability'),
                       ),
                       _buildField(
                         controller: _servicesController,
                         hint: 'Services (comma separated)',
                         icon: Icons.list_alt,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) => Validators.required(v, 'Services'),
                       ),
                     ],
                   ),

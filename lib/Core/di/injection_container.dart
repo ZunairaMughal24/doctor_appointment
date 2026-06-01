@@ -18,6 +18,7 @@ import '../../features/auth/domain/usecases/sign_in_usecase.dart';
 import '../../features/auth/domain/usecases/sign_out_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_doctor_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_patient_usecase.dart';
+import '../../features/auth/domain/usecases/switch_role_usecase.dart';
 import '../../features/auth/domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/doctors/data/datasources/doctor_remote_data_source.dart';
@@ -52,6 +53,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => SwitchRoleUseCase(sl()));
   sl.registerFactory(
     () => AuthBloc(
       signIn: sl(),
@@ -61,6 +63,7 @@ Future<void> initDependencies() async {
       updateProfile: sl(),
       signOut: sl(),
       getCurrentUser: sl(),
+      switchRole: sl(),
     ),
   );
 

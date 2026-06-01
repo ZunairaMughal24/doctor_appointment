@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/utils/app_feedback.dart';
+import '../../../../core/utils/validators.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,9 +39,7 @@ class _SignInPageState extends State<SignInPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailureState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            AppFeedback.showError(context, state.message);
           } else if (state is AuthAuthenticated) {
             context.go(
               state.user.isDoctor ? AppRoutes.appointments : AppRoutes.home,
@@ -125,12 +125,7 @@ class _SignInPageState extends State<SignInPage> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textAlign: TextAlign.justify,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter your email";
-                              }
-                              return null;
-                            },
+                            validator: Validators.email,
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Email',
@@ -167,12 +162,7 @@ class _SignInPageState extends State<SignInPage> {
                               ]),
                           child: TextFormField(
                             controller: _passwordController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter your password";
-                              }
-                              return null;
-                            },
+                            validator: Validators.password,
                             obscureText: true,
                             decoration: const InputDecoration(
                               border: InputBorder.none,

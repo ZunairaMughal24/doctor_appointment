@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/utils/app_feedback.dart';
+import '../../../../core/utils/validators.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,9 +43,7 @@ class _SignUpPageState extends State<SignUpPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailureState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            AppFeedback.showError(context, state.message);
           } else if (state is AuthAuthenticated) {
             context.go(AppRoutes.home);
           }
@@ -112,8 +112,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           icon: Icons.person,
                           screenHeight: screenHeight,
                           screenWidth: screenWidth,
-                          validator: (value) =>
-                              value!.isEmpty ? "Enter your name" : null,
+                          validator: (v) => Validators.required(v, 'Name'),
                         ),
                         _buildInputField(
                           controller: _emailController,
@@ -121,8 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           icon: Icons.email,
                           screenHeight: screenHeight,
                           screenWidth: screenWidth,
-                          validator: (value) =>
-                              value!.isEmpty ? "Enter your email" : null,
+                          validator: Validators.email,
                         ),
                         _buildInputField(
                           controller: _passwordController,
@@ -131,8 +129,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           screenHeight: screenHeight,
                           screenWidth: screenWidth,
                           obscure: true,
-                          validator: (value) =>
-                              value!.isEmpty ? "Enter your password" : null,
+                          validator: Validators.password,
                         ),
                         _buildInputField(
                           controller: _confirmPasswordController,
@@ -141,13 +138,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           screenHeight: screenHeight,
                           screenWidth: screenWidth,
                           obscure: true,
-                          validator: (value) {
-                            if (value!.isEmpty) return "Re-type the password";
-                            if (value != _passwordController.text) {
-                              return "Passwords do not match";
-                            }
-                            return null;
-                          },
+                          validator: (v) => Validators.confirmPassword(
+                              v, _passwordController.text),
                         ),
                       ],
                     ),

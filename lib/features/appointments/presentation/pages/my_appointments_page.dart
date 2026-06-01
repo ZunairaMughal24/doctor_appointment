@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors.dart';
 
+import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/auth/domain/entities/user_entity.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
@@ -86,6 +87,15 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
               },
             );
           }
+          if (state is AppointmentError) {
+            return _RetryState(
+              message: state.message,
+              onRetry: () {
+                final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
+                context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
+              },
+            );
+          }
           return AppointmentEmptyState(
               message: 'Could not load appointments',
               icon: Icons.error_outline);
@@ -95,7 +105,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
   }
 }
 
-//  Doctor: two tabs (My Patients + My Visits)
+// Doctor: two tabs, each with its own isolated AppointmentBloc instance
 
 class _DoctorAppointmentsTabs extends StatefulWidget {
   const _DoctorAppointmentsTabs();
@@ -108,6 +118,8 @@ class _DoctorAppointmentsTabs extends StatefulWidget {
 class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late final AppointmentBloc _patientsBloc;
+  late final AppointmentBloc _visitsBloc;
 
   @override
   void initState() {
@@ -115,12 +127,16 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
     _tabController = TabController(length: 2, vsync: this);
     final authState = context.read<AuthBloc>().state;
     final uid = authState is AuthAuthenticated ? authState.user.uid : '';
-    context.read<AppointmentBloc>().add(LoadDoctorAppointments(uid));
+
+    _patientsBloc = sl<AppointmentBloc>()..add(LoadDoctorAppointments(uid));
+    _visitsBloc = sl<AppointmentBloc>()..add(LoadUserAppointments(uid));
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _patientsBloc.close();
+    _visitsBloc.close();
     super.dispose();
   }
 
@@ -145,82 +161,125 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
             Tab(text: 'My Patients'),
             Tab(text: 'My Visits'),
           ],
-          onTap: (index) {
-            final authState = context.read<AuthBloc>().state;
-            final uid = authState is AuthAuthenticated ? authState.user.uid : '';
-            if (index == 0) {
-              context.read<AppointmentBloc>().add(LoadDoctorAppointments(uid));
-            } else {
-              context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
-            }
-          },
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Tab 1 â€” patients who booked with this doctor
-          BlocBuilder<AppointmentBloc, AppointmentState>(
-            builder: (context, state) {
-              if (state is AppointmentLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is AppointmentsLoaded) {
-                if (state.appointments.isEmpty) {
-                  return AppointmentEmptyState(
-                      message: 'No patients yet', icon: Icons.people_outline);
+          // Tab 1 – patients who booked with this doctor
+          BlocProvider.value(
+            value: _patientsBloc,
+            child: BlocBuilder<AppointmentBloc, AppointmentState>(
+              builder: (context, state) {
+                if (state is AppointmentLoading) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.appointments.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final appt = state.appointments[index];
-                    return AppointmentTile(
-                      title: appt.patientName,
-                      subtitle: appt.appointmentDay,
-                      isPatient: true,
-                      onTap: () => context.push(AppRoutes.appointmentDetail,
-                          extra: appt),
-                    );
-                  },
-                );
-              }
-              return AppointmentEmptyState(
-                  message: 'Could not load', icon: Icons.error_outline);
-            },
+                if (state is AppointmentsLoaded) {
+                  if (state.appointments.isEmpty) {
+                    return AppointmentEmptyState(
+                        message: 'No patients yet',
+                        icon: Icons.people_outline);
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.appointments.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final appt = state.appointments[index];
+                      return AppointmentTile(
+                        title: appt.patientName,
+                        subtitle: appt.appointmentDay,
+                        isPatient: true,
+                        onTap: () => context.push(AppRoutes.appointmentDetail,
+                            extra: appt),
+                      );
+                    },
+                  );
+                }
+                if (state is AppointmentError) {
+                  return _RetryState(
+                    message: state.message,
+                    onRetry: () {
+                      final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
+                      _patientsBloc.add(LoadDoctorAppointments(uid));
+                    },
+                  );
+                }
+                return AppointmentEmptyState(
+                    message: 'Could not load', icon: Icons.error_outline);
+              },
+            ),
           ),
 
-          // Tab 2 - this doctor's own visits as a patient
-          BlocBuilder<AppointmentBloc, AppointmentState>(
-            builder: (context, state) {
-              if (state is AppointmentLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is AppointmentsLoaded) {
-                if (state.appointments.isEmpty) {
-                  return AppointmentEmptyState(
-                      message: 'No personal visits yet',
-                      icon: Icons.calendar_today_outlined);
+          // Tab 2 – this doctor's own visits as a patient
+          BlocProvider.value(
+            value: _visitsBloc,
+            child: BlocBuilder<AppointmentBloc, AppointmentState>(
+              builder: (context, state) {
+                if (state is AppointmentLoading) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.appointments.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final appt = state.appointments[index];
-                    return AppointmentTile(
-                      title: appt.doctorName,
-                      subtitle: appt.appointmentDay,
-                      onTap: () => context.push(AppRoutes.appointmentDetail,
-                          extra: appt),
-                    );
-                  },
-                );
-              }
-              return AppointmentEmptyState(
-                  message: 'Could not load', icon: Icons.error_outline);
-            },
+                if (state is AppointmentsLoaded) {
+                  if (state.appointments.isEmpty) {
+                    return AppointmentEmptyState(
+                        message: 'No personal visits yet',
+                        icon: Icons.calendar_today_outlined);
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.appointments.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final appt = state.appointments[index];
+                      return AppointmentTile(
+                        title: appt.doctorName,
+                        subtitle: appt.appointmentDay,
+                        onTap: () => context.push(AppRoutes.appointmentDetail,
+                            extra: appt),
+                      );
+                    },
+                  );
+                }
+                if (state is AppointmentError) {
+                  return _RetryState(
+                    message: state.message,
+                    onRetry: () {
+                      final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
+                      _visitsBloc.add(LoadUserAppointments(uid));
+                    },
+                  );
+                }
+                return AppointmentEmptyState(
+                    message: 'Could not load', icon: Icons.error_outline);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RetryState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _RetryState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
+          const SizedBox(height: 12),
+          Text(message,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 15)),
+          const SizedBox(height: 16),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
           ),
         ],
       ),
