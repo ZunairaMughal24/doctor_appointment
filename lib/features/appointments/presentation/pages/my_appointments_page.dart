@@ -8,9 +8,11 @@ import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/auth/domain/entities/user_entity.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
+import 'package:fyp/features/appointments/presentation/widgets/appointment_list_skeleton.dart';
 import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
@@ -30,7 +32,7 @@ class MyAppointmentsPage extends StatelessWidget {
   }
 }
 
-// Patient: simple list of their bookings
+// ── Patient: simple list of their bookings ───────────────────────────────────
 
 class _PatientAppointments extends StatefulWidget {
   const _PatientAppointments();
@@ -40,12 +42,15 @@ class _PatientAppointments extends StatefulWidget {
 }
 
 class _PatientAppointmentsState extends State<_PatientAppointments> {
+  String get _uid {
+    final s = context.read<AuthBloc>().state;
+    return s is AuthAuthenticated ? s.user.uid : '';
+  }
+
   @override
   void initState() {
     super.initState();
-    final authState = context.read<AuthBloc>().state;
-    final uid = authState is AuthAuthenticated ? authState.user.uid : '';
-    context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
+    context.read<AppointmentBloc>().add(LoadUserAppointments(_uid));
   }
 
   @override
@@ -62,50 +67,20 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
         ),
       ),
       body: BlocBuilder<AppointmentBloc, AppointmentState>(
-        builder: (context, state) {
-          if (state is AppointmentLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is AppointmentsLoaded) {
-            if (state.appointments.isEmpty) {
-              return AppointmentEmptyState(
-                  message: 'No appointments yet',
-                  icon: Icons.calendar_today_outlined);
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: state.appointments.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final appt = state.appointments[index];
-                return AppointmentTile(
-                  title: appt.doctorName,
-                  subtitle: appt.appointmentDay,
-                  onTap: () =>
-                      context.push(AppRoutes.appointmentDetail, extra: appt),
-                );
-              },
-            );
-          }
-          if (state is AppointmentError) {
-            return _RetryState(
-              message: state.message,
-              onRetry: () {
-                final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
-                context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
-              },
-            );
-          }
-          return AppointmentEmptyState(
-              message: 'Could not load appointments',
-              icon: Icons.error_outline);
-        },
+        builder: (context, state) => _AppointmentListBody(
+          state: state,
+          titleOf: (a) => a.doctorName,
+          emptyMessage: 'No appointments yet',
+          emptyIcon: Icons.calendar_today_outlined,
+          onRetry: () =>
+              context.read<AppointmentBloc>().add(LoadUserAppointments(_uid)),
+        ),
       ),
     );
   }
 }
 
-// Doctor: two tabs, each with its own isolated AppointmentBloc instance
+// ── Doctor: two tabs, each with its own isolated AppointmentBloc instance ─────
 
 class _DoctorAppointmentsTabs extends StatefulWidget {
   const _DoctorAppointmentsTabs();
@@ -121,15 +96,17 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
   late final AppointmentBloc _patientsBloc;
   late final AppointmentBloc _visitsBloc;
 
+  String get _uid {
+    final s = context.read<AuthBloc>().state;
+    return s is AuthAuthenticated ? s.user.uid : '';
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final authState = context.read<AuthBloc>().state;
-    final uid = authState is AuthAuthenticated ? authState.user.uid : '';
-
-    _patientsBloc = sl<AppointmentBloc>()..add(LoadDoctorAppointments(uid));
-    _visitsBloc = sl<AppointmentBloc>()..add(LoadUserAppointments(uid));
+    _patientsBloc = sl<AppointmentBloc>()..add(LoadDoctorAppointments(_uid));
+    _visitsBloc = sl<AppointmentBloc>()..add(LoadUserAppointments(_uid));
   }
 
   @override
@@ -170,44 +147,15 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           BlocProvider.value(
             value: _patientsBloc,
             child: BlocBuilder<AppointmentBloc, AppointmentState>(
-              builder: (context, state) {
-                if (state is AppointmentLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is AppointmentsLoaded) {
-                  if (state.appointments.isEmpty) {
-                    return AppointmentEmptyState(
-                        message: 'No patients yet',
-                        icon: Icons.people_outline);
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.appointments.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final appt = state.appointments[index];
-                      return AppointmentTile(
-                        title: appt.patientName,
-                        subtitle: appt.appointmentDay,
-                        isPatient: true,
-                        onTap: () => context.push(AppRoutes.appointmentDetail,
-                            extra: appt),
-                      );
-                    },
-                  );
-                }
-                if (state is AppointmentError) {
-                  return _RetryState(
-                    message: state.message,
-                    onRetry: () {
-                      final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
-                      _patientsBloc.add(LoadDoctorAppointments(uid));
-                    },
-                  );
-                }
-                return AppointmentEmptyState(
-                    message: 'Could not load', icon: Icons.error_outline);
-              },
+              builder: (context, state) => _AppointmentListBody(
+                state: state,
+                titleOf: (a) => a.patientName,
+                isPatient: true,
+                emptyMessage: 'No patients yet',
+                emptyIcon: Icons.people_outline,
+                onRetry: () =>
+                    _patientsBloc.add(LoadDoctorAppointments(_uid)),
+              ),
             ),
           ),
 
@@ -215,48 +163,74 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           BlocProvider.value(
             value: _visitsBloc,
             child: BlocBuilder<AppointmentBloc, AppointmentState>(
-              builder: (context, state) {
-                if (state is AppointmentLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is AppointmentsLoaded) {
-                  if (state.appointments.isEmpty) {
-                    return AppointmentEmptyState(
-                        message: 'No personal visits yet',
-                        icon: Icons.calendar_today_outlined);
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.appointments.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final appt = state.appointments[index];
-                      return AppointmentTile(
-                        title: appt.doctorName,
-                        subtitle: appt.appointmentDay,
-                        onTap: () => context.push(AppRoutes.appointmentDetail,
-                            extra: appt),
-                      );
-                    },
-                  );
-                }
-                if (state is AppointmentError) {
-                  return _RetryState(
-                    message: state.message,
-                    onRetry: () {
-                      final uid = (context.read<AuthBloc>().state as AuthAuthenticated).user.uid;
-                      _visitsBloc.add(LoadUserAppointments(uid));
-                    },
-                  );
-                }
-                return AppointmentEmptyState(
-                    message: 'Could not load', icon: Icons.error_outline);
-              },
+              builder: (context, state) => _AppointmentListBody(
+                state: state,
+                titleOf: (a) => a.doctorName,
+                emptyMessage: 'No personal visits yet',
+                emptyIcon: Icons.calendar_today_outlined,
+                onRetry: () => _visitsBloc.add(LoadUserAppointments(_uid)),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+// ── Shared list body: handles loading (skeleton), empty, loaded, error ────────
+
+class _AppointmentListBody extends StatelessWidget {
+  final AppointmentState state;
+  final String Function(AppointmentEntity) titleOf;
+  final bool isPatient;
+  final String emptyMessage;
+  final IconData emptyIcon;
+  final VoidCallback onRetry;
+
+  const _AppointmentListBody({
+    required this.state,
+    required this.titleOf,
+    required this.emptyMessage,
+    required this.emptyIcon,
+    required this.onRetry,
+    this.isPatient = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = this.state;
+
+    if (state is AppointmentLoading || state is AppointmentInitial) {
+      return const AppointmentListSkeleton();
+    }
+
+    if (state is AppointmentError) {
+      return _RetryState(message: state.message, onRetry: onRetry);
+    }
+
+    if (state is AppointmentsLoaded) {
+      if (state.appointments.isEmpty) {
+        return AppointmentEmptyState(message: emptyMessage, icon: emptyIcon);
+      }
+      return ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: state.appointments.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, index) {
+          final appt = state.appointments[index];
+          return AppointmentTile(
+            title: titleOf(appt),
+            subtitle: appt.appointmentDay,
+            isPatient: isPatient,
+            onTap: () =>
+                context.push(AppRoutes.appointmentDetail, extra: appt),
+          );
+        },
+      );
+    }
+
+    return AppointmentEmptyState(message: emptyMessage, icon: emptyIcon);
   }
 }
 

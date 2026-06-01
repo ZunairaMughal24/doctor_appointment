@@ -22,20 +22,25 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
   Future<void> _onLoadUser(
       LoadUserAppointments event, Emitter<AppointmentState> emit) async {
-    emit(const AppointmentLoading());
+    final hadData = state is AppointmentsLoaded;
+    // Only show a spinner on the very first load — subsequent calls refresh silently.
+    if (!hadData) emit(const AppointmentLoading());
+
     final result = await getUserAppointments(event.patientId);
     result.fold(
-      (failure) => emit(AppointmentError(failure.message)),
+      (failure) { if (!hadData) emit(AppointmentError(failure.message)); },
       (appointments) => emit(AppointmentsLoaded(appointments)),
     );
   }
 
   Future<void> _onLoadDoctor(
       LoadDoctorAppointments event, Emitter<AppointmentState> emit) async {
-    emit(const AppointmentLoading());
+    final hadData = state is AppointmentsLoaded;
+    if (!hadData) emit(const AppointmentLoading());
+
     final result = await getDoctorAppointments(event.doctorId);
     result.fold(
-      (failure) => emit(AppointmentError(failure.message)),
+      (failure) { if (!hadData) emit(AppointmentError(failure.message)); },
       (appointments) => emit(AppointmentsLoaded(appointments)),
     );
   }

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fyp/core/constants/app_colors.dart';
@@ -7,22 +7,16 @@ import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
-import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_state.dart';
-import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/doctors/presentation/widgets/home_sections.dart';
+import 'package:fyp/features/doctors/presentation/widgets/home_skeleton.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<DoctorBloc>()..add(const LoadAllDoctors()),
-      child: const _HomeView(),
-    );
-  }
+  Widget build(BuildContext context) => const _HomeView();
 }
 
 class _HomeView extends StatelessWidget {
@@ -34,8 +28,7 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
-    final username =
-        authState is AuthAuthenticated ? authState.user.name : '';
+    final username = authState is AuthAuthenticated ? authState.user.name : '';
 
     return Scaffold(
       body: Container(
@@ -43,7 +36,7 @@ class _HomeView extends StatelessWidget {
         child: BlocBuilder<DoctorBloc, DoctorState>(
           builder: (context, state) {
             if (state is DoctorInitial || state is DoctorLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const HomeSkeleton();
             }
 
             final doctors =
@@ -78,4 +71,3 @@ class _HomeView extends StatelessWidget {
     );
   }
 }
-
