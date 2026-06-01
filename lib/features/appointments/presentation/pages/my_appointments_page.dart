@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
 
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/auth/domain/entities/user_entity.dart';
@@ -49,10 +50,10 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 249, 252),
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        backgroundColor: AppColors.primary,
         title: const Text(
           'My Appointments',
           style: TextStyle(
@@ -126,10 +127,10 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 249, 252),
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Appointments',
           style: TextStyle(
@@ -139,7 +140,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           controller: _tabController,
           indicatorColor: Colors.white,
           labelColor: Colors.white,
-          unselectedLabelColor: const Color.fromARGB(255, 180, 210, 225),
+          unselectedLabelColor: AppColors.tabUnselected,
           tabs: const [
             Tab(text: 'My Patients'),
             Tab(text: 'My Visits'),

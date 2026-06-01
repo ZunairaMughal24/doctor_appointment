@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/appointment_entity.dart';
 
 class AppointmentDetailPage extends StatelessWidget {
@@ -9,10 +10,10 @@ class AppointmentDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 249, 252),
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 57, 102, 150),
+        backgroundColor: AppColors.primaryDark,
         title: Text(
           'Appointments with ${appointment.doctorName}',
           style: const TextStyle(
@@ -30,13 +31,13 @@ class AppointmentDetailPage extends StatelessWidget {
               width: 340,
               decoration: BoxDecoration(
                   border: Border.all(
-                      color: const Color.fromARGB(255, 228, 227, 227),
+                      color: AppColors.inputBorder,
                       width: 1.0),
                   borderRadius: BorderRadius.circular(19),
                   color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                        color: Color.fromARGB(255, 201, 201, 201),
+                        color: AppColors.shadowCard,
                         offset: Offset(02, 03),
                         blurRadius: 0.5,
                         spreadRadius: 0.2),
@@ -77,7 +78,7 @@ class AppointmentDetailPage extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              color: Color.fromARGB(255, 57, 102, 150),
+              color: AppColors.primaryDark,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
 
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
@@ -43,10 +44,10 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 251, 253, 255),
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        backgroundColor: AppColors.primary,
         title: Text(
           widget.name,
           style: const TextStyle(
@@ -67,7 +68,7 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
           }
         },
         child: Container(
-          color: const Color.fromARGB(255, 232, 243, 248),
+          color: AppColors.background,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 50),
             child: ListView(
@@ -114,10 +115,10 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
                           height: 53,
                           decoration: BoxDecoration(
                               border: Border.all(
-                                  color: const Color.fromARGB(255, 11, 77, 105),
+                                  color: AppColors.primary,
                                   width: 1.0),
                               borderRadius: BorderRadius.circular(16),
-                              color: const Color.fromARGB(255, 11, 77, 105),
+                              color: AppColors.primary,
                               boxShadow: const [
                                 BoxShadow(
                                     color: Color.fromARGB(255, 181, 185, 187),
@@ -157,7 +158,7 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Color.fromARGB(255, 11, 77, 105),
+          color: AppColors.primary,
           fontSize: 17,
           fontWeight: FontWeight.bold,
         ),

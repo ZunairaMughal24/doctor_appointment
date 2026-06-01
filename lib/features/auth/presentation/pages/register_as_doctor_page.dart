@@ -97,8 +97,8 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               end: Alignment.bottomLeft,
               colors: [
                 AppColors.primaryDark,
-                Color.fromARGB(255, 254, 255, 255),
-                Color.fromARGB(255, 116, 168, 190),
+                AppColors.surface,
+                AppColors.tabUnselected,
               ],
             ),
           ),
@@ -166,7 +166,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                       ),
                       _buildField(
                         controller: _availabilityController,
-                        hint: 'Availability (e.g. Monâ€“Fri: 9amâ€“5pm)',
+                        hint: 'Availability (e.g. Mon–Fri: 9am–5pm)',
                         icon: Icons.access_time,
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),

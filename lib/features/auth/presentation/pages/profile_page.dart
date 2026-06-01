@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/user_entity.dart';
@@ -81,9 +82,9 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           final user = state.user;
           return Scaffold(
-            backgroundColor: const Color.fromARGB(255, 249, 253, 255),
+            backgroundColor: AppColors.cardBg,
             appBar: AppBar(
-              backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+              backgroundColor: AppColors.primary,
               title: const Text(
                 'Profile',
                 style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -114,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Center(
                         child: CircleAvatar(
                           radius: 44,
-                          backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+                          backgroundColor: AppColors.primary,
                           child: Text(
                             user.name.isNotEmpty
                                 ? user.name[0].toUpperCase()
@@ -133,8 +134,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: user.isDoctor
-                                ? const Color.fromARGB(255, 11, 77, 105)
-                                : const Color.fromARGB(255, 212, 229, 243),
+                                ? AppColors.primary
+                                : AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -144,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               fontWeight: FontWeight.bold,
                               color: user.isDoctor
                                   ? Colors.white
-                                  : const Color.fromARGB(255, 11, 77, 105),
+                                  : AppColors.primary,
                             ),
                           ),
                         ),
@@ -200,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 user.isDoctor
                                     ? Icons.medical_services_outlined
                                     : Icons.person_outlined,
-                                color: const Color.fromARGB(255, 11, 77, 105),
+                                color: AppColors.primary,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -214,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
-                                        color: Color.fromARGB(255, 11, 77, 105),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                     Text(
@@ -232,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Switch(
                                 value: user.isDoctor,
                                 activeThumbColor:
-                                    const Color.fromARGB(255, 11, 77, 105),
+                                    AppColors.primary,
                                 onChanged: (_) => _switchRole(user),
                               ),
                             ],
@@ -250,10 +251,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             contentPadding: EdgeInsets.zero,
                             leading: const CircleAvatar(
                               backgroundColor:
-                                  Color.fromARGB(255, 212, 229, 243),
+                                  AppColors.primaryLight,
                               child: Icon(
                                 Icons.medical_services_outlined,
-                                color: Color.fromARGB(255, 11, 77, 105),
+                                color: AppColors.primary,
                               ),
                             ),
                             title: const Text(
@@ -261,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: Color.fromARGB(255, 11, 77, 105),
+                                color: AppColors.primary,
                               ),
                             ),
                             subtitle: const Text(
@@ -271,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             trailing: const Icon(
                               Icons.arrow_forward_ios,
                               size: 16,
-                              color: Color.fromARGB(255, 11, 77, 105),
+                              color: AppColors.primary,
                             ),
                             onTap: () => context.push(
                               AppRoutes.registerAsDoctor,
@@ -287,16 +288,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const CircleAvatar(
-                            backgroundColor: Color.fromARGB(255, 255, 235, 235),
+                            backgroundColor: AppColors.dangerLight,
                             child: Icon(Icons.logout,
-                                color: Color.fromARGB(255, 180, 40, 40)),
+                                color: AppColors.error),
                           ),
                           title: const Text(
                             'Sign Out',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: Color.fromARGB(255, 180, 40, 40),
+                              color: AppColors.error,
                             ),
                           ),
                           onTap: () {
@@ -332,7 +333,7 @@ class _ProfilePageState extends State<ProfilePage> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: const [
             BoxShadow(
-              color: Color.fromARGB(255, 210, 220, 230),
+              color: AppColors.primaryLight,
               blurRadius: 6,
               offset: Offset(0, 2),
             ),
@@ -351,12 +352,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : const Color.fromARGB(255, 245, 248, 252),
+        color: enabled ? Colors.white : AppColors.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: enabled
-              ? const Color.fromARGB(255, 11, 77, 105)
-              : const Color.fromARGB(255, 220, 228, 235),
+              ? AppColors.primary
+              : AppColors.primaryLight,
         ),
       ),
       child: TextFormField(
@@ -367,9 +368,9 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(
-              color: Color.fromARGB(255, 11, 77, 105), fontSize: 14),
+              color: AppColors.primary, fontSize: 14),
           prefixIcon:
-              Icon(icon, color: const Color.fromARGB(255, 11, 77, 105), size: 20),
+              Icon(icon, color: AppColors.primary, size: 20),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
@@ -387,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 11, 77, 105),
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(14),
         ),
         alignment: Alignment.center,

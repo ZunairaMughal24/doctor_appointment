@@ -50,14 +50,14 @@ class _SignInPageState extends State<SignInPage> {
           height: screenHeight,
           width: screenWidth,
           decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 146, 249, 254),
+            color: AppColors.primaryLight,
             gradient: LinearGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
               colors: [
                 AppColors.primaryDark,
-                Color.fromARGB(255, 254, 255, 255),
-                Color.fromARGB(255, 116, 168, 190),
+                AppColors.surface,
+                AppColors.tabUnselected,
               ],
             ),
           ),
@@ -113,7 +113,7 @@ class _SignInPageState extends State<SignInPage> {
                                       AppColors.inputBorder,
                                   width: 1.0),
                               borderRadius: BorderRadius.circular(16),
-                              color: const Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.white,
                               boxShadow: const [
                                 BoxShadow(
                                     color: AppColors.shadowLight,
@@ -154,13 +154,13 @@ class _SignInPageState extends State<SignInPage> {
                           decoration: BoxDecoration(
                               border: Border.all(
                                   color:
-                                      const Color.fromARGB(255, 207, 206, 206),
+                                      AppColors.shadowLight,
                                   width: 1.0),
                               borderRadius: BorderRadius.circular(16),
-                              color: const Color.fromARGB(255, 167, 206, 224),
+                              color: AppColors.fieldBgBlue,
                               boxShadow: const [
                                 BoxShadow(
-                                    color: Color.fromARGB(255, 207, 206, 206),
+                                    color: AppColors.shadowLight,
                                     offset: Offset(02, 03),
                                     blurRadius: 0.5,
                                     spreadRadius: 0.1),
@@ -233,7 +233,7 @@ class _SignInPageState extends State<SignInPage> {
                                     style: TextStyle(
                                         fontSize: 17.0,
                                         color:
-                                            Color.fromARGB(255, 254, 255, 255)),
+                                            AppColors.surface),
                                     textAlign: TextAlign.center),
                               ),
                       );
