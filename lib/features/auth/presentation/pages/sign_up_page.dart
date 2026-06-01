@@ -1,8 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/auth_error_banner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,9 +43,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthFailureState) {
-            AppFeedback.showError(context, state.message);
-          } else if (state is AuthAuthenticated) {
+          if (state is AuthAuthenticated) {
             context.go(AppRoutes.home);
           }
         },
@@ -102,42 +101,38 @@ class _SignUpPageState extends State<SignUpPage> {
                 Form(
                   key: _formKey,
                   child: Padding(
-                    padding: const EdgeInsets.all(0.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildInputField(
+                        AppTextField(
                           controller: _nameController,
                           hint: 'Name',
-                          icon: Icons.person,
-                          screenHeight: screenHeight,
-                          screenWidth: screenWidth,
+                          prefixIcon: Icons.person,
                           validator: (v) => Validators.required(v, 'Name'),
                         ),
-                        _buildInputField(
+                        const SizedBox(height: 14),
+                        AppTextField(
                           controller: _emailController,
                           hint: 'Email',
-                          icon: Icons.email,
-                          screenHeight: screenHeight,
-                          screenWidth: screenWidth,
+                          prefixIcon: Icons.email,
+                          keyboardType: TextInputType.emailAddress,
                           validator: Validators.email,
                         ),
-                        _buildInputField(
+                        const SizedBox(height: 14),
+                        AppTextField(
                           controller: _passwordController,
                           hint: 'Password',
-                          icon: Icons.lock,
-                          screenHeight: screenHeight,
-                          screenWidth: screenWidth,
-                          obscure: true,
+                          prefixIcon: Icons.lock,
+                          obscureText: true,
                           validator: Validators.password,
                         ),
-                        _buildInputField(
+                        const SizedBox(height: 14),
+                        AppTextField(
                           controller: _confirmPasswordController,
                           hint: 'Confirm password',
-                          icon: Icons.lock,
-                          screenHeight: screenHeight,
-                          screenWidth: screenWidth,
-                          obscure: true,
+                          prefixIcon: Icons.lock,
+                          obscureText: true,
                           validator: (v) => Validators.confirmPassword(
                               v, _passwordController.text),
                         ),
@@ -145,7 +140,20 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.035),
+                BlocBuilder<AuthBloc, AuthState>(
+                  buildWhen: (_, next) =>
+                      next is AuthFailureState || next is AuthLoading,
+                  builder: (context, state) {
+                    if (state is! AuthFailureState) {
+                      return SizedBox(height: screenHeight * 0.035);
+                    }
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.06, 16, screenWidth * 0.06, 16),
+                      child: AuthErrorBanner(message: state.message),
+                    );
+                  },
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                   child: BlocBuilder<AuthBloc, AuthState>(
@@ -211,52 +219,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    required double screenHeight,
-    required double screenWidth,
-    required String? Function(String?)? validator,
-    bool obscure = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 9),
-      child: Container(
-        height: screenHeight * 0.06,
-        width: screenWidth * 0.88,
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: AppColors.inputBorder, width: 1.0),
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                  color: AppColors.shadowLight,
-                  offset: Offset(02, 03),
-                  blurRadius: 0.5,
-                  spreadRadius: 0.1),
-            ]),
-        child: TextFormField(
-          controller: controller,
-          validator: validator,
-          obscureText: obscure,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: hint,
-            hintStyle: const TextStyle(
-              fontSize: 17.0,
-              color: AppColors.primary,
-            ),
-            prefixIcon: Icon(
-              icon,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 

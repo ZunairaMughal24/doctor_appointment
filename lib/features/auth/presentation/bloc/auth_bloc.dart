@@ -59,7 +59,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signIn(
         SignInParams(email: event.email, password: event.password));
     result.fold(
-      (failure) => emit(AuthFailureState(failure.message)),
+      (failure) => emit(AuthFailureState(failure.userMessage)),
       (user) => emit(AuthAuthenticated(user)),
     );
   }
@@ -73,7 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
     ));
     result.fold(
-      (failure) => emit(AuthFailureState(failure.message)),
+      (failure) => emit(AuthFailureState(failure.userMessage)),
       (user) => emit(AuthAuthenticated(user)),
     );
   }
@@ -93,7 +93,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       services: event.services,
     ));
     result.fold(
-      (failure) => emit(AuthFailureState(failure.message)),
+      (failure) => emit(AuthFailureState(failure.userMessage)),
       (user) => emit(AuthAuthenticated(user)),
     );
   }
@@ -113,7 +113,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       services: event.services,
     ));
     result.fold(
-      (failure) => emit(AuthFailureState(failure.message)),
+      (failure) => emit(AuthFailureState(failure.userMessage)),
       (user) => emit(AuthAuthenticated(user)),
     );
   }
@@ -131,10 +131,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) {
         // Restore previous state on failure so the user stays logged in
         if (currentState is AuthAuthenticated) {
-          emit(AuthFailureState(failure.message));
+          emit(AuthFailureState(failure.userMessage));
           emit(currentState);
         } else {
-          emit(AuthFailureState(failure.message));
+          emit(AuthFailureState(failure.userMessage));
         }
       },
       (user) => emit(AuthAuthenticated(user)),

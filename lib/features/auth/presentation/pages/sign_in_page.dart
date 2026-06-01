@@ -1,8 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/auth_error_banner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -38,9 +39,7 @@ class _SignInPageState extends State<SignInPage> {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthFailureState) {
-            AppFeedback.showError(context, state.message);
-          } else if (state is AuthAuthenticated) {
+          if (state is AuthAuthenticated) {
             context.go(
               state.user.isDoctor ? AppRoutes.appointments : AppRoutes.home,
             );
@@ -99,90 +98,44 @@ class _SignInPageState extends State<SignInPage> {
                 SizedBox(height: screenHeight * 0.01),
                 Form(
                   key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: screenHeight * 0.01),
-                        child: Container(
-                          height: screenHeight * 0.06,
-                          width: screenWidth * 0.88,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color:
-                                      AppColors.inputBorder,
-                                  width: 1.0),
-                              borderRadius: BorderRadius.circular(16),
-                              color: Colors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: AppColors.shadowLight,
-                                    offset: Offset(02, 03),
-                                    blurRadius: 0.5,
-                                    spreadRadius: 0.1),
-                              ]),
-                          child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            textAlign: TextAlign.justify,
-                            validator: Validators.email,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Email',
-                              hintStyle: TextStyle(
-                                fontSize: 17.0,
-                                color: AppColors.primary,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                    child: Column(
+                      children: [
+                        AppTextField(
+                          controller: _emailController,
+                          hint: 'Email',
+                          prefixIcon: Icons.person,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: Validators.email,
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: screenHeight * 0.015),
-                        child: Container(
-                          height: screenHeight * 0.06,
-                          width: screenWidth * 0.88,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color:
-                                      AppColors.shadowLight,
-                                  width: 1.0),
-                              borderRadius: BorderRadius.circular(16),
-                              color: AppColors.fieldBgBlue,
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: AppColors.shadowLight,
-                                    offset: Offset(02, 03),
-                                    blurRadius: 0.5,
-                                    spreadRadius: 0.1),
-                              ]),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            validator: Validators.password,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Password',
-                              hintStyle: TextStyle(
-                                fontSize: 17.0,
-                                color: AppColors.primary,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
+                        const SizedBox(height: 16),
+                        AppTextField(
+                          controller: _passwordController,
+                          hint: 'Password',
+                          prefixIcon: Icons.lock,
+                          obscureText: true,
+                          validator: Validators.password,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 50),
+                BlocBuilder<AuthBloc, AuthState>(
+                  buildWhen: (_, next) =>
+                      next is AuthFailureState || next is AuthLoading,
+                  builder: (context, state) {
+                    if (state is! AuthFailureState) {
+                      return const SizedBox(height: 50);
+                    }
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.06, 24, screenWidth * 0.06, 18),
+                      child: AuthErrorBanner(message: state.message),
+                    );
+                  },
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                   child: BlocBuilder<AuthBloc, AuthState>(
