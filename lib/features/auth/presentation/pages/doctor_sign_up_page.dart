@@ -192,7 +192,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
         height: 50,
         decoration: BoxDecoration(
             border: Border.all(
-                color: const Color.fromARGB(255, 241, 237, 237), width: 1.0),
+                color: AppColors.inputBorder, width: 1.0),
             borderRadius: BorderRadius.circular(16),
             color: Colors.white,
             boxShadow: const [

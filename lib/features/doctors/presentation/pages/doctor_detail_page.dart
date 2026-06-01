@@ -46,19 +46,17 @@ class DoctorDetailPage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              // â”€â”€ Doctor header card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              // Doctor header card
               Container(
                 height: 110,
                 width: 340,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 228, 227, 227),
-                      width: 1.0),
+                  border: Border.all(color: AppColors.inputBorder, width: 1.0),
                   borderRadius: BorderRadius.circular(19),
-                  color: const Color.fromARGB(255, 254, 254, 255),
+                  color: AppColors.surface,
                   boxShadow: const [
                     BoxShadow(
-                      color: Color.fromARGB(255, 201, 201, 201),
+                      color: AppColors.shadowCard,
                       offset: Offset(2, 3),
                       blurRadius: 0.5,
                       spreadRadius: 0.2,
@@ -120,19 +118,18 @@ class DoctorDetailPage extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              // â”€â”€ Doctor details card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              // Doctor details card
               Expanded(
                 child: Container(
                   width: 340,
                   decoration: BoxDecoration(
-                    border: Border.all(
-                        color: const Color.fromARGB(255, 228, 227, 227),
-                        width: 1.0),
+                    border:
+                        Border.all(color: AppColors.inputBorder, width: 1.0),
                     borderRadius: BorderRadius.circular(19),
                     color: Colors.white,
                     boxShadow: const [
                       BoxShadow(
-                        color: Color.fromARGB(255, 201, 201, 201),
+                        color: AppColors.shadowCard,
                         offset: Offset(2, 3),
                         blurRadius: 0.5,
                         spreadRadius: 0.2,
@@ -172,9 +169,7 @@ class DoctorDetailPage extends StatelessWidget {
                               width: 55,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                    color:
-                                        AppColors.primary,
-                                    width: 1.0),
+                                    color: AppColors.primary, width: 1.0),
                                 borderRadius: BorderRadius.circular(16),
                                 color: AppColors.primary,
                                 boxShadow: const [
@@ -275,7 +270,7 @@ class DoctorDetailPage extends StatelessWidget {
 
                         const SizedBox(height: 19),
 
-                        // â”€â”€ Make an Appointment button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                        // Make an Appointment button
                         GestureDetector(
                           onTap: () => context.push(
                             AppRoutes.scheduleAppointment,
@@ -286,8 +281,7 @@ class DoctorDetailPage extends StatelessWidget {
                             width: 340,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 1.0),
+                                  color: AppColors.primary, width: 1.0),
                               borderRadius: BorderRadius.circular(16),
                               color: AppColors.primary,
                               boxShadow: const [
@@ -324,5 +318,3 @@ class DoctorDetailPage extends StatelessWidget {
     );
   }
 }
-
-

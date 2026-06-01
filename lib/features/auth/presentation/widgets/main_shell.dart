@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fyp/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
@@ -44,8 +45,8 @@ class _ShellScaffold extends StatelessWidget {
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: index,
-        selectedItemColor: const Color.fromARGB(255, 11, 77, 105),
-        unselectedItemColor: const Color.fromARGB(255, 160, 174, 185),
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.navUnselected,
         backgroundColor: Colors.white,
         elevation: 12,
         type: BottomNavigationBarType.fixed,

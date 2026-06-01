@@ -52,14 +52,14 @@ class _SignUpPageState extends State<SignUpPage> {
           height: screenHeight,
           width: screenWidth,
           decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 146, 249, 254),
+            color: AppColors.primaryLight,
             gradient: LinearGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
               colors: [
                 AppColors.primaryDark,
-                Color.fromARGB(255, 254, 255, 255),
-                Color.fromARGB(255, 116, 168, 190),
+                AppColors.surface,
+                AppColors.tabUnselected,
               ],
             ),
           ),
@@ -94,7 +94,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     "Please enter your name, email and password to create account",
                     style: TextStyle(
                       fontSize: 15,
-                      color: Color.fromARGB(255, 152, 158, 161),
+                      color: AppColors.textHint,
                     ),
                   ),
                 ),
@@ -195,7 +195,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     style: TextStyle(
                                         fontSize: 17.0,
                                         color:
-                                            Color.fromARGB(255, 254, 255, 255)),
+                                            AppColors.surface),
                                     textAlign: TextAlign.center),
                               ),
                       );
@@ -208,7 +208,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 3, 76, 110)),
+                          color: AppColors.primary),
                       textAlign: TextAlign.center),
                 ),
               ],
@@ -237,7 +237,7 @@ class _SignUpPageState extends State<SignUpPage> {
             border: Border.all(
                 color: AppColors.inputBorder, width: 1.0),
             borderRadius: BorderRadius.circular(16),
-            color: const Color.fromARGB(255, 255, 255, 255),
+            color: Colors.white,
             boxShadow: const [
               BoxShadow(
                   color: AppColors.shadowLight,

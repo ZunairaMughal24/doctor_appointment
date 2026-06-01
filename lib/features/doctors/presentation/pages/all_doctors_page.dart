@@ -40,9 +40,9 @@ class _AllDoctorsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 249, 253, 255),
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           speciality ?? 'All Specialists',
