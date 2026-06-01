@@ -38,6 +38,7 @@ abstract class AuthRemoteDataSource {
     required String name,
     required String email,
   });
+  Future<void> switchRole({required String uid, required UserRole role});
   Future<void> signOut();
   Future<UserModel?> getCurrentUser();
 }
@@ -50,6 +51,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required this.firebaseAuth,
     required this.firestore,
   });
+
+  // Reads the persisted currentRole from the users doc.
+  // Falls back to natural role (doctor if hasDoctorProfile, else patient).
+  UserRole _resolveRole(DocumentSnapshot<Map<String, dynamic>> userDoc, bool hasDoctorProfile) {
+    if (userDoc.exists) {
+      final saved = userDoc.data()?['currentRole'] as String?;
+      if (saved == 'doctor' && hasDoctorProfile) return UserRole.doctor;
+      if (saved == 'patient') return UserRole.patient;
+    }
+    return hasDoctorProfile ? UserRole.doctor : UserRole.patient;
+  }
 
   @override
   Future<UserModel> signIn({
@@ -68,6 +80,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final userDoc = await firestore.collection('users').doc(uid).get();
 
         final hasDoctorProfile = doctorDoc.exists;
+        final savedRole = _resolveRole(userDoc, hasDoctorProfile);
 
         if (doctorDoc.exists) {
           final data = doctorDoc.data()!;
@@ -75,7 +88,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             uid: uid,
             name: data['name'] ?? email,
             email: data['email'] ?? email,
-            role: UserRole.doctor,
+            role: savedRole,
             hasDoctorProfile: true,
           );
         }
@@ -85,7 +98,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             uid: uid,
             name: data['name'] ?? email,
             email: data['email'] ?? email,
-            role: UserRole.patient,
+            role: savedRole,
             hasDoctorProfile: hasDoctorProfile,
           );
         }
@@ -251,6 +264,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> switchRole({required String uid, required UserRole role}) async {
+    await firestore
+        .collection('users')
+        .doc(uid)
+        .set({'currentRole': role.name}, SetOptions(merge: true));
+  }
+
+  @override
   Future<void> signOut() => firebaseAuth.signOut();
 
   @override
@@ -263,11 +284,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final doctorDoc = await firestore.collection('doctors').doc(uid).get();
       final userDoc = await firestore.collection('users').doc(uid).get();
 
+      final hasDoctorProfile = doctorDoc.exists;
+      final savedRole = _resolveRole(userDoc, hasDoctorProfile);
+
       if (doctorDoc.exists) {
         return UserModel.fromFirestore(
           doctorDoc.data()!,
           uid,
           hasDoctorProfile: true,
+          roleOverride: savedRole,
         );
       }
       if (userDoc.exists) {
@@ -275,6 +300,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           userDoc.data()!,
           uid,
           hasDoctorProfile: false,
+          roleOverride: savedRole,
         );
       }
     } catch (_) {

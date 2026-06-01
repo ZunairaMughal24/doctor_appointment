@@ -44,12 +44,14 @@ class DoctorDetailPage extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
             children: [
               // Doctor header card
               Container(
                 height: 110,
-                width: 340,
+                width: double.infinity,
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.inputBorder, width: 1.0),
                   borderRadius: BorderRadius.circular(19),
@@ -121,7 +123,7 @@ class DoctorDetailPage extends StatelessWidget {
               // Doctor details card
               Expanded(
                 child: Container(
-                  width: 340,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     border:
                         Border.all(color: AppColors.inputBorder, width: 1.0),
@@ -271,37 +273,25 @@ class DoctorDetailPage extends StatelessWidget {
                         const SizedBox(height: 19),
 
                         // Make an Appointment button
-                        GestureDetector(
-                          onTap: () => context.push(
-                            AppRoutes.scheduleAppointment,
-                            extra: {'docId': docId, 'name': data.name},
-                          ),
-                          child: Container(
-                            height: 55,
-                            width: 340,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: AppColors.primary, width: 1.0),
-                              borderRadius: BorderRadius.circular(16),
-                              color: AppColors.primary,
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: AppColors.shadowCard,
-                                  offset: Offset(2, 3),
-                                  blurRadius: 0.5,
-                                  spreadRadius: 0.1,
-                                ),
-                              ],
+                        Material(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            onTap: () => context.push(
+                              AppRoutes.scheduleAppointment,
+                              extra: {'docId': docId, 'name': data.name},
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(15.0),
-                              child: Text(
-                                'Make an Appointment',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
+                            borderRadius: BorderRadius.circular(16),
+                            child: const SizedBox(
+                              height: 55,
+                              child: Center(
+                                child: Text(
+                                  'Make an Appointment',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
@@ -312,6 +302,7 @@ class DoctorDetailPage extends StatelessWidget {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ import '../../domain/usecases/sign_in_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 import '../../domain/usecases/sign_up_doctor_usecase.dart';
 import '../../domain/usecases/sign_up_patient_usecase.dart';
+import '../../domain/usecases/switch_role_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -18,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UpdateProfileUseCase updateProfile;
   final SignOutUseCase signOut;
   final GetCurrentUserUseCase getCurrentUser;
+  final SwitchRoleUseCase switchRole;
 
   AuthBloc({
     required this.signIn,
@@ -27,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.updateProfile,
     required this.signOut,
     required this.getCurrentUser,
+    required this.switchRole,
   }) : super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>(_onSignIn);
@@ -138,11 +141,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onSwitchRole(AuthSwitchRoleRequested event, Emitter<AuthState> emit) {
+  Future<void> _onSwitchRole(
+      AuthSwitchRoleRequested event, Emitter<AuthState> emit) async {
     final currentState = state;
-    if (currentState is AuthAuthenticated) {
-      emit(AuthAuthenticated(currentState.user.copyWith(role: event.role)));
-    }
+    if (currentState is! AuthAuthenticated) return;
+
+    // Optimistically update UI
+    emit(AuthAuthenticated(currentState.user.copyWith(role: event.role)));
+
+    // Persist to Firestore; on failure, revert
+    final result = await switchRole(
+        SwitchRoleParams(uid: currentState.user.uid, role: event.role));
+    result.fold(
+      (failure) => emit(currentState),
+      (_) {},
+    );
   }
 
   Future<void> _onSignOut(

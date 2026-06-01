@@ -27,8 +27,10 @@ class AppointmentDetailPage extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 340,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                   border: Border.all(
                       color: AppColors.inputBorder,
@@ -66,6 +68,7 @@ class AppointmentDetailPage extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

@@ -15,6 +15,14 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
+      // Only rebuild when the authenticated user's role changes — not on every
+      // transient AuthLoading emission, which would flash the nav bar.
+      buildWhen: (prev, next) {
+        if (next is AuthLoading) return false;
+        final prevDoctor = prev is AuthAuthenticated && prev.user.isDoctor;
+        final nextDoctor = next is AuthAuthenticated && next.user.isDoctor;
+        return prevDoctor != nextDoctor;
+      },
       builder: (context, state) {
         final isDoctor =
             state is AuthAuthenticated && state.user.role == UserRole.doctor;

@@ -120,32 +120,33 @@ class FeaturedDoctorsSection extends StatelessWidget {
             final doctor = doctors[index];
             return Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: GestureDetector(
-                onTap: () => onTap(doctor),
-                child: Container(
-                  height: 160,
-                  width: 255,
-                  decoration: BoxDecoration(
-                    color: AppColors.featuredCard,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: DoctorCardFeatured(
-                          name: doctor.name,
-                          speciality: doctor.speciality,
-                          rating: doctor.rating,
-                          availability: doctor.availability,
+              child: Material(
+                color: AppColors.featuredCard,
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  onTap: () => onTap(doctor),
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    height: 160,
+                    width: 255,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: DoctorCardFeatured(
+                            name: doctor.name,
+                            speciality: doctor.speciality,
+                            rating: doctor.rating,
+                            availability: doctor.availability,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 165,
-                        width: 110,
-                        child: Image.asset(_imgFor(index), fit: BoxFit.cover),
-                      ),
-                    ],
+                        SizedBox(
+                          height: 165,
+                          width: 110,
+                          child: Image.asset(_imgFor(index), fit: BoxFit.cover),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -240,30 +241,31 @@ class AvailableDoctorsSection extends StatelessWidget {
               final doctor = doctors[index];
               return Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: GestureDetector(
-                  onTap: () => onTap(doctor),
-                  child: Container(
-                    height: 140,
-                    width: 230,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          height: 150,
-                          width: 90,
-                          child: Image.asset(_imgFor(index), fit: BoxFit.cover),
-                        ),
-                        DoctorCardAvailable(
-                          name: doctor.name,
-                          speciality: doctor.speciality,
-                          rating: doctor.rating,
-                          availability: doctor.availability,
-                          experience: doctor.experience,
-                        ),
-                      ],
+                child: Material(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () => onTap(doctor),
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      height: 140,
+                      width: 230,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            height: 150,
+                            width: 90,
+                            child: Image.asset(_imgFor(index), fit: BoxFit.cover),
+                          ),
+                          DoctorCardAvailable(
+                            name: doctor.name,
+                            speciality: doctor.speciality,
+                            rating: doctor.rating,
+                            availability: doctor.availability,
+                            experience: doctor.experience,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -305,28 +307,29 @@ class RecommendedDoctorsSection extends StatelessWidget {
               final doctor = doctors[index];
               return Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: GestureDetector(
-                  onTap: () => onTap(doctor),
-                  child: Container(
-                    width: 130,
-                    height: 160,
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(_imgFor(index), fit: BoxFit.cover),
-                            DoctorCardCompact(
-                              name: doctor.name,
-                              speciality: doctor.speciality,
-                              rating: doctor.rating,
-                            ),
-                          ],
+                child: Material(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () => onTap(doctor),
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 130,
+                      height: 160,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(_imgFor(index), fit: BoxFit.cover),
+                              DoctorCardCompact(
+                                name: doctor.name,
+                                speciality: doctor.speciality,
+                                rating: doctor.rating,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -364,11 +367,15 @@ class _SectionHeader extends StatelessWidget {
               color: AppColors.primary,
             ),
           ),
-          GestureDetector(
+          InkWell(
             onTap: onSeeAll,
-            child: const Text(
-              'see all',
-              style: TextStyle(fontSize: 16, color: AppColors.primary),
+            borderRadius: BorderRadius.circular(4),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Text(
+                'see all',
+                style: TextStyle(fontSize: 16, color: AppColors.primary),
+              ),
             ),
           ),
         ],

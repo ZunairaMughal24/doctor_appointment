@@ -13,13 +13,14 @@ class UserModel extends UserEntity {
     Map<String, dynamic> data,
     String uid, {
     bool hasDoctorProfile = false,
+    UserRole? roleOverride,
   }) {
     final isDoctor = data['role'] == 'doctor';
     return UserModel(
       uid: uid,
       name: data['name'] ?? '',
       email: data['email'] ?? '',
-      role: isDoctor ? UserRole.doctor : UserRole.patient,
+      role: roleOverride ?? (isDoctor ? UserRole.doctor : UserRole.patient),
       hasDoctorProfile: hasDoctorProfile || isDoctor,
     );
   }

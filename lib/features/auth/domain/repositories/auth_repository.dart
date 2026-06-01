@@ -44,6 +44,11 @@ abstract class AuthRepository {
     required String email,
   });
 
+  Future<Either<Failure, void>> switchRole({
+    required String uid,
+    required UserRole role,
+  });
+
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, UserEntity?>> getCurrentUser();
