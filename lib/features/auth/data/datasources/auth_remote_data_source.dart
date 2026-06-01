@@ -22,6 +22,22 @@ abstract class AuthRemoteDataSource {
     required String availability,
     required String services,
   });
+  Future<UserModel> registerAsDoctor({
+    required String uid,
+    required String name,
+    required String email,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  });
+  Future<UserModel> updateProfile({
+    required String uid,
+    required String name,
+    required String email,
+  });
   Future<void> signOut();
   Future<UserModel?> getCurrentUser();
 }
@@ -47,17 +63,42 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       final uid = credential.user!.uid;
 
-      final doctorDoc = await firestore.collection('doctors').doc(uid).get();
-      if (doctorDoc.exists) {
-        return UserModel.fromFirestore(doctorDoc.data()!, uid);
+      try {
+        final doctorDoc = await firestore.collection('doctors').doc(uid).get();
+        final userDoc = await firestore.collection('users').doc(uid).get();
+
+        final hasDoctorProfile = doctorDoc.exists;
+
+        if (doctorDoc.exists) {
+          final data = doctorDoc.data()!;
+          return UserModel(
+            uid: uid,
+            name: data['name'] ?? email,
+            email: data['email'] ?? email,
+            role: UserRole.doctor,
+            hasDoctorProfile: true,
+          );
+        }
+        if (userDoc.exists) {
+          final data = userDoc.data()!;
+          return UserModel(
+            uid: uid,
+            name: data['name'] ?? email,
+            email: data['email'] ?? email,
+            role: UserRole.patient,
+            hasDoctorProfile: hasDoctorProfile,
+          );
+        }
+      } catch (_) {
+        // Firestore permission error — auth succeeded, default to patient
       }
 
-      final userDoc = await firestore.collection('users').doc(uid).get();
-      if (userDoc.exists) {
-        return UserModel.fromFirestore(userDoc.data()!, uid);
-      }
-
-      throw const AuthException('User profile not found.');
+      return UserModel(
+        uid: uid,
+        name: credential.user?.displayName ?? email,
+        email: email,
+        role: UserRole.patient,
+      );
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Sign in failed.');
     }
@@ -81,7 +122,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
         role: UserRole.patient,
       );
-      await firestore.collection('users').doc(uid).set(model.toFirestore());
+      try {
+        await firestore.collection('users').doc(uid).set(model.toFirestore());
+      } catch (_) {}
       return model;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Sign up failed.');
@@ -119,15 +162,91 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'services': services,
         'description': '',
         'rating': 4.5,
+        'isSeed': false,
+        'createdAt': FieldValue.serverTimestamp(),
       });
       return UserModel(
         uid: uid,
         name: name,
         email: email,
         role: UserRole.doctor,
+        hasDoctorProfile: true,
       );
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Doctor sign up failed.');
+    }
+  }
+
+  @override
+  Future<UserModel> registerAsDoctor({
+    required String uid,
+    required String name,
+    required String email,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  }) async {
+    try {
+      await firestore.collection('doctors').doc(uid).set({
+        'uid': uid,
+        'name': name,
+        'email': email,
+        'role': 'doctor',
+        'speciality': speciality,
+        'experience': experience,
+        'number': phoneNumber,
+        'location': location,
+        'availability': availability,
+        'services': services,
+        'description': '',
+        'rating': 4.5,
+        'isSeed': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return UserModel(
+        uid: uid,
+        name: name,
+        email: email,
+        role: UserRole.doctor,
+        hasDoctorProfile: true,
+      );
+    } catch (e) {
+      throw AuthException('Failed to register as doctor: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<UserModel> updateProfile({
+    required String uid,
+    required String name,
+    required String email,
+  }) async {
+    try {
+      final batch = firestore.batch();
+      final userRef = firestore.collection('users').doc(uid);
+      final doctorRef = firestore.collection('doctors').doc(uid);
+
+      batch.set(userRef, {'name': name, 'email': email}, SetOptions(merge: true));
+
+      final doctorDoc = await doctorRef.get();
+      if (doctorDoc.exists) {
+        batch.set(doctorRef, {'name': name, 'email': email}, SetOptions(merge: true));
+      }
+      await batch.commit();
+
+      final hasDoctorProfile = doctorDoc.exists;
+      return UserModel(
+        uid: uid,
+        name: name,
+        email: email,
+        role: hasDoctorProfile ? UserRole.doctor : UserRole.patient,
+        hasDoctorProfile: hasDoctorProfile,
+      );
+    } catch (e) {
+      throw AuthException('Failed to update profile: ${e.toString()}');
     }
   }
 
@@ -140,14 +259,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (firebaseUser == null) return null;
     final uid = firebaseUser.uid;
 
-    final doctorDoc = await firestore.collection('doctors').doc(uid).get();
-    if (doctorDoc.exists) {
-      return UserModel.fromFirestore(doctorDoc.data()!, uid);
-    }
+    try {
+      final doctorDoc = await firestore.collection('doctors').doc(uid).get();
+      final userDoc = await firestore.collection('users').doc(uid).get();
 
-    final userDoc = await firestore.collection('users').doc(uid).get();
-    if (userDoc.exists) {
-      return UserModel.fromFirestore(userDoc.data()!, uid);
+      if (doctorDoc.exists) {
+        return UserModel.fromFirestore(
+          doctorDoc.data()!,
+          uid,
+          hasDoctorProfile: true,
+        );
+      }
+      if (userDoc.exists) {
+        return UserModel.fromFirestore(
+          userDoc.data()!,
+          uid,
+          hasDoctorProfile: false,
+        );
+      }
+    } catch (_) {
+      return UserModel(
+        uid: uid,
+        name: firebaseUser.displayName ?? firebaseUser.email ?? '',
+        email: firebaseUser.email ?? '',
+        role: UserRole.patient,
+      );
     }
     return null;
   }

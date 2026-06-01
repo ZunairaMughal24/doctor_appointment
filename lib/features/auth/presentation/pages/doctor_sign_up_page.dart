@@ -1,207 +1,168 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
+import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_event.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 
-class DoctorSignUpPage extends StatelessWidget {
+class DoctorSignUpPage extends StatefulWidget {
   const DoctorSignUpPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AuthBloc>(),
-      child: const _DoctorSignUpView(),
-    );
-  }
+  State<DoctorSignUpPage> createState() => _DoctorSignUpPageState();
 }
 
-class _DoctorSignUpView extends StatefulWidget {
-  const _DoctorSignUpView();
-
-  @override
-  State<_DoctorSignUpView> createState() => _DoctorSignUpViewState();
-}
-
-class _DoctorSignUpViewState extends State<_DoctorSignUpView> {
+class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final _name = TextEditingController();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-  final _speciality = TextEditingController();
-  final _experience = TextEditingController();
-  final _phone = TextEditingController();
-  final _location = TextEditingController();
-  final _availability = TextEditingController();
-  final _services = TextEditingController();
-  bool _obscurePassword = true;
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _specialityController = TextEditingController();
+  final _experienceController = TextEditingController();
+  final _numberController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _availabilityController = TextEditingController();
+  final _servicesController = TextEditingController();
 
   @override
   void dispose() {
-    for (final c in [
-      _name, _email, _password, _speciality, _experience,
-      _phone, _location, _availability, _services,
-    ]) {
-      c.dispose();
-    }
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _specialityController.dispose();
+    _experienceController.dispose();
+    _numberController.dispose();
+    _locationController.dispose();
+    _availabilityController.dispose();
+    _servicesController.dispose();
     super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState?.validate() != true) return;
-    context.read<AuthBloc>().add(AuthSignUpDoctorRequested(
-          name: _name.text.trim(),
-          email: _email.text.trim(),
-          password: _password.text,
-          speciality: _speciality.text.trim(),
-          experience: _experience.text.trim(),
-          phoneNumber: _phone.text.trim(),
-          location: _location.text.trim(),
-          availability: _availability.text.trim(),
-          services: _services.text.trim(),
-        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          context.go('${AppRoutes.myAppointments}?isDoctor=true');
-        } else if (state is AuthFailureState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(gradient: AppColors.headerGradient),
-          child: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 8),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios,
-                            color: Colors.white),
-                        onPressed: () => context.pop(),
-                      ),
-                      const Text(
-                        'Doctor Registration',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    padding: const EdgeInsets.all(24),
-                    decoration: const BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(32)),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Professional Info', style: AppTextStyles.h3),
-                            const SizedBox(height: 4),
-                            Text('Fill in your professional details',
-                                style: AppTextStyles.bodySmall),
-                            const SizedBox(height: 24),
-                            _buildField(_name, 'Full name',
-                                Icons.person_outline),
-                            _buildField(_email, 'Email address',
-                                Icons.email_outlined,
-                                keyboard: TextInputType.emailAddress,
-                                validator: Validators.email),
-                            AppTextField(
-                              controller: _password,
-                              hintText: 'Password',
-                              prefixIcon: Icons.lock_outline,
-                              obscureText: _obscurePassword,
-                              validator: Validators.password,
-                              suffixWidget: GestureDetector(
-                                onTap: () => setState(() =>
-                                    _obscurePassword = !_obscurePassword),
-                                child: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: AppColors.textSecondary,
-                                  size: 20,
-                                ),
-                              ),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: AppColors.primary,
+        title: const Text(
+          "Sign Up as Doctor",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          } else if (state is AuthAuthenticated) {
+            context.go(AppRoutes.appointments);
+          }
+        },
+        child: Container(
+          color: AppColors.cardBg,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  _buildLabel("Name"),
+                  _buildInputField(_nameController, "Enter your name"),
+                  _buildLabel("Email"),
+                  _buildInputField(_emailController, "Enter your email"),
+                  _buildLabel("Password"),
+                  _buildInputField(_passwordController, "Enter your password",
+                      obscure: true),
+                  _buildLabel("Confirm password"),
+                  _buildInputField(
+                      _confirmPasswordController, "re-type the password",
+                      obscure: true),
+                  _buildLabel("Speciality"),
+                  _buildInputField(
+                      _specialityController, "Mention your speciality"),
+                  _buildLabel("Experience"),
+                  _buildInputField(
+                      _experienceController, "Your work experience"),
+                  _buildLabel("Contact number"),
+                  _buildInputField(_numberController, "Enter number"),
+                  _buildLabel("Location"),
+                  _buildInputField(_locationController, "Enter location"),
+                  _buildLabel("Availability"),
+                  _buildInputField(_availabilityController, "Days & hours"),
+                  _buildLabel("Your Services"),
+                  _buildInputField(_servicesController, "Enter Your Services"),
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (_formKey.currentState!.validate()) {
+                              if (_passwordController.text !=
+                                  _confirmPasswordController.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("Passwords do not match")),
+                                );
+                                return;
+                              }
+                              context
+                                  .read<AuthBloc>()
+                                  .add(AuthSignUpDoctorRequested(
+                                    name: _nameController.text.trim(),
+                                    email: _emailController.text.trim(),
+                                    password: _passwordController.text.trim(),
+                                    speciality:
+                                        _specialityController.text.trim(),
+                                    experience:
+                                        _experienceController.text.trim(),
+                                    phoneNumber: _numberController.text.trim(),
+                                    location: _locationController.text.trim(),
+                                    availability:
+                                        _availabilityController.text.trim(),
+                                    services: _servicesController.text.trim(),
+                                  ));
+                            }
+                          },
+                          child: Container(
+                            height: 53,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: AppColors.primary,
                             ),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 8),
-                            Text('Practice Details', style: AppTextStyles.h4),
-                            const SizedBox(height: 16),
-                            _buildField(_speciality, 'Speciality (e.g. Cardiologist)',
-                                Icons.medical_information_outlined),
-                            _buildField(
-                                _experience, 'Experience (e.g. 5 years)',
-                                Icons.workspace_premium_outlined),
-                            _buildField(_phone, 'Contact number',
-                                Icons.phone_outlined,
-                                keyboard: TextInputType.phone,
-                                validator: Validators.phone),
-                            _buildField(
-                                _location, 'Hospital / Clinic location',
-                                Icons.location_on_outlined),
-                            _buildField(
-                                _availability,
-                                'Availability (e.g. Mon-Fri 9am-5pm)',
-                                Icons.schedule_outlined),
-                            AppTextField(
-                              controller: _services,
-                              hintText: 'Services offered',
-                              prefixIcon: Icons.list_alt_outlined,
-                              maxLines: 3,
-                              validator: (v) =>
-                                  Validators.required(v, 'Services'),
+                            child: Center(
+                              child: state is AuthLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Text(
+                                      "Sign up",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                             ),
-                            const SizedBox(height: 32),
-                            BlocBuilder<AuthBloc, AuthState>(
-                              builder: (context, state) => GradientButton(
-                                label: 'Register as Doctor',
-                                isLoading: state is AuthLoading,
-                                onPressed: _submit,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),
@@ -209,22 +170,60 @@ class _DoctorSignUpViewState extends State<_DoctorSignUpView> {
     );
   }
 
-  Widget _buildField(
-    TextEditingController controller,
-    String hint,
-    IconData icon, {
-    TextInputType keyboard = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
+  Widget _buildLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: AppTextField(
-        controller: controller,
-        hintText: hint,
-        prefixIcon: icon,
-        keyboardType: keyboard,
-        validator: validator ?? (v) => Validators.required(v, hint),
+      padding: const EdgeInsets.only(left: 15, top: 10),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+          fontSize: 17,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField(TextEditingController controller, String hint,
+      {bool obscure = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: const Color.fromARGB(255, 241, 237, 237), width: 1.0),
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            boxShadow: const [
+              BoxShadow(
+                  color: AppColors.shadowLight,
+                  offset: Offset(02, 03),
+                  blurRadius: 0.5,
+                  spreadRadius: 0.1),
+            ]),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 9),
+          child: TextFormField(
+            controller: controller,
+            obscureText: obscure,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "This field is required";
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: hint,
+              hintStyle: const TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 127, 136, 138)),
+            ),
+          ),
+        ),
       ),
     );
   }
 }
+
+

@@ -1,155 +1,227 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/app_loader.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
-import '../bloc/appointment_bloc.dart';
-import '../bloc/appointment_event.dart';
-import '../bloc/appointment_state.dart';
-import '../widgets/appointment_card.dart';
+import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/features/auth/domain/entities/user_entity.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
+import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
+import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
-  final bool isDoctor;
-  const MyAppointmentsPage({super.key, this.isDoctor = false});
+  final bool isUser;
+  const MyAppointmentsPage({super.key, required this.isUser});
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final bloc = sl<AppointmentBloc>();
-            final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-            if (isDoctor) {
-              bloc.add(LoadDoctorAppointments(uid));
-            } else {
-              bloc.add(LoadUserAppointments(uid));
-            }
-            return bloc;
-          },
-        ),
-        BlocProvider(create: (_) => sl<AuthBloc>()),
-      ],
-      child: _MyAppointmentsView(isDoctor: isDoctor),
-    );
+    final authState = context.read<AuthBloc>().state;
+    final isDoctor = authState is AuthAuthenticated &&
+        authState.user.role == UserRole.doctor;
+
+    if (isDoctor) {
+      return const _DoctorAppointmentsTabs();
+    }
+    return const _PatientAppointments();
   }
 }
 
-class _MyAppointmentsView extends StatelessWidget {
-  final bool isDoctor;
-  const _MyAppointmentsView({required this.isDoctor});
+// Patient: simple list of their bookings
+
+class _PatientAppointments extends StatefulWidget {
+  const _PatientAppointments();
+
+  @override
+  State<_PatientAppointments> createState() => _PatientAppointmentsState();
+}
+
+class _PatientAppointmentsState extends State<_PatientAppointments> {
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AuthBloc>().state;
+    final uid = authState is AuthAuthenticated ? authState.user.uid : '';
+    context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color.fromARGB(255, 247, 249, 252),
       appBar: AppBar(
-        title: Text(isDoctor ? 'Patient Appointments' : 'My Appointments'),
-        leading: isDoctor
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () => context.pop(),
-              ),
-        actions: isDoctor
-            ? [
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.menu),
-                  onSelected: (value) {
-                    if (value == 'logout') {
-                      context
-                          .read<AuthBloc>()
-                          .add(const AuthSignOutRequested());
-                      context.go(AppRoutes.signIn);
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(
-                      value: 'logout',
-                      child: Row(
-                        children: [
-                          Icon(Icons.logout, color: AppColors.error,
-                              size: 18),
-                          SizedBox(width: 8),
-                          Text('Logout'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ]
-            : null,
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        title: const Text(
+          'My Appointments',
+          style: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
       body: BlocBuilder<AppointmentBloc, AppointmentState>(
         builder: (context, state) {
-          if (state is AppointmentLoading) return const AppLoader();
-
-          if (state is AppointmentError) {
-            return Center(
-              child: Text(state.message,
-                  style: const TextStyle(color: AppColors.error)),
-            );
+          if (state is AppointmentLoading) {
+            return const Center(child: CircularProgressIndicator());
           }
-
           if (state is AppointmentsLoaded) {
             if (state.appointments.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.calendar_today_outlined,
-                        size: 64, color: AppColors.textHint),
-                    const SizedBox(height: 12),
-                    Text(
-                      'No appointments yet',
-                      style: AppTextStyles.h4
-                          .copyWith(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Book your first appointment',
-                      style: TextStyle(color: AppColors.textHint),
-                    ),
-                    if (!isDoctor) ...[
-                      const SizedBox(height: 20),
-                      TextButton.icon(
-                        onPressed: () => context.go(AppRoutes.home),
-                        icon: const Icon(Icons.search),
-                        label: const Text('Find a Doctor'),
-                      ),
-                    ],
-                  ],
-                ),
-              );
+              return AppointmentEmptyState(
+                  message: 'No appointments yet',
+                  icon: Icons.calendar_today_outlined);
             }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              physics: const BouncingScrollPhysics(),
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
               itemCount: state.appointments.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final appt = state.appointments[index];
-                return AppointmentCard(
-                  appointment: appt,
-                  isDoctor: isDoctor,
-                  onTap: () => context.push(
-                    AppRoutes.appointmentDetail,
-                    extra: appt,
-                  ),
+                return AppointmentTile(
+                  title: appt.doctorName,
+                  subtitle: appt.appointmentDay,
+                  onTap: () =>
+                      context.push(AppRoutes.appointmentDetail, extra: appt),
                 );
               },
             );
           }
-
-          return const SizedBox.shrink();
+          return AppointmentEmptyState(
+              message: 'Could not load appointments',
+              icon: Icons.error_outline);
         },
+      ),
+    );
+  }
+}
+
+//  Doctor: two tabs (My Patients + My Visits)
+
+class _DoctorAppointmentsTabs extends StatefulWidget {
+  const _DoctorAppointmentsTabs();
+
+  @override
+  State<_DoctorAppointmentsTabs> createState() =>
+      _DoctorAppointmentsTabsState();
+}
+
+class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    final authState = context.read<AuthBloc>().state;
+    final uid = authState is AuthAuthenticated ? authState.user.uid : '';
+    context.read<AppointmentBloc>().add(LoadDoctorAppointments(uid));
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 247, 249, 252),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(255, 11, 77, 105),
+        title: const Text(
+          'Appointments',
+          style: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: const Color.fromARGB(255, 180, 210, 225),
+          tabs: const [
+            Tab(text: 'My Patients'),
+            Tab(text: 'My Visits'),
+          ],
+          onTap: (index) {
+            final authState = context.read<AuthBloc>().state;
+            final uid = authState is AuthAuthenticated ? authState.user.uid : '';
+            if (index == 0) {
+              context.read<AppointmentBloc>().add(LoadDoctorAppointments(uid));
+            } else {
+              context.read<AppointmentBloc>().add(LoadUserAppointments(uid));
+            }
+          },
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 1 â€” patients who booked with this doctor
+          BlocBuilder<AppointmentBloc, AppointmentState>(
+            builder: (context, state) {
+              if (state is AppointmentLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state is AppointmentsLoaded) {
+                if (state.appointments.isEmpty) {
+                  return AppointmentEmptyState(
+                      message: 'No patients yet', icon: Icons.people_outline);
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.appointments.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final appt = state.appointments[index];
+                    return AppointmentTile(
+                      title: appt.patientName,
+                      subtitle: appt.appointmentDay,
+                      isPatient: true,
+                      onTap: () => context.push(AppRoutes.appointmentDetail,
+                          extra: appt),
+                    );
+                  },
+                );
+              }
+              return AppointmentEmptyState(
+                  message: 'Could not load', icon: Icons.error_outline);
+            },
+          ),
+
+          // Tab 2 - this doctor's own visits as a patient
+          BlocBuilder<AppointmentBloc, AppointmentState>(
+            builder: (context, state) {
+              if (state is AppointmentLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state is AppointmentsLoaded) {
+                if (state.appointments.isEmpty) {
+                  return AppointmentEmptyState(
+                      message: 'No personal visits yet',
+                      icon: Icons.calendar_today_outlined);
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.appointments.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final appt = state.appointments[index];
+                    return AppointmentTile(
+                      title: appt.doctorName,
+                      subtitle: appt.appointmentDay,
+                      onTap: () => context.push(AppRoutes.appointmentDetail,
+                          extra: appt),
+                    );
+                  },
+                );
+              }
+              return AppointmentEmptyState(
+                  message: 'Could not load', icon: Icons.error_outline);
+            },
+          ),
+        ],
       ),
     );
   }

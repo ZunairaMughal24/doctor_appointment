@@ -27,7 +27,7 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
 
   Future<void> _onLoadAll(
       LoadAllDoctors event, Emitter<DoctorState> emit) async {
-    emit(const DoctorLoading());
+    // Repository always returns data (seeds or Firestore) — no loading state needed
     final result = await getAllDoctors(NoParams());
     result.fold(
       (failure) => emit(DoctorError(failure.message)),

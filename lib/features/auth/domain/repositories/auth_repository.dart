@@ -26,6 +26,24 @@ abstract class AuthRepository {
     required String services,
   });
 
+  Future<Either<Failure, UserEntity>> registerAsDoctor({
+    required String uid,
+    required String name,
+    required String email,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  });
+
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String uid,
+    required String name,
+    required String email,
+  });
+
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, UserEntity?>> getCurrentUser();

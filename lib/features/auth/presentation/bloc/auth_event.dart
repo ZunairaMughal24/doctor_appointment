@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/entities/user_entity.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -56,6 +57,52 @@ class AuthSignUpDoctorRequested extends AuthEvent {
   @override
   List<Object?> get props =>
       [name, email, speciality, experience, phoneNumber, location];
+}
+
+class AuthRegisterAsDoctorRequested extends AuthEvent {
+  final String uid;
+  final String name;
+  final String email;
+  final String speciality;
+  final String experience;
+  final String phoneNumber;
+  final String location;
+  final String availability;
+  final String services;
+
+  const AuthRegisterAsDoctorRequested({
+    required this.uid,
+    required this.name,
+    required this.email,
+    required this.speciality,
+    required this.experience,
+    required this.phoneNumber,
+    required this.location,
+    required this.availability,
+    required this.services,
+  });
+  @override
+  List<Object?> get props => [uid, speciality];
+}
+
+class AuthUpdateProfileRequested extends AuthEvent {
+  final String uid;
+  final String name;
+  final String email;
+  const AuthUpdateProfileRequested({
+    required this.uid,
+    required this.name,
+    required this.email,
+  });
+  @override
+  List<Object?> get props => [uid, name, email];
+}
+
+class AuthSwitchRoleRequested extends AuthEvent {
+  final UserRole role;
+  const AuthSwitchRoleRequested(this.role);
+  @override
+  List<Object?> get props => [role];
 }
 
 class AuthSignOutRequested extends AuthEvent {

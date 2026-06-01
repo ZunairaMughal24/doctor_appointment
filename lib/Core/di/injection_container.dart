@@ -13,10 +13,12 @@ import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/register_as_doctor_usecase.dart';
 import '../../features/auth/domain/usecases/sign_in_usecase.dart';
 import '../../features/auth/domain/usecases/sign_out_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_doctor_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_patient_usecase.dart';
+import '../../features/auth/domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/doctors/data/datasources/doctor_remote_data_source.dart';
 import '../../features/doctors/data/repositories/doctor_repository_impl.dart';
@@ -33,7 +35,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
 
-  // --- Auth ---
+  // --- Auth
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(
       firebaseAuth: sl(),
@@ -46,6 +48,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SignInUseCase(sl()));
   sl.registerLazySingleton(() => SignUpPatientUseCase(sl()));
   sl.registerLazySingleton(() => SignUpDoctorUseCase(sl()));
+  sl.registerLazySingleton(() => RegisterAsDoctorUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerFactory(
@@ -53,12 +57,14 @@ Future<void> initDependencies() async {
       signIn: sl(),
       signUpPatient: sl(),
       signUpDoctor: sl(),
+      registerAsDoctor: sl(),
+      updateProfile: sl(),
       signOut: sl(),
       getCurrentUser: sl(),
     ),
   );
 
-  // --- Doctors ---
+  // --- Doctors
   sl.registerLazySingleton<DoctorRemoteDataSource>(
     () => DoctorRemoteDataSourceImpl(firestore: sl()),
   );
@@ -78,7 +84,7 @@ Future<void> initDependencies() async {
     ),
   );
 
-  // --- Appointments ---
+  // --- Appointments
   sl.registerLazySingleton<AppointmentRemoteDataSource>(
     () => AppointmentRemoteDataSourceImpl(firestore: sl()),
   );

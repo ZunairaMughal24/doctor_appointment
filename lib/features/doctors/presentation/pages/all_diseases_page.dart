@@ -1,76 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
-import '../../domain/entities/disease_entity.dart';
 
 class AllDiseasesPage extends StatelessWidget {
   const AllDiseasesPage({super.key});
 
+  static const _diseaseNames = [
+    'Typhoid fever',
+    'Dengue fever',
+    'Gastritis',
+    'Kidney stone',
+    'Piles',
+    'Lungs cancer',
+  ];
+
+  // Icons ordered to match _diseaseNames
+  static const _diseaseIcons = [
+    AppAssets.diseaseTyphoid,
+    AppAssets.diseaseDengue,
+    AppAssets.diseaseStomach,
+    AppAssets.diseaseKidney,
+    AppAssets.diseasePiles,
+    AppAssets.diseaseLungs,
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.cardBg,
       appBar: AppBar(
-        title: const Text('Browse by Disease'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: AppColors.primary,
+        title: const Text(
+          'All Diseases',
+          style: TextStyle(
+              color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
         ),
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(20),
-        physics: const BouncingScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-          childAspectRatio: 1.1,
-        ),
-        itemCount: Diseases.all.length,
-        itemBuilder: (context, index) {
-          final disease = Diseases.all[index];
-          return GestureDetector(
-            onTap: () => context.push(
-                '${AppRoutes.allDoctors}?speciality=${disease.speciality}'),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: disease.color,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    disease.imagePath,
-                    width: 56,
-                    height: 56,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.local_hospital_outlined,
-                      size: 52,
+      body: Padding(
+        padding: const EdgeInsets.all(14),
+        child: ListView.builder(
+          itemCount: _diseaseNames.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () => context.push(AppRoutes.allDoctors),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                color: index.isEven ? AppColors.background : const Color(0xFFEFFAEE),
+                elevation: 6,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(10),
+                  leading: CircleAvatar(
+                    backgroundImage: AssetImage(_diseaseIcons[index]),
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                  ),
+                  title: Text(
+                    _diseaseNames[index],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    disease.name,
-                    style: AppTextStyles.h4.copyWith(fontSize: 14),
-                    textAlign: TextAlign.center,
+                  subtitle: const Text(
+                    'Tap to find related doctors & specialists',
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    disease.subtitle,
-                    style: AppTextStyles.bodySmall,
-                    textAlign: TextAlign.center,
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 18,
+                    color: AppColors.textRed,
                   ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

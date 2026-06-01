@@ -16,8 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final user =
-          await remoteDataSource.signIn(email: email, password: password);
+      final user = await remoteDataSource.signIn(email: email, password: password);
       return Right(user);
     } on AuthException catch (e) {
       return Left(AuthFailure(e.message));
@@ -67,6 +66,54 @@ class AuthRepositoryImpl implements AuthRepository {
         location: location,
         availability: availability,
         services: services,
+      );
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> registerAsDoctor({
+    required String uid,
+    required String name,
+    required String email,
+    required String speciality,
+    required String experience,
+    required String phoneNumber,
+    required String location,
+    required String availability,
+    required String services,
+  }) async {
+    try {
+      final user = await remoteDataSource.registerAsDoctor(
+        uid: uid,
+        name: name,
+        email: email,
+        speciality: speciality,
+        experience: experience,
+        phoneNumber: phoneNumber,
+        location: location,
+        availability: availability,
+        services: services,
+      );
+      return Right(user);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String uid,
+    required String name,
+    required String email,
+  }) async {
+    try {
+      final user = await remoteDataSource.updateProfile(
+        uid: uid,
+        name: name,
+        email: email,
       );
       return Right(user);
     } on AuthException catch (e) {

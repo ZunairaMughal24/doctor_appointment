@@ -6,14 +6,21 @@ class UserModel extends UserEntity {
     required super.name,
     required super.email,
     required super.role,
+    super.hasDoctorProfile = false,
   });
 
-  factory UserModel.fromFirestore(Map<String, dynamic> data, String uid) {
+  factory UserModel.fromFirestore(
+    Map<String, dynamic> data,
+    String uid, {
+    bool hasDoctorProfile = false,
+  }) {
+    final isDoctor = data['role'] == 'doctor';
     return UserModel(
       uid: uid,
       name: data['name'] ?? '',
       email: data['email'] ?? '',
-      role: data['role'] == 'doctor' ? UserRole.doctor : UserRole.patient,
+      role: isDoctor ? UserRole.doctor : UserRole.patient,
+      hasDoctorProfile: hasDoctorProfile || isDoctor,
     );
   }
 

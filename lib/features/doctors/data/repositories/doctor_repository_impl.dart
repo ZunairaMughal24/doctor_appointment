@@ -12,12 +12,9 @@ class DoctorRepositoryImpl implements DoctorRepository {
 
   @override
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors() async {
-    try {
-      final doctors = await remoteDataSource.getAllDoctors();
-      return Right(doctors);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    }
+    // Data source never throws for this call — it returns seeds on any error
+    final doctors = await remoteDataSource.getAllDoctors();
+    return Right(doctors);
   }
 
   @override
