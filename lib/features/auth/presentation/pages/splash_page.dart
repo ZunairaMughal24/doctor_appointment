@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/services/app_preferences.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -35,7 +37,11 @@ class _SplashPageState extends State<SplashPage> {
             state.user.isDoctor ? AppRoutes.appointments : AppRoutes.home,
           );
         } else if (state is AuthUnauthenticated) {
-          context.go(AppRoutes.signIn);
+          // First launch shows onboarding; afterwards go straight to welcome.
+          final seenOnboarding = sl<AppPreferences>().onboardingSeen;
+          context.go(
+            seenOnboarding ? AppRoutes.welcome : AppRoutes.onboarding,
+          );
         }
       },
       child: Scaffold(

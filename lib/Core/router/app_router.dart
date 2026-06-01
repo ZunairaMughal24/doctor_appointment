@@ -11,6 +11,8 @@ import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/sign_up_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/widgets/main_shell.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import '../../features/doctors/domain/entities/doctor_entity.dart';
 import '../../features/doctors/presentation/pages/all_diseases_page.dart';
 import '../../features/doctors/presentation/pages/all_doctors_page.dart';
@@ -20,6 +22,8 @@ import '../../features/doctors/presentation/pages/search_results_page.dart';
 
 class AppRoutes {
   static const splash = '/';
+  static const onboarding = '/onboarding';
+  static const welcome = '/welcome';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const doctorSignUp = '/doctor-sign-up';
@@ -45,6 +49,14 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.splash,
         builder: (_, __) => const SplashPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (_, __) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (_, __) => const WelcomePage(),
       ),
       GoRoute(
         path: AppRoutes.signIn,
