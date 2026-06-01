@@ -5,7 +5,6 @@ class AppAssets {
   static const String appLogo = 'assets/images/AppImages/applogo.png';
   static const String signInImage = 'assets/images/AppImages/signIn.png';
   static const String signUpImage = 'assets/images/AppImages/signUp.png';
-  static const String greetingLady = 'assets/images/greetinglady.png';
 
   // ── Doctor avatars ────────────────────────────────────────────────────────
   static const String doctorMale1 = 'assets/images/Doctors/MDryle.png';

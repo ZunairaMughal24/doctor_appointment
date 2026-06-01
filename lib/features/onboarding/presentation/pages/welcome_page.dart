@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
 
 /// Landing screen for unauthenticated users: hero, tagline, and the two
 /// auth entry points (Sign In / Create Account).
@@ -20,11 +21,15 @@ class WelcomePage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Expanded(
+              const Expanded(
                 child: Center(
-                  child: Image.asset(
-                    AppAssets.greetingLady,
-                    fit: BoxFit.contain,
+                  child: DoctorHeroIllustration(
+                    mainImage: AppAssets.doctorFemale1,
+                    floatingImages: [
+                      AppAssets.doctorMale1,
+                      AppAssets.doctorMale2,
+                      AppAssets.doctorFemale2,
+                    ],
                   ),
                 ),
               ),

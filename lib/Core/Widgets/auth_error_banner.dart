@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 
-/// Form-level inline error shown above the submit button for auth failures
-/// that aren't tied to a single field (e.g. "Incorrect email or password",
-/// network errors). For field-specific validation, errors render under the
-/// field instead.
 class AuthErrorBanner extends StatelessWidget {
   final String message;
   const AuthErrorBanner({super.key, required this.message});

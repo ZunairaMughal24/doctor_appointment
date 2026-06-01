@@ -6,6 +6,7 @@ import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/core/services/app_preferences.dart';
+import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -20,19 +21,34 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   static const _slides = [
     _Slide(
-      image: AppAssets.greetingLady,
+      mainImage: AppAssets.doctorMale1,
+      floatingImages: [
+        AppAssets.doctorFemale1,
+        AppAssets.doctorMale2,
+        AppAssets.doctorFemale2,
+      ],
       title: 'Find the right doctor, fast',
       subtitle:
           'Browse trusted specialists by category and discover the right care in seconds.',
     ),
     _Slide(
-      image: AppAssets.signInImage,
+      mainImage: AppAssets.doctorFemale1,
+      floatingImages: [
+        AppAssets.doctorMale3,
+        AppAssets.doctorMale1,
+        AppAssets.doctorFemale2,
+      ],
       title: 'Book appointments easily',
       subtitle:
           'Pick a day that works for you and confirm your visit with a single tap.',
     ),
     _Slide(
-      image: AppAssets.signUpImage,
+      mainImage: AppAssets.doctorMale2,
+      floatingImages: [
+        AppAssets.doctorFemale2,
+        AppAssets.doctorFemale1,
+        AppAssets.doctorMale3,
+      ],
       title: 'Care that fits your life',
       subtitle:
           'Manage your visits and switch seamlessly between patient and doctor modes.',
@@ -140,11 +156,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 class _Slide {
-  final String image;
+  final String mainImage;
+  final List<String> floatingImages;
   final String title;
   final String subtitle;
   const _Slide({
-    required this.image,
+    required this.mainImage,
+    required this.floatingImages,
     required this.title,
     required this.subtitle,
   });
@@ -162,7 +180,10 @@ class _SlideView extends StatelessWidget {
         children: [
           Expanded(
             child: Center(
-              child: Image.asset(slide.image, fit: BoxFit.contain),
+              child: DoctorHeroIllustration(
+                mainImage: slide.mainImage,
+                floatingImages: slide.floatingImages,
+              ),
             ),
           ),
           Text(
