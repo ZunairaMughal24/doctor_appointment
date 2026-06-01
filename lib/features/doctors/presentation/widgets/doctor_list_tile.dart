@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/doctor_entity.dart';
 
 /// Row-style tile used in AllDoctorsPage list view.
@@ -20,24 +21,15 @@ class DoctorListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Container(
-          decoration: BoxDecoration(
-            color: tileColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AppContainer(
+        onTap: onTap,
+        color: tileColor,
+        borderRadius: 12,
+        padding: EdgeInsets.zero,
+        child: Row(
+          children: [
               Padding(
                 padding: const EdgeInsets.only(left: 8, top: 6, bottom: 6),
                 child: ClipRRect(
@@ -97,7 +89,6 @@ class DoctorListTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

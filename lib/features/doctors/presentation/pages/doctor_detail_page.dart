@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/app_container.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -49,23 +50,10 @@ class DoctorDetailPage extends StatelessWidget {
             child: Column(
             children: [
               // Doctor header card
-              Container(
+              SizedBox(
                 height: 110,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.inputBorder, width: 1.0),
-                  borderRadius: BorderRadius.circular(19),
-                  color: AppColors.surface,
-                  boxShadow: const [
-                    BoxShadow(
-                      color: AppColors.shadowCard,
-                      offset: Offset(2, 3),
-                      blurRadius: 0.5,
-                      spreadRadius: 0.2,
-                    ),
-                  ],
-                ),
-                child: Padding(
+                child: AppContainer(
+                  borderRadius: 19,
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
@@ -122,27 +110,12 @@ class DoctorDetailPage extends StatelessWidget {
 
               // Doctor details card
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border:
-                        Border.all(color: AppColors.inputBorder, width: 1.0),
-                    borderRadius: BorderRadius.circular(19),
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: AppColors.shadowCard,
-                        offset: Offset(2, 3),
-                        blurRadius: 0.5,
-                        spreadRadius: 0.2,
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(9.0),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
+                child: AppContainer(
+                  borderRadius: 19,
+                  padding: const EdgeInsets.all(9.0),
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -300,7 +273,6 @@ class DoctorDetailPage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
             ],
             ),
           ),

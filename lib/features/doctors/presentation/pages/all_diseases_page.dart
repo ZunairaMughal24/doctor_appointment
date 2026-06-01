@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/app_container.dart';
 
 class AllDiseasesPage extends StatelessWidget {
   const AllDiseasesPage({super.key});
@@ -45,38 +46,48 @@ class AllDiseasesPage extends StatelessWidget {
         child: ListView.builder(
           itemCount: _diseaseNames.length,
           itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => context.push(AppRoutes.allDoctors),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                color: index.isEven ? AppColors.background : const Color(0xFFEFFAEE),
-                elevation: 6,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(10),
-                  leading: CircleAvatar(
-                    backgroundImage: AssetImage(_diseaseIcons[index]),
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                  ),
-                  title: Text(
-                    _diseaseNames[index],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: AppContainer(
+                onTap: () => context.push(AppRoutes.allDoctors),
+                borderRadius: 14,
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: AssetImage(_diseaseIcons[index]),
+                      radius: 30,
+                      backgroundColor: AppColors.primaryLighter,
                     ),
-                  ),
-                  subtitle: const Text(
-                    'Tap to find related doctors & specialists',
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
-                  ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                    color: AppColors.textRed,
-                  ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _diseaseNames[index],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Tap to find related doctors & specialists',
+                            style: TextStyle(
+                                fontSize: 13, color: AppColors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 18,
+                      color: AppColors.textRed,
+                    ),
+                  ],
                 ),
               ),
             );

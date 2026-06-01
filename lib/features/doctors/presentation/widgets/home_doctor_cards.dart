@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/app_container.dart';
 
 class DoctorCardFeatured extends StatelessWidget {
   final String name;
@@ -172,33 +173,22 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return AppContainer(
+      padding: EdgeInsets.zero,
+      borderRadius: 14,
       child: TextField(
         controller: _controller,
         decoration: InputDecoration(
           hintText: 'Search for a Doctor....',
           hintStyle: const TextStyle(color: AppColors.textHint),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Colors.transparent,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           suffixIcon: GestureDetector(
             onTap: () {
               if (_controller.text.isNotEmpty) {

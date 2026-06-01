@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/app_container.dart';
 
 /// Single appointment row used in MyAppointmentsPage.
 class AppointmentTile extends StatelessWidget {
@@ -19,57 +20,45 @@ class AppointmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppContainer(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.primaryLight,
-              blurRadius: 6,
-              offset: Offset(0, 2),
+      padding: const EdgeInsets.all(14),
+      borderRadius: 14,
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.primaryLight,
+            child: Icon(
+              isPatient ? Icons.person : Icons.medical_services_outlined,
+              color: AppColors.primary,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: AppColors.primaryLight,
-              child: Icon(
-                isPatient ? Icons.person : Icons.medical_services_outlined,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppColors.primaryDark,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.primaryDark,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                        fontSize: 13, color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.textSecondary),
+                ),
+              ],
             ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 14, color: AppColors.primary),
-          ],
-        ),
+          ),
+          const Icon(Icons.arrow_forward_ios,
+              size: 14, color: AppColors.primary),
+        ],
       ),
     );
   }

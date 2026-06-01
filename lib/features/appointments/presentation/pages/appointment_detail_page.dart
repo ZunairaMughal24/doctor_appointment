@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/appointment_entity.dart';
 
 class AppointmentDetailPage extends StatelessWidget {
@@ -29,22 +30,8 @@ class AppointmentDetailPage extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
-              child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: AppColors.inputBorder,
-                      width: 1.0),
-                  borderRadius: BorderRadius.circular(19),
-                  color: Colors.white,
-                  boxShadow: const [
-                    BoxShadow(
-                        color: AppColors.shadowCard,
-                        offset: Offset(02, 03),
-                        blurRadius: 0.5,
-                        spreadRadius: 0.2),
-                  ]),
-              child: Padding(
+              child: AppContainer(
+                borderRadius: 19,
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -68,7 +55,6 @@ class AppointmentDetailPage extends StatelessWidget {
           ),
         ),
       ),
-    ),
     );
   }
 

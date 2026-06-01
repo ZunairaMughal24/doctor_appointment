@@ -110,8 +110,9 @@ class _AppTextFieldState extends State<AppTextField> {
                         hintText: widget.hint,
                         hintStyle: const TextStyle(
                             fontSize: 16, color: AppColors.textHint),
+                        isDense: true,
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 16),
+                            horizontal: 14, vertical: 12),
                       ),
                     ),
                   ),

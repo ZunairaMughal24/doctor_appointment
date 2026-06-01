@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
 
@@ -182,17 +183,25 @@ class CategoriesSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
-          height: 90,
+          height: 112,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: AppAssets.diseaseIcons.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Column(
                   children: [
-                    Image.asset(AppAssets.diseaseIcons[index], height: 50),
-                    const SizedBox(height: 3),
+                    AppContainer(
+                      padding: const EdgeInsets.all(12),
+                      borderRadius: 16,
+                      child: Image.asset(
+                        AppAssets.diseaseIcons[index],
+                        height: 46,
+                        width: 46,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
                     Text(
                       _diseaseNames[index],
                       style: const TextStyle(
@@ -255,7 +264,8 @@ class AvailableDoctorsSection extends StatelessWidget {
                           SizedBox(
                             height: 150,
                             width: 90,
-                            child: Image.asset(_imgFor(index), fit: BoxFit.cover),
+                            child:
+                                Image.asset(_imgFor(index), fit: BoxFit.cover),
                           ),
                           DoctorCardAvailable(
                             name: doctor.name,

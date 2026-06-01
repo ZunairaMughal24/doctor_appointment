@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_container.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/user_entity.dart';
@@ -341,19 +342,9 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
 
-  Widget _card({required Widget child}) => Container(
+  Widget _card({required Widget child}) => AppContainer(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.primaryLight,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
+        borderRadius: 14,
         child: child,
       );
 
