@@ -9,24 +9,31 @@ class CommunicationLauncher {
   CommunicationLauncher._();
 
   /// Default country code applied to local numbers starting with '0'.
-  /// (App data is Pakistani; adjust if the audience changes.)
+  /// (App data is Pakistani; adjustable if the audience changes.)
   static const _defaultCountryCode = '92';
 
-  /// Opens the dialer for [phone].
-  static Future<bool> call(String phone) =>
-      _launch(Uri.parse('tel:${_digits(phone)}'));
+  /// Opens the dialer for [phone]. Returns false if there's no number.
+  static Future<bool> call(String phone) {
+    final digits = _digits(phone);
+    if (digits.isEmpty) return Future.value(false);
+    return _launch(Uri.parse('tel:$digits'));
+  }
 
   /// Opens a WhatsApp chat with [phone], optionally pre-filling [message].
   /// WhatsApp opens the chat — the user taps the call icon to start a video call.
+  /// Returns false (never throws) if the number is empty or nothing can handle it.
   static Future<bool> whatsApp(String phone, {String message = ''}) async {
     final number = _toInternational(phone);
+    if (number.isEmpty) return false;
+
     final text = message.isEmpty ? '' : '&text=${Uri.encodeComponent(message)}';
 
     // Prefer the native WhatsApp scheme; fall back to the universal wa.me link.
     final native = Uri.parse('whatsapp://send?phone=$number$text');
     if (await _launch(native)) return true;
 
-    final query = message.isEmpty ? '' : '?text=${Uri.encodeComponent(message)}';
+    final query =
+        message.isEmpty ? '' : '?text=${Uri.encodeComponent(message)}';
     return _launch(Uri.parse('https://wa.me/$number$query'));
   }
 

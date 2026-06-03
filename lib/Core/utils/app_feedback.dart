@@ -48,6 +48,9 @@ class AppFeedback {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      // Use the root navigator so the sheet (and its barrier) covers the
+      // bottom navigation bar instead of sitting above it.
+      useRootNavigator: true,
       builder: (_) => ConfirmationBottomSheet(
         title: title,
         message: message,

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,30 +82,42 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   _buildLabel("Name"),
-                  _buildInputField(_nameController, "Enter your name"),
+                  _buildInputField(_nameController, "Enter your name",
+                      validator: (v) => Validators.required(v, 'Name')),
                   _buildLabel("Email"),
-                  _buildInputField(_emailController, "Enter your email"),
+                  _buildInputField(_emailController, "Enter your email",
+                      keyboardType: TextInputType.emailAddress,
+                      validator: Validators.email),
                   _buildLabel("Password"),
                   _buildInputField(_passwordController, "Enter your password",
-                      obscure: true),
+                      obscure: true, validator: Validators.password),
                   _buildLabel("Confirm password"),
                   _buildInputField(
                       _confirmPasswordController, "re-type the password",
-                      obscure: true),
+                      obscure: true,
+                      validator: (v) => Validators.confirmPassword(
+                          v, _passwordController.text)),
                   _buildLabel("Speciality"),
                   _buildInputField(
-                      _specialityController, "Mention your speciality"),
+                      _specialityController, "Mention your speciality",
+                      validator: (v) => Validators.required(v, 'Speciality')),
                   _buildLabel("Experience"),
                   _buildInputField(
-                      _experienceController, "Your work experience"),
+                      _experienceController, "Your work experience",
+                      validator: (v) => Validators.required(v, 'Experience')),
                   _buildLabel("Contact number"),
-                  _buildInputField(_numberController, "Enter number"),
+                  _buildInputField(_numberController, "Enter number",
+                      keyboardType: TextInputType.phone,
+                      validator: Validators.phone),
                   _buildLabel("Location"),
-                  _buildInputField(_locationController, "Enter location"),
+                  _buildInputField(_locationController, "Enter location",
+                      validator: (v) => Validators.required(v, 'Location')),
                   _buildLabel("Availability"),
-                  _buildInputField(_availabilityController, "Days & hours"),
+                  _buildInputField(_availabilityController, "Days & hours",
+                      validator: (v) => Validators.required(v, 'Availability')),
                   _buildLabel("Your Services"),
-                  _buildInputField(_servicesController, "Enter Your Services"),
+                  _buildInputField(_servicesController, "Enter Your Services",
+                      validator: (v) => Validators.required(v, 'Services')),
                   const SizedBox(height: 25),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -115,14 +128,6 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                           loading: state is AuthLoading,
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              if (_passwordController.text !=
-                                  _confirmPasswordController.text) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("Passwords do not match")),
-                                );
-                                return;
-                              }
                               context
                                   .read<AuthBloc>()
                                   .add(AuthSignUpDoctorRequested(
@@ -169,20 +174,21 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String hint,
-      {bool obscure = false}) {
+  Widget _buildInputField(
+    TextEditingController controller,
+    String hint, {
+    bool obscure = false,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: AppTextField(
         controller: controller,
         hint: hint,
         obscureText: obscure,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "This field is required";
-          }
-          return null;
-        },
+        keyboardType: keyboardType,
+        validator: validator ?? (v) => Validators.required(v, 'This field'),
       ),
     );
   }

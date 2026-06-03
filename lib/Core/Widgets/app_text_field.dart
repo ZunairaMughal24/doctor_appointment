@@ -38,8 +38,8 @@ class _AppTextFieldState extends State<AppTextField> {
   late final FocusNode _focusNode;
   bool _focused = false;
 
-  // Neumorphic palette tuned for the light app background.
-  static const _surface = Color(0xFFF2F7FB);
+  // Same white tile surface as AppContainer, so fields and cards match.
+  static const _surface = Colors.white;
   static const _darkShadow = Color(0xFFC2D2E1);
 
   @override

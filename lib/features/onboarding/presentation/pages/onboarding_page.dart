@@ -36,18 +36,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
           'Browse trusted specialists by category and discover the right care in seconds.',
     ),
     _Slide(
-      illustration: BookingArt(),
-      accent: Color(0xFFFCE9CE),
-      title: 'Book appointments easily',
-      subtitle:
-          'Pick a day that works for you and confirm your visit with a single tap.',
-    ),
-    _Slide(
       illustration: ManageCareArt(),
       accent: Color(0xFFD7F0DD),
-      title: 'Care that fits your life',
+      title: 'Book & manage with ease',
       subtitle:
-          'Manage your visits and switch seamlessly between patient and doctor modes.',
+          'Pick a time that suits you, confirm in a tap, and switch seamlessly '
+          'between patient and doctor modes.',
     ),
   ];
 

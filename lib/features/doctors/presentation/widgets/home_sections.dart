@@ -24,18 +24,17 @@ class HomeHeader extends StatelessWidget {
         children: [
           Container(
             height: 120,
-            decoration: BoxDecoration(
-              gradient: AppColors.headerGradient,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.shadowLight.withValues(alpha: 0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+                  color: Color(0x330B4D69),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
@@ -59,15 +58,17 @@ class HomeHeader extends StatelessWidget {
                         children: [
                           Text(
                             username.isNotEmpty ? username : 'Welcome',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 20,
-                              color: AppColors.primary,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const Text(
                             'Find your suitable Doctor here',
-                            style: TextStyle(fontSize: 14, color: Colors.white),
+                            style: TextStyle(fontSize: 14, color: Colors.white70),
                           ),
                         ],
                       ),
