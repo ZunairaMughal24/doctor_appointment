@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -108,8 +110,10 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
-                        return GestureDetector(
-                          onTap: () {
+                        return AppButton(
+                          label: 'Sign Up',
+                          loading: state is AuthLoading,
+                          onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               if (_passwordController.text !=
                                   _confirmPasswordController.text) {
@@ -137,25 +141,6 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                                   ));
                             }
                           },
-                          child: Container(
-                            height: 53,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: AppColors.primary,
-                            ),
-                            child: Center(
-                              child: state is AuthLoading
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white)
-                                  : const Text(
-                                      "Sign up",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                            ),
-                          ),
                         );
                       },
                     ),
@@ -187,40 +172,17 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
   Widget _buildInputField(TextEditingController controller, String hint,
       {bool obscure = false}) {
     return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: AppColors.inputBorder, width: 1.0),
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                  color: AppColors.shadowLight,
-                  offset: Offset(02, 03),
-                  blurRadius: 0.5,
-                  spreadRadius: 0.1),
-            ]),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 9),
-          child: TextFormField(
-            controller: controller,
-            obscureText: obscure,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "This field is required";
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hint,
-              hintStyle: const TextStyle(
-                  fontSize: 16, color: Color.fromARGB(255, 127, 136, 138)),
-            ),
-          ),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: AppTextField(
+        controller: controller,
+        hint: hint,
+        obscureText: obscure,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "This field is required";
+          }
+          return null;
+        },
       ),
     );
   }

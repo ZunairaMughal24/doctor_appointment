@@ -37,6 +37,13 @@ abstract class AuthRemoteDataSource {
     required String uid,
     required String name,
     required String email,
+    String? speciality,
+    String? experience,
+    String? phoneNumber,
+    String? location,
+    String? availability,
+    String? services,
+    String? description,
   });
   Future<void> switchRole({required String uid, required UserRole role});
   Future<void> signOut();
@@ -236,6 +243,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String uid,
     required String name,
     required String email,
+    String? speciality,
+    String? experience,
+    String? phoneNumber,
+    String? location,
+    String? availability,
+    String? services,
+    String? description,
   }) async {
     try {
       final batch = firestore.batch();
@@ -246,7 +260,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final doctorDoc = await doctorRef.get();
       if (doctorDoc.exists) {
-        batch.set(doctorRef, {'name': name, 'email': email}, SetOptions(merge: true));
+        // Map the editable professional fields onto the doctors document,
+        // omitting any that weren't provided. ('number' is the stored key.)
+        final doctorData = <String, dynamic>{'name': name, 'email': email};
+        void put(String key, String? value) {
+          if (value != null) doctorData[key] = value;
+        }
+
+        put('speciality', speciality);
+        put('experience', experience);
+        put('number', phoneNumber);
+        put('location', location);
+        put('availability', availability);
+        put('services', services);
+        put('description', description);
+
+        batch.set(doctorRef, doctorData, SetOptions(merge: true));
       }
       await batch.commit();
 

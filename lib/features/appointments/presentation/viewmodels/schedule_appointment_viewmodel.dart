@@ -1,67 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/utils/validators.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 
-/// Holds all non-UI logic for the schedule appointment form.
-/// The page owns an instance of this and calls its methods;
-/// it never touches formatting, day resolution, or entity construction directly.
+/// Holds all non-UI state/logic for the schedule-appointment form.
+/// The page mutates this via setState and reads it during build.
 class ScheduleAppointmentViewModel {
+  final DoctorEntity doctor;
+  ScheduleAppointmentViewModel(this.doctor);
+
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
-  final dateController = TextEditingController();
-  final dayController = TextEditingController();
+
+  DateTime? selectedDate;
+  String selectedDay = '';
+  String? selectedTime;
+  ConsultationType consultationType = ConsultationType.inPerson;
 
   static const _weekdays = [
     'Monday', 'Tuesday', 'Wednesday',
     'Thursday', 'Friday', 'Saturday', 'Sunday',
   ];
 
-  /// Called by the page after the date picker resolves.
-  /// Writes the formatted date and the resolved weekday name into the controllers.
+  bool get hasDate => selectedDate != null;
+  bool get hasTime => selectedTime != null;
+
+  /// The doctor's slot labels for the selected weekday (empty if none/closed).
+  List<String> get slotsForSelectedDay =>
+      hasDate ? doctor.schedule.slotsFor(selectedDay) : const [];
+
+  bool get isClosedOnSelectedDay =>
+      hasDate && !doctor.schedule.isOpenOn(selectedDay);
+
+  String get formattedDate => hasDate ? _formatDate(selectedDate!) : '';
+
+  // ── Mutations (called inside setState by the page) ──────────────────────────
+
   void onDatePicked(DateTime date) {
-    dateController.text = _formatDate(date);
-    dayController.text = _weekdays[date.weekday - 1];
+    selectedDate = date;
+    selectedDay = _weekdays[date.weekday - 1];
+    selectedTime = null; // reset slot when the date changes
   }
 
-  /// Builds the domain entity from the current form values.
-  AppointmentEntity buildAppointment({
-    required String patientId,
-    required String doctorId,
-    required String doctorName,
-  }) {
-    return AppointmentEntity(
-      id: '',
-      patientId: patientId,
-      patientName: nameController.text.trim(),
-      patientPhone: phoneController.text.trim(),
-      doctorId: doctorId,
-      doctorName: doctorName,
-      appointmentDay: dayController.text.trim(),
-      appointmentDate: dateController.text.trim(),
-    );
-  }
+  void selectTime(String time) => selectedTime = time;
 
-  bool validate() => formKey.currentState?.validate() ?? false;
+  void setConsultationType(ConsultationType type) => consultationType = type;
 
-  // ── Validators exposed so the page never writes validation logic inline ──
+  // ── Validation ──────────────────────────────────────────────────────────────
+
+  bool validateFields() => formKey.currentState?.validate() ?? false;
 
   String? Function(String?) get nameValidator =>
       (v) => Validators.required(v, 'Name');
 
   String? Function(String?) get phoneValidator => Validators.phone;
 
-  String? Function(String?) get dateValidator =>
-      (v) => Validators.required(v, 'Appointment date');
-
-  String? Function(String?) get dayValidator =>
-      (v) => Validators.required(v, 'Appointment day');
+  /// Builds the domain entity from the current selections.
+  AppointmentEntity buildAppointment({required String patientId}) {
+    return AppointmentEntity(
+      id: '',
+      patientId: patientId,
+      patientName: nameController.text.trim(),
+      patientPhone: phoneController.text.trim(),
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      doctorPhone: doctor.phoneNumber,
+      appointmentDay: selectedDay,
+      appointmentDate: formattedDate,
+      appointmentTime: selectedTime ?? '',
+      consultationType: consultationType,
+    );
+  }
 
   void dispose() {
     nameController.dispose();
     phoneController.dispose();
-    dateController.dispose();
-    dayController.dispose();
   }
 
   static String _formatDate(DateTime d) =>

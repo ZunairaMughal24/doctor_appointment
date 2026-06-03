@@ -2,6 +2,7 @@
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_error_banner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -140,45 +141,17 @@ class _SignInPageState extends State<SignInPage> {
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                   child: BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
-                      return Container(
-                        height: screenHeight * 0.06,
-                        width: screenWidth * 0.88,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppColors.primary,
-                                width: 1.0),
-                            borderRadius: BorderRadius.circular(16),
-                            color: AppColors.primary,
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: AppColors.shadowCard,
-                                  offset: Offset(02, 03),
-                                  blurRadius: 0.5,
-                                  spreadRadius: 0.1),
-                            ]),
-                        child: state is AuthLoading
-                            ? const Center(
-                                child: CircularProgressIndicator(
-                                    color: Colors.white))
-                            : TextButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    context
-                                        .read<AuthBloc>()
-                                        .add(AuthSignInRequested(
-                                          email: _emailController.text.trim(),
-                                          password:
-                                              _passwordController.text.trim(),
-                                        ));
-                                  }
-                                },
-                                child: const Text("Sign In",
-                                    style: TextStyle(
-                                        fontSize: 17.0,
-                                        color:
-                                            AppColors.surface),
-                                    textAlign: TextAlign.center),
-                              ),
+                      return AppButton(
+                        label: 'Sign In',
+                        loading: state is AuthLoading,
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBloc>().add(AuthSignInRequested(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                ));
+                          }
+                        },
                       );
                     },
                   ),

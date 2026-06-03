@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'weekly_availability.dart';
+
 class DoctorEntity extends Equatable {
   final String id;
   final String name;
@@ -8,7 +10,13 @@ class DoctorEntity extends Equatable {
   final String experience;
   final String phoneNumber;
   final String location;
+
+  /// Short free-text summary shown on cards (e.g. 'Mon–Fri: 9am–5pm').
   final String availability;
+
+  /// Structured weekly schedule used to generate bookable slots.
+  final WeeklyAvailability schedule;
+
   final String services;
   final String description;
   final double rating;
@@ -24,6 +32,7 @@ class DoctorEntity extends Equatable {
     required this.location,
     required this.availability,
     required this.services,
+    this.schedule = WeeklyAvailability.standard,
     this.description = '',
     this.rating = 4.5,
     this.imageUrl,

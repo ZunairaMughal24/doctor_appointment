@@ -2,6 +2,8 @@
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -181,30 +183,10 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                 SizedBox(height: screenHeight * 0.03),
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
-                    return Container(
-                      height: screenHeight * 0.06,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: AppColors.shadowCard,
-                            offset: Offset(2, 3),
-                            blurRadius: 0.5,
-                          ),
-                        ],
-                      ),
-                      child: state is AuthLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(color: Colors.white))
-                          : TextButton(
-                              onPressed: _submit,
-                              child: const Text(
-                                'Create Doctor Profile',
-                                style: TextStyle(
-                                    fontSize: 17, color: Colors.white),
-                              ),
-                            ),
+                    return AppButton(
+                      label: 'Create Doctor Profile',
+                      loading: state is AuthLoading,
+                      onPressed: _submit,
                     );
                   },
                 ),
@@ -237,33 +219,13 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadowLight,
-              offset: Offset(2, 3),
-              blurRadius: 0.5,
-            ),
-          ],
-        ),
-        child: TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: validator,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: hint,
-            hintStyle: const TextStyle(
-                fontSize: 15, color: AppColors.primary),
-            prefixIcon:
-                Icon(icon, color: AppColors.primary),
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          ),
-        ),
+      padding: const EdgeInsets.only(bottom: 14),
+      child: AppTextField(
+        controller: controller,
+        hint: hint,
+        prefixIcon: icon,
+        keyboardType: keyboardType,
+        validator: validator,
       ),
     );
   }

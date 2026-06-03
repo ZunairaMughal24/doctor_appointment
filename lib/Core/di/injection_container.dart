@@ -12,6 +12,7 @@ import '../../features/appointments/domain/usecases/book_appointment_usecase.dar
 import '../../features/appointments/domain/usecases/get_doctor_appointments_usecase.dart';
 import '../../features/appointments/domain/usecases/get_user_appointments_usecase.dart';
 import '../../features/appointments/presentation/bloc/appointment_bloc.dart';
+import '../../features/appointments/presentation/cubit/slots_cubit.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -111,4 +112,5 @@ Future<void> initDependencies() async {
       getDoctorAppointments: sl(),
     ),
   );
+  sl.registerFactory(() => SlotsCubit(sl()));
 }

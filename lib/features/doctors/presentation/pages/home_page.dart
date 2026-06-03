@@ -31,8 +31,9 @@ class _HomeView extends StatelessWidget {
     final username = authState is AuthAuthenticated ? authState.user.name : '';
 
     return Scaffold(
+      backgroundColor: AppColors.cardBg,
       body: Container(
-        color: AppColors.background,
+        color: AppColors.cardBg,
         child: BlocBuilder<DoctorBloc, DoctorState>(
           builder: (context, state) {
             if (state is DoctorInitial || state is DoctorLoading) {

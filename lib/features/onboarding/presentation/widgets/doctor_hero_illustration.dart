@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/utils/app_animations.dart';
 
 /// Composed onboarding/welcome illustration: one large doctor portrait in an
 /// oval, with small floating doctor circles arranged around it.
@@ -22,16 +23,6 @@ class DoctorHeroIllustration extends StatelessWidget {
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // Soft circular backdrop for depth.
-          Container(
-            width: 230,
-            height: 230,
-            decoration: const BoxDecoration(
-              color: AppColors.primaryLight,
-              shape: BoxShape.circle,
-            ),
-          ),
-
           // Big oval portrait.
           Container(
             width: 180,
@@ -55,24 +46,35 @@ class DoctorHeroIllustration extends StatelessWidget {
             ),
           ),
 
-          // Floating mini avatars around the oval.
+          // Floating mini avatars around the oval — each bobs independently.
           if (floatingImages.isNotEmpty)
             Positioned(
               top: 24,
               left: 28,
-              child: _FloatingAvatar(image: floatingImages[0], size: 58),
+              child: FloatingWidget(
+                distance: 14,
+                child: _FloatingAvatar(image: floatingImages[0], size: 58),
+              ),
             ),
           if (floatingImages.length > 1)
             Positioned(
               top: 70,
               right: 22,
-              child: _FloatingAvatar(image: floatingImages[1], size: 48),
+              child: FloatingWidget(
+                delay: const Duration(milliseconds: 500),
+                distance: 18,
+                child: _FloatingAvatar(image: floatingImages[1], size: 48),
+              ),
             ),
           if (floatingImages.length > 2)
             Positioned(
               bottom: 28,
               left: 18,
-              child: _FloatingAvatar(image: floatingImages[2], size: 50),
+              child: FloatingWidget(
+                delay: const Duration(milliseconds: 1000),
+                distance: 11,
+                child: _FloatingAvatar(image: floatingImages[2], size: 50),
+              ),
             ),
         ],
       ),

@@ -4,15 +4,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
 
 String _imgFor(int index) =>
     AppAssets.doctorAvatars[index % AppAssets.doctorAvatars.length];
 
-// ── 1. Header
+// ── 1. Header ─────────────────────────────────────────────────────────────────
 
+/// Greeting strip (avatar, username, notification) with the search bar
+/// overlapping its bottom edge.
 class HomeHeader extends StatelessWidget {
   final String username;
   const HomeHeader({super.key, required this.username});
@@ -183,39 +184,89 @@ class CategoriesSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
-          height: 112,
+          height: 100,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             itemCount: AppAssets.diseaseIcons.length,
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Column(
-                  children: [
-                    AppContainer(
-                      padding: const EdgeInsets.all(12),
-                      borderRadius: 16,
-                      child: Image.asset(
-                        AppAssets.diseaseIcons[index],
-                        height: 46,
-                        width: 46,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _diseaseNames[index],
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        color: AppColors.textRed,
-                      ),
-                    ),
-                  ],
-                ),
+              return _CategoryTile(
+                icon: AppAssets.diseaseIcons[index],
+                label: _diseaseNames[index],
+                // Each category opens the related specialists list.
+                onTap: () => context.push(AppRoutes.allDoctors),
               );
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Circular, tappable category tile with a label underneath.
+class _CategoryTile extends StatelessWidget {
+  final String icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _CategoryTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Column(
+        children: [
+          Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            child: InkWell(
+              onTap: onTap,
+              customBorder: const CircleBorder(),
+              child: Container(
+                height: 56,
+                width: 56,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  // Match the app's 3D depth (bottom-right shadow only).
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFFC2D2E1),
+                      offset: Offset(3, 4),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(11),
+                  child: Image.asset(icon, fit: BoxFit.contain),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 7),
+          SizedBox(
+            width: 74,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -309,37 +360,57 @@ class RecommendedDoctorsSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDoctors),
         ),
         SizedBox(
-          height: 160,
+          height: 188,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             itemCount: doctors.length.clamp(0, 4),
             itemBuilder: (context, index) {
               final doctor = doctors[index];
               return Padding(
-                padding: const EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.only(left: 8, top: 2, bottom: 4),
                 child: Material(
                   color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(14),
                   child: InkWell(
                     onTap: () => onTap(doctor),
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      width: 130,
-                      height: 160,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(_imgFor(index), fit: BoxFit.cover),
-                              DoctorCardCompact(
-                                name: doctor.name,
-                                speciality: doctor.speciality,
-                                rating: doctor.rating,
-                              ),
-                            ],
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: 138,
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0xFFC2D2E1),
+                            offset: Offset(3, 4),
+                            blurRadius: 10,
                           ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                _imgFor(index),
+                                height: 78,
+                                width: 78,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            DoctorCardCompact(
+                              name: doctor.name,
+                              speciality: doctor.speciality,
+                              rating: doctor.rating,
+                              availability: doctor.availability,
+                            ),
+                          ],
                         ),
                       ),
                     ),

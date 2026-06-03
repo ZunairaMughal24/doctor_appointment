@@ -22,8 +22,11 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         patientPhone: appointment.patientPhone,
         doctorId: appointment.doctorId,
         doctorName: appointment.doctorName,
+        doctorPhone: appointment.doctorPhone,
         appointmentDay: appointment.appointmentDay,
         appointmentDate: appointment.appointmentDate,
+        appointmentTime: appointment.appointmentTime,
+        consultationType: appointment.consultationType,
       );
       await remoteDataSource.bookAppointment(model);
       return const Right(null);

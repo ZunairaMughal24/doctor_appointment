@@ -89,13 +89,41 @@ class AuthUpdateProfileRequested extends AuthEvent {
   final String uid;
   final String name;
   final String email;
+
+  /// Extra professional fields — only sent (and persisted) for doctor users.
+  final String? speciality;
+  final String? experience;
+  final String? phoneNumber;
+  final String? location;
+  final String? availability;
+  final String? services;
+  final String? description;
+
   const AuthUpdateProfileRequested({
     required this.uid,
     required this.name,
     required this.email,
+    this.speciality,
+    this.experience,
+    this.phoneNumber,
+    this.location,
+    this.availability,
+    this.services,
+    this.description,
   });
   @override
-  List<Object?> get props => [uid, name, email];
+  List<Object?> get props => [
+        uid,
+        name,
+        email,
+        speciality,
+        experience,
+        phoneNumber,
+        location,
+        availability,
+        services,
+        description,
+      ];
 }
 
 class AuthSwitchRoleRequested extends AuthEvent {

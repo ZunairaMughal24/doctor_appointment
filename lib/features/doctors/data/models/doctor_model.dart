@@ -1,4 +1,5 @@
 import '../../domain/entities/doctor_entity.dart';
+import '../../domain/entities/weekly_availability.dart';
 
 class DoctorModel extends DoctorEntity {
   const DoctorModel({
@@ -11,6 +12,7 @@ class DoctorModel extends DoctorEntity {
     required super.location,
     required super.availability,
     required super.services,
+    super.schedule,
     super.description,
     super.rating,
     super.imageUrl,
@@ -27,6 +29,9 @@ class DoctorModel extends DoctorEntity {
       location: data['location'] ?? '',
       availability: data['availability'] ?? '',
       services: data['services'] ?? '',
+      schedule: WeeklyAvailability.fromMap(
+        (data['schedule'] as Map?)?.cast<String, dynamic>(),
+      ),
       description: data['description'] ?? '',
       rating: (data['rating'] ?? 4.5).toDouble(),
       imageUrl: data['imageUrl'],
@@ -41,6 +46,7 @@ class DoctorModel extends DoctorEntity {
         'number': phoneNumber,
         'location': location,
         'availability': availability,
+        'schedule': schedule.toMap(),
         'services': services,
         'description': description,
         'rating': rating,

@@ -10,6 +10,9 @@ class AppointmentModel extends AppointmentEntity {
     required super.doctorName,
     required super.appointmentDay,
     required super.appointmentDate,
+    super.doctorPhone,
+    super.appointmentTime,
+    super.consultationType,
   });
 
   factory AppointmentModel.fromFirestore(
@@ -21,8 +24,12 @@ class AppointmentModel extends AppointmentEntity {
       patientPhone: data['appointment_by_number'] ?? '',
       doctorId: data['appointment_with_id'] ?? '',
       doctorName: data['appointment_with_name'] ?? '',
+      doctorPhone: data['appointment_with_number'] ?? '',
       appointmentDay: data['appointment_day'] ?? '',
       appointmentDate: data['appointment_date'] ?? '',
+      appointmentTime: data['appointment_time'] ?? '',
+      consultationType:
+          ConsultationTypeX.fromKey(data['consultation_type'] as String?),
     );
   }
 
@@ -32,7 +39,10 @@ class AppointmentModel extends AppointmentEntity {
         'appointment_by_number': patientPhone,
         'appointment_with_id': doctorId,
         'appointment_with_name': doctorName,
+        'appointment_with_number': doctorPhone,
         'appointment_day': appointmentDay,
         'appointment_date': appointmentDate,
+        'appointment_time': appointmentTime,
+        'consultation_type': consultationType.key,
       };
 }

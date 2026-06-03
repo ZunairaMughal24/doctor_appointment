@@ -7,6 +7,7 @@ import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/core/services/app_preferences.dart';
 import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
+import 'package:fyp/features/onboarding/presentation/widgets/onboarding_arts.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -21,34 +22,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   static const _slides = [
     _Slide(
-      mainImage: AppAssets.doctorMale1,
-      floatingImages: [
-        AppAssets.doctorFemale1,
-        AppAssets.doctorMale2,
-        AppAssets.doctorFemale2,
-      ],
+      illustration: DoctorHeroIllustration(
+        mainImage: AppAssets.doctorMale1,
+        floatingImages: [
+          AppAssets.doctorFemale1,
+          AppAssets.doctorMale2,
+          AppAssets.doctorFemale2,
+        ],
+      ),
+      accent: Color(0xFFD4E5F3),
       title: 'Find the right doctor, fast',
       subtitle:
           'Browse trusted specialists by category and discover the right care in seconds.',
     ),
     _Slide(
-      mainImage: AppAssets.doctorFemale1,
-      floatingImages: [
-        AppAssets.doctorMale3,
-        AppAssets.doctorMale1,
-        AppAssets.doctorFemale2,
-      ],
+      illustration: BookingArt(),
+      accent: Color(0xFFFCE9CE),
       title: 'Book appointments easily',
       subtitle:
           'Pick a day that works for you and confirm your visit with a single tap.',
     ),
     _Slide(
-      mainImage: AppAssets.doctorMale2,
-      floatingImages: [
-        AppAssets.doctorFemale2,
-        AppAssets.doctorFemale1,
-        AppAssets.doctorMale3,
-      ],
+      illustration: ManageCareArt(),
+      accent: Color(0xFFD7F0DD),
       title: 'Care that fits your life',
       subtitle:
           'Manage your visits and switch seamlessly between patient and doctor modes.',
@@ -82,7 +78,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.cardBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -156,13 +152,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 class _Slide {
-  final String mainImage;
-  final List<String> floatingImages;
+  final Widget illustration;
+  final Color accent;
   final String title;
   final String subtitle;
   const _Slide({
-    required this.mainImage,
-    required this.floatingImages,
+    required this.illustration,
+    required this.accent,
     required this.title,
     required this.subtitle,
   });
@@ -180,9 +176,20 @@ class _SlideView extends StatelessWidget {
         children: [
           Expanded(
             child: Center(
-              child: DoctorHeroIllustration(
-                mainImage: slide.mainImage,
-                floatingImages: slide.floatingImages,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Per-slide accent backdrop.
+                  Container(
+                    width: 240,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      color: slide.accent,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  slide.illustration,
+                ],
               ),
             ),
           ),

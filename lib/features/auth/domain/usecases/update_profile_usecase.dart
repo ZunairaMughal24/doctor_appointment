@@ -14,6 +14,13 @@ class UpdateProfileUseCase implements UseCase<UserEntity, UpdateProfileParams> {
         uid: params.uid,
         name: params.name,
         email: params.email,
+        speciality: params.speciality,
+        experience: params.experience,
+        phoneNumber: params.phoneNumber,
+        location: params.location,
+        availability: params.availability,
+        services: params.services,
+        description: params.description,
       );
 }
 
@@ -21,9 +28,26 @@ class UpdateProfileParams {
   final String uid;
   final String name;
   final String email;
+
+  // Optional professional fields, persisted only when a doctor profile exists.
+  final String? speciality;
+  final String? experience;
+  final String? phoneNumber;
+  final String? location;
+  final String? availability;
+  final String? services;
+  final String? description;
+
   const UpdateProfileParams({
     required this.uid,
     required this.name,
     required this.email,
+    this.speciality,
+    this.experience,
+    this.phoneNumber,
+    this.location,
+    this.availability,
+    this.services,
+    this.description,
   });
 }

@@ -42,6 +42,13 @@ abstract class AuthRepository {
     required String uid,
     required String name,
     required String email,
+    String? speciality,
+    String? experience,
+    String? phoneNumber,
+    String? location,
+    String? availability,
+    String? services,
+    String? description,
   });
 
   Future<Either<Failure, void>> switchRole({

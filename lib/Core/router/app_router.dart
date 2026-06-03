@@ -134,11 +134,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.scheduleAppointment,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return ScheduleAppointmentPage(
-            docId: extra['docId'],
-            name: extra['name'],
-          );
+          final doctor = state.extra as DoctorEntity;
+          return ScheduleAppointmentPage(doctor: doctor);
         },
       ),
       GoRoute(

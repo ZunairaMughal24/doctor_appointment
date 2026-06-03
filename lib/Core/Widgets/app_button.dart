@@ -1,123 +1,105 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 
+/// Shared app button used across every screen for visual consistency.
+///
+/// Two variants:
+///  * filled (default) — solid [color] background with white label.
+///  * outlined — transparent background with a [color] border + label.
+///
+/// Supports an optional leading [icon], a [loading] spinner state, and a
+/// custom [color] (defaults to the app primary dark-blue).
 class AppButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final bool isLoading;
-  final bool outlined;
-  final double? width;
+  final bool filled;
+  final bool loading;
+  final IconData? icon;
+  final Color color;
+  final Color foreground;
   final double height;
+  final double borderRadius;
+  final bool expand;
 
   const AppButton({
     super.key,
     required this.label,
-    this.onPressed,
-    this.isLoading = false,
-    this.outlined = false,
-    this.width,
+    required this.onPressed,
+    this.filled = true,
+    this.loading = false,
+    this.icon,
+    this.color = AppColors.primary,
+    this.foreground = Colors.white,
     this.height = 52,
+    this.borderRadius = 16,
+    this.expand = true,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width ?? double.infinity,
-      height: height,
-      child: outlined
-          ? OutlinedButton(
-              onPressed: isLoading ? null : onPressed,
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _child(color: AppColors.primary),
-            )
-          : ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
-              child: _child(color: Colors.white),
-            ),
-    );
-  }
-
-  Widget _child({required Color color}) => isLoading
-      ? SizedBox(
-          width: 22,
-          height: 22,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            color: color,
-          ),
-        )
-      : Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        );
-}
-
-class GradientButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-
-  const GradientButton({
+  /// Convenience constructor for the secondary / outlined style.
+  const AppButton.outlined({
     super.key,
     required this.label,
-    this.onPressed,
-    this.isLoading = false,
-  });
+    required this.onPressed,
+    this.loading = false,
+    this.icon,
+    this.color = AppColors.primary,
+    this.height = 52,
+    this.borderRadius = 16,
+    this.expand = true,
+  })  : filled = false,
+        foreground = color;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.35),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+    final radius = BorderRadius.circular(borderRadius);
+    final fg = filled ? foreground : color;
+    final disabled = onPressed == null || loading;
+
+    final button = Material(
+      color: filled ? color : Colors.white,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: disabled ? null : onPressed,
+        borderRadius: radius,
+        child: Opacity(
+          opacity: onPressed == null && !loading ? 0.6 : 1,
+          child: Container(
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              border: filled ? null : Border.all(color: color, width: 1.4),
             ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            child: Center(
+              child: loading
+                  ? SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        valueColor: AlwaysStoppedAnimation<Color>(fg),
+                      ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, color: fg, size: 20),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          label,
+                          style: AppTextStyles.button.copyWith(color: fg),
+                        ),
+                      ],
+                    ),
             ),
           ),
-          child: isLoading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
         ),
       ),
     );
+
+    return expand ? SizedBox(width: double.infinity, child: button) : button;
   }
 }

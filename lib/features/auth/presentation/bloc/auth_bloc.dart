@@ -126,6 +126,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       uid: event.uid,
       name: event.name,
       email: event.email,
+      speciality: event.speciality,
+      experience: event.experience,
+      phoneNumber: event.phoneNumber,
+      location: event.location,
+      availability: event.availability,
+      services: event.services,
+      description: event.description,
     ));
     result.fold(
       (failure) {

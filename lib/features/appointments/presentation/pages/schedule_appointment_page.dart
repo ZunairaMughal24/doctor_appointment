@@ -3,40 +3,51 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/core/utils/app_feedback.dart';
 import 'package:fyp/core/utils/app_pickers.dart';
+import 'package:fyp/core/widgets/app_button.dart';
+import 'package:fyp/core/widgets/app_text_field.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
+import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
+import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
+import 'package:fyp/features/doctors/domain/entities/weekly_availability.dart';
 
-class ScheduleAppointmentPage extends StatefulWidget {
-  final String docId;
-  final String name;
-
-  const ScheduleAppointmentPage({
-    super.key,
-    required this.docId,
-    required this.name,
-  });
+class ScheduleAppointmentPage extends StatelessWidget {
+  final DoctorEntity doctor;
+  const ScheduleAppointmentPage({super.key, required this.doctor});
 
   @override
-  State<ScheduleAppointmentPage> createState() =>
-      _ScheduleAppointmentPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<SlotsCubit>(),
+      child: _ScheduleView(doctor: doctor),
+    );
+  }
 }
 
-/// Thin view — owns no logic.
-/// All form state, date formatting, and entity construction live in the ViewModel.
-class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
+class _ScheduleView extends StatefulWidget {
+  final DoctorEntity doctor;
+  const _ScheduleView({required this.doctor});
+
+  @override
+  State<_ScheduleView> createState() => _ScheduleViewState();
+}
+
+class _ScheduleViewState extends State<_ScheduleView> {
   late final ScheduleAppointmentViewModel _vm;
 
   @override
   void initState() {
     super.initState();
-    _vm = ScheduleAppointmentViewModel();
+    _vm = ScheduleAppointmentViewModel(widget.doctor);
   }
 
   @override
@@ -45,27 +56,36 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
     super.dispose();
   }
 
-  Future<void> _openDatePicker() async {
-    final picked = await AppPickers.pickDate(context);
-    if (picked != null) _vm.onDatePicked(picked);
+  String get _uid {
+    final s = context.read<AuthBloc>().state;
+    return s is AuthAuthenticated ? s.user.uid : '';
   }
 
-  String get _currentUid {
-    final state = context.read<AuthBloc>().state;
-    return state is AuthAuthenticated ? state.user.uid : '';
+  Future<void> _pickDate() async {
+    final picked = await AppPickers.pickDate(context);
+    if (picked == null) return;
+    setState(() => _vm.onDatePicked(picked));
+    if (mounted) {
+      context.read<SlotsCubit>().loadBookedTimes(
+            doctorId: widget.doctor.id,
+            date: _vm.formattedDate,
+          );
+    }
   }
 
   void _submit() {
-    if (!_vm.validate()) return;
-    context.read<AppointmentBloc>().add(
-          BookAppointment(
-            _vm.buildAppointment(
-              patientId: _currentUid,
-              doctorId: widget.docId,
-              doctorName: widget.name,
-            ),
-          ),
-        );
+    if (!_vm.validateFields()) return;
+    if (!_vm.hasDate) {
+      AppFeedback.showError(context, 'Please select an appointment date.');
+      return;
+    }
+    if (!_vm.hasTime) {
+      AppFeedback.showError(context, 'Please select an available time slot.');
+      return;
+    }
+    context
+        .read<AppointmentBloc>()
+        .add(BookAppointment(_vm.buildAppointment(patientId: _uid)));
   }
 
   @override
@@ -76,7 +96,7 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
         title: Text(
-          widget.name,
+          widget.doctor.name,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -93,52 +113,170 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
             AppFeedback.showError(context, state.message);
           }
         },
-        child: Container(
-          color: AppColors.background,
-          child: Form(
-            key: _vm.formKey,
-            child: ListView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              physics: const BouncingScrollPhysics(),
+        child: Form(
+          key: _vm.formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              const _SectionLabel('Consultation type'),
+              _ConsultationToggle(
+                selected: _vm.consultationType,
+                onChanged: (t) => setState(() => _vm.setConsultationType(t)),
+              ),
+              if (_vm.consultationType == ConsultationType.video) ...[
+                const SizedBox(height: 10),
+                const _VideoNote(),
+              ],
+              const SizedBox(height: 8),
+              const _SectionLabel('Your name'),
+              _Field(
+                controller: _vm.nameController,
+                hint: 'Enter your full name',
+                validator: _vm.nameValidator,
+              ),
+              const _SectionLabel('Contact number'),
+              _Field(
+                controller: _vm.phoneController,
+                hint: 'Enter your number',
+                keyboardType: TextInputType.phone,
+                validator: _vm.phoneValidator,
+              ),
+              const _SectionLabel('Appointment date'),
+              _DateSelector(
+                label: _vm.hasDate
+                    ? '${_vm.selectedDay}, ${_vm.formattedDate}'
+                    : 'Tap to pick a date',
+                isPlaceholder: !_vm.hasDate,
+                onTap: _pickDate,
+              ),
+              const SizedBox(height: 16),
+              const _SectionLabel('Available slots'),
+              _SlotsArea(vm: _vm, onPick: (t) => setState(() => _vm.selectTime(t))),
+              const SizedBox(height: 28),
+              BlocBuilder<AppointmentBloc, AppointmentState>(
+                builder: (context, state) => _SubmitButton(
+                  loading: state is AppointmentLoading,
+                  onTap: _submit,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Slots area: live availability from SlotsCubit ─────────────────────────────
+
+class _SlotsArea extends StatelessWidget {
+  final ScheduleAppointmentViewModel vm;
+  final ValueChanged<String> onPick;
+  const _SlotsArea({required this.vm, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!vm.hasDate) {
+      return const _Hint('Pick a date to see available time slots.');
+    }
+    if (vm.isClosedOnSelectedDay) {
+      return _Hint('Dr. ${vm.doctor.name.replaceFirst('Dr. ', '')} '
+          'is not available on ${vm.selectedDay}. Try another day.');
+    }
+
+    return BlocBuilder<SlotsCubit, SlotsState>(
+      builder: (context, state) {
+        if (state is SlotsLoading) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (state is SlotsError) {
+          return _Hint('Could not load slots: ${state.message}');
+        }
+
+        final booked =
+            state is SlotsLoaded ? state.bookedTimes : const <String>[];
+        final slots = vm.slotsForSelectedDay;
+        if (slots.isEmpty) {
+          return const _Hint('No slots available on this day.');
+        }
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            for (final slot in slots)
+              _SlotChip(
+                label: WeeklyAvailability.to12h(slot),
+                isBooked: booked.contains(slot),
+                isSelected: vm.selectedTime == slot,
+                onTap: () => onPick(slot),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SlotChip extends StatelessWidget {
+  final String label;
+  final bool isBooked;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SlotChip({
+    required this.label,
+    required this.isBooked,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color bg;
+    final Color fg;
+    if (isBooked) {
+      bg = AppColors.divider;
+      fg = AppColors.textHint;
+    } else if (isSelected) {
+      bg = AppColors.primary;
+      fg = Colors.white;
+    } else {
+      bg = Colors.white;
+      fg = AppColors.primary;
+    }
+
+    return Opacity(
+      opacity: isBooked ? 0.7 : 1,
+      child: Material(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: isBooked ? null : onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.inputBorder,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _AppointmentFormField(
-                  label: 'Name',
-                  controller: _vm.nameController,
-                  hint: 'Enter your full name',
-                  validator: _vm.nameValidator,
-                ),
-                _AppointmentFormField(
-                  label: 'Contact number',
-                  controller: _vm.phoneController,
-                  hint: 'Enter number',
-                  keyboardType: TextInputType.phone,
-                  validator: _vm.phoneValidator,
-                ),
-                _AppointmentFormField(
-                  label: 'Appointment date',
-                  controller: _vm.dateController,
-                  hint: 'Tap to pick a date',
-                  readOnly: true,
-                  onTap: _openDatePicker,
-                  suffixIcon: const Icon(
-                    Icons.calendar_today,
-                    color: AppColors.primary,
-                  ),
-                  validator: _vm.dateValidator,
-                ),
-                _AppointmentFormField(
-                  label: 'Appointment day',
-                  controller: _vm.dayController,
-                  hint: 'Auto-filled when you pick a date',
-                  readOnly: true,
-                  validator: _vm.dayValidator,
-                ),
-                const SizedBox(height: 32),
-                BlocBuilder<AppointmentBloc, AppointmentState>(
-                  builder: (context, state) => _SubmitButton(
-                    loading: state is AppointmentLoading,
-                    onTap: _submit,
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    decoration:
+                        isBooked ? TextDecoration.lineThrough : null,
                   ),
                 ),
               ],
@@ -150,80 +288,232 @@ class _ScheduleAppointmentPageState extends State<ScheduleAppointmentPage> {
   }
 }
 
-// ── Private widgets ───────────────────────────────────────────────────────────
+// ── Consultation type toggle ──────────────────────────────────────────────────
 
-class _AppointmentFormField extends StatelessWidget {
+class _ConsultationToggle extends StatelessWidget {
+  final ConsultationType selected;
+  final ValueChanged<ConsultationType> onChanged;
+  const _ConsultationToggle({required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _TypeOption(
+            icon: Icons.medical_services_outlined,
+            label: 'In-person',
+            active: selected == ConsultationType.inPerson,
+            onTap: () => onChanged(ConsultationType.inPerson),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _TypeOption(
+            icon: Icons.videocam_outlined,
+            label: 'Video',
+            active: selected == ConsultationType.video,
+            onTap: () => onChanged(ConsultationType.video),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TypeOption extends StatelessWidget {
+  final IconData icon;
   final String label;
+  final bool active;
+  final VoidCallback onTap;
+  const _TypeOption({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active ? AppColors.primary : Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: active ? AppColors.primary : AppColors.inputBorder,
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(icon,
+                  color: active ? Colors.white : AppColors.primary, size: 24),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: active ? Colors.white : AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Small shared widgets ──────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, top: 14, bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoNote extends StatelessWidget {
+  const _VideoNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLighter,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryLight),
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "You'll connect via WhatsApp video at your booked time. "
+              'Start it from the appointment in "My Appointments".',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12.5,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Hint extends StatelessWidget {
+  final String text;
+  const _Hint(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLighter,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+      ),
+    );
+  }
+}
+
+class _DateSelector extends StatelessWidget {
+  final String label;
+  final bool isPlaceholder;
+  final VoidCallback onTap;
+  const _DateSelector({
+    required this.label,
+    required this.isPlaceholder,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.inputBorder),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today, color: AppColors.primary, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isPlaceholder
+                      ? AppColors.textHint
+                      : AppColors.textPrimary,
+                  fontWeight:
+                      isPlaceholder ? FontWeight.normal : FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Field extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
 
-  const _AppointmentFormField({
-    required this.label,
+  const _Field({
     required this.controller,
     required this.hint,
-    this.readOnly = false,
-    this.onTap,
-    this.suffixIcon,
     this.keyboardType,
     this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, top: 12, bottom: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        TextFormField(
-          controller: controller,
-          readOnly: readOnly,
-          onTap: onTap,
-          keyboardType: keyboardType,
-          validator: validator,
-          decoration: InputDecoration(
-            hintText: hint,
-            suffixIcon: suffixIcon,
-            filled: true,
-            fillColor: Colors.white,
-            hintStyle:
-                const TextStyle(fontSize: 14, color: AppColors.textHint),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.inputBorder),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.inputBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.primary, width: 1.5),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.error),
-            ),
-          ),
-        ),
-      ],
+    return AppTextField(
+      controller: controller,
+      hint: hint,
+      keyboardType: keyboardType,
+      validator: validator,
     );
   }
 }
@@ -235,24 +525,11 @@ class _SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: loading ? null : onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 53,
-          child: Center(
-            child: loading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text(
-                    'Confirm Appointment',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-          ),
-        ),
-      ),
+    return AppButton(
+      label: 'Confirm Appointment',
+      icon: Icons.event_available_rounded,
+      loading: loading,
+      onPressed: onTap,
     );
   }
 }

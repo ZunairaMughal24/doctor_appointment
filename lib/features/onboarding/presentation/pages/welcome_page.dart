@@ -1,145 +1,238 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
+import 'package:fyp/core/services/app_preferences.dart';
+import 'package:fyp/core/utils/app_animations.dart';
+import 'package:fyp/core/widgets/app_button.dart';
 
-/// Landing screen for unauthenticated users: hero, tagline, and the two
-/// auth entry points (Sign In / Create Account).
+/// Landing screen for unauthenticated users.
+///
+/// Deliberately a different composition from the onboarding slides: a gradient
+/// hero with a clustered "care team" of doctor avatars on top, and a white
+/// rounded CTA panel below holding the two auth entry points.
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              const Expanded(
-                child: Center(
-                  child: DoctorHeroIllustration(
-                    mainImage: AppAssets.doctorFemale1,
-                    floatingImages: [
-                      AppAssets.doctorMale1,
-                      AppAssets.doctorMale2,
-                      AppAssets.doctorFemale2,
-                    ],
+      backgroundColor: AppColors.primary,
+      body: Column(
+        children: [
+          // ── Gradient hero ───────────────────────────────────────────
+          Expanded(
+            flex: 6,
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.headerGradient,
+              ),
+              child: const SafeArea(
+                bottom: false,
+                child: Center(child: _AvatarCluster()),
+              ),
+            ),
+          ),
+
+          // ── White CTA panel ─────────────────────────────────────────
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 150),
+                    child: GestureDetector(
+                      // Debug-only: long-press to replay onboarding.
+                      onLongPress: kDebugMode
+                          ? () {
+                              sl<AppPreferences>().resetOnboarding();
+                              context.go(AppRoutes.onboarding);
+                            }
+                          : null,
+                      child: const Text(
+                        'Welcome to Medic',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  const FadeSlideIn(
+                    delay: Duration(milliseconds: 300),
+                    child: Text(
+                      'Your trusted healthcare companion — find doctors, book visits, and stay on top of your care.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        height: 1.5,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 450),
+                    child: AppButton(
+                      label: 'Sign In',
+                      height: 54,
+                      onPressed: () => context.go(AppRoutes.signIn),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 600),
+                    child: AppButton.outlined(
+                      label: 'Create Account',
+                      height: 54,
+                      onPressed: () => context.go(AppRoutes.signUp),
+                    ),
+                  ),
+                ],
               ),
-              const Text(
-                'Medic',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Your trusted healthcare companion — find doctors, book visits, and stay on top of your care.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 36),
-
-              // Sign In — filled
-              _PrimaryButton(
-                label: 'Sign In',
-                onTap: () => context.go(AppRoutes.signIn),
-              ),
-              const SizedBox(height: 14),
-
-              // Create Account — outlined
-              _OutlinedButton(
-                label: 'Create Account',
-                onTap: () => context.go(AppRoutes.signUp),
-              ),
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _PrimaryButton({required this.label, required this.onTap});
+/// A central doctor avatar surrounded by a ring of smaller ones — a "care team".
+class _AvatarCluster extends StatelessWidget {
+  const _AvatarCluster();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: Material(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Center(
-            child: Text(
-              label,
-              style: const TextStyle(
+      width: 260,
+      height: 260,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Faint concentric rings.
+          _ring(260),
+          _ring(190),
+          // Orbiting avatars — each bobs on its own stagger.
+          const Positioned(
+            top: 6,
+            child: FloatingWidget(
+              distance: 14,
+              child: _Avatar(AppAssets.doctorMale1, 30),
+            ),
+          ),
+          const Positioned(
+            right: 8,
+            child: FloatingWidget(
+              delay: Duration(milliseconds: 300),
+              distance: 12,
+              child: _Avatar(AppAssets.doctorFemale2, 26),
+            ),
+          ),
+          const Positioned(
+            bottom: 14,
+            left: 22,
+            child: FloatingWidget(
+              delay: Duration(milliseconds: 600),
+              distance: 16,
+              child: _Avatar(AppAssets.doctorMale2, 24),
+            ),
+          ),
+          const Positioned(
+            bottom: 6,
+            right: 28,
+            child: FloatingWidget(
+              delay: Duration(milliseconds: 900),
+              distance: 11,
+              child: _Avatar(AppAssets.doctorMale3, 22),
+            ),
+          ),
+          const Positioned(
+            left: 10,
+            child: FloatingWidget(
+              delay: Duration(milliseconds: 1200),
+              distance: 13,
+              child: _Avatar(AppAssets.doctorFemale1, 26),
+            ),
+          ),
+          // Center brand mark — gentle pulse.
+          PulseWidget(
+            minScale: 0.97,
+            maxScale: 1.03,
+            duration: const Duration(milliseconds: 2000),
+            child: Container(
+              width: 92,
+              height: 92,
+              decoration: BoxDecoration(
                 color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
+              padding: const EdgeInsets.all(14),
+              child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
+
+  Widget _ring(double size) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+        ),
+      );
 }
 
-class _OutlinedButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _OutlinedButton({required this.label, required this.onTap});
+class _Avatar extends StatelessWidget {
+  final String image;
+  final double radius;
+  const _Avatar(this.image, this.radius);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary, width: 1.5),
-            ),
-            child: Center(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
-        ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: AppColors.primaryLight,
+        backgroundImage: AssetImage(image),
       ),
     );
   }
 }
+

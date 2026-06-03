@@ -108,12 +108,26 @@ class AuthRepositoryImpl implements AuthRepository {
     required String uid,
     required String name,
     required String email,
+    String? speciality,
+    String? experience,
+    String? phoneNumber,
+    String? location,
+    String? availability,
+    String? services,
+    String? description,
   }) async {
     try {
       final user = await remoteDataSource.updateProfile(
         uid: uid,
         name: name,
         email: email,
+        speciality: speciality,
+        experience: experience,
+        phoneNumber: phoneNumber,
+        location: location,
+        availability: availability,
+        services: services,
+        description: description,
       );
       return Right(user);
     } on AuthException catch (e) {

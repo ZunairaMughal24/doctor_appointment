@@ -1,17 +1,29 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
+import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../doctors/domain/usecases/get_doctor_by_id_usecase.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// User profile screen with inline edit mode (toggled from the app-bar pencil).
+///
+/// Patients can edit name + email. Doctors additionally get their full
+/// professional profile (speciality, experience, phone, location, availability,
+/// services, description) — these are pre-filled by fetching the doctor's record
+/// via [GetDoctorByIdUseCase] on open, and saved through
+/// [AuthUpdateProfileRequested], which writes name/email to the users doc and
+/// merges the professional fields into the matching doctors document.
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -23,26 +35,66 @@ class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _emailController;
+
+  // Doctor-only professional fields.
+  final _specialityController = TextEditingController();
+  final _experienceController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _availabilityController = TextEditingController();
+  final _servicesController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
   bool _editing = false;
+  bool _doctorLoaded = false;
 
   @override
   void initState() {
     super.initState();
     final state = context.read<AuthBloc>().state;
-    // If AuthBloc hasn't loaded the user yet (e.g. came from splash
-    // without sign-in flow), trigger a check now
     if (state is! AuthAuthenticated) {
       context.read<AuthBloc>().add(const AuthCheckRequested());
     }
     final user = state is AuthAuthenticated ? state.user : null;
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
+    if (user != null && user.isDoctor) {
+      _loadDoctorProfile(user.uid);
+    }
+  }
+
+  /// Pulls the doctor's stored professional details to pre-fill the form.
+  Future<void> _loadDoctorProfile(String uid) async {
+    final result = await sl<GetDoctorByIdUseCase>()(uid);
+    result.fold(
+      (_) {},
+      (doctor) {
+        if (!mounted) return;
+        setState(() {
+          _specialityController.text = doctor.speciality;
+          _experienceController.text = doctor.experience;
+          _phoneController.text = doctor.phoneNumber;
+          _locationController.text = doctor.location;
+          _availabilityController.text = doctor.availability;
+          _servicesController.text = doctor.services;
+          _descriptionController.text = doctor.description;
+          _doctorLoaded = true;
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _specialityController.dispose();
+    _experienceController.dispose();
+    _phoneController.dispose();
+    _locationController.dispose();
+    _availabilityController.dispose();
+    _servicesController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -52,8 +104,27 @@ class _ProfilePageState extends State<ProfilePage> {
           uid: user.uid,
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
+          // Only doctors persist the professional fields.
+          speciality:
+              user.isDoctor ? _specialityController.text.trim() : null,
+          experience:
+              user.isDoctor ? _experienceController.text.trim() : null,
+          phoneNumber: user.isDoctor ? _phoneController.text.trim() : null,
+          location: user.isDoctor ? _locationController.text.trim() : null,
+          availability:
+              user.isDoctor ? _availabilityController.text.trim() : null,
+          services: user.isDoctor ? _servicesController.text.trim() : null,
+          description:
+              user.isDoctor ? _descriptionController.text.trim() : null,
         ));
     setState(() => _editing = false);
+  }
+
+  void _cancelEditing(UserEntity user) {
+    setState(() => _editing = false);
+    _nameController.text = user.name;
+    _emailController.text = user.email;
+    if (user.isDoctor) _loadDoctorProfile(user.uid);
   }
 
   void _switchRole(UserEntity user) {
@@ -73,12 +144,16 @@ class _ProfilePageState extends State<ProfilePage> {
         } else if (state is AuthAuthenticated) {
           _nameController.text = state.user.name;
           _emailController.text = state.user.email;
+          if (state.user.isDoctor && !_doctorLoaded) {
+            _loadDoctorProfile(state.user.uid);
+          }
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is! AuthAuthenticated) {
             return const Scaffold(
+              backgroundColor: AppColors.cardBg,
               body: Center(child: CircularProgressIndicator()),
             );
           }
@@ -103,11 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 else
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      setState(() => _editing = false);
-                      _nameController.text = user.name;
-                      _emailController.text = user.email;
-                    },
+                    onPressed: () => _cancelEditing(user),
                   ),
               ],
             ),
@@ -157,22 +228,22 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // ── Personal Info ────────────────────────────────
+                      // ── Personal / Professional Info ─────────────────
                       _sectionHeader('Personal Information'),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       Form(
                         key: _formKey,
                         child: Column(
                           children: [
-                            _buildField(
+                            _LabeledField(
                               label: 'Full Name',
                               controller: _nameController,
                               icon: Icons.person_outline,
                               enabled: _editing,
-                              validator: (v) => Validators.required(v, 'Name'),
+                              validator: (v) =>
+                                  Validators.required(v, 'Name'),
                             ),
-                            const SizedBox(height: 12),
-                            _buildField(
+                            _LabeledField(
                               label: 'Email',
                               controller: _emailController,
                               icon: Icons.email_outlined,
@@ -180,14 +251,76 @@ class _ProfilePageState extends State<ProfilePage> {
                               keyboardType: TextInputType.emailAddress,
                               validator: Validators.email,
                             ),
+                            if (user.isDoctor) ...[
+                              const SizedBox(height: 16),
+                              _sectionHeader('Professional Details'),
+                              const SizedBox(height: 12),
+                              _LabeledField(
+                                label: 'Speciality',
+                                controller: _specialityController,
+                                icon: Icons.medical_services_outlined,
+                                enabled: _editing,
+                                validator: (v) =>
+                                    Validators.required(v, 'Speciality'),
+                              ),
+                              _LabeledField(
+                                label: 'Experience',
+                                controller: _experienceController,
+                                icon: Icons.workspace_premium_outlined,
+                                enabled: _editing,
+                                validator: (v) =>
+                                    Validators.required(v, 'Experience'),
+                              ),
+                              _LabeledField(
+                                label: 'Phone Number',
+                                controller: _phoneController,
+                                icon: Icons.phone_outlined,
+                                enabled: _editing,
+                                keyboardType: TextInputType.phone,
+                                validator: Validators.phone,
+                              ),
+                              _LabeledField(
+                                label: 'Clinic / Hospital Location',
+                                controller: _locationController,
+                                icon: Icons.location_on_outlined,
+                                enabled: _editing,
+                                validator: (v) =>
+                                    Validators.required(v, 'Location'),
+                              ),
+                              _LabeledField(
+                                label: 'Availability',
+                                controller: _availabilityController,
+                                icon: Icons.access_time_outlined,
+                                enabled: _editing,
+                                validator: (v) =>
+                                    Validators.required(v, 'Availability'),
+                              ),
+                              _LabeledField(
+                                label: 'Services',
+                                controller: _servicesController,
+                                icon: Icons.list_alt_outlined,
+                                enabled: _editing,
+                                maxLines: 2,
+                                validator: (v) =>
+                                    Validators.required(v, 'Services'),
+                              ),
+                              _LabeledField(
+                                label: 'About / Description',
+                                controller: _descriptionController,
+                                icon: Icons.info_outline,
+                                enabled: _editing,
+                                maxLines: 4,
+                              ),
+                            ],
                           ],
                         ),
                       ),
                       if (_editing) ...[
-                        const SizedBox(height: 16),
-                        _primaryButton(
+                        const SizedBox(height: 20),
+                        AppButton(
                           label: 'Save Changes',
-                          onTap: () => _saveProfile(user),
+                          icon: Icons.check_rounded,
+                          onPressed: () => _saveProfile(user),
                         ),
                       ],
 
@@ -227,8 +360,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           : 'Manage your patient appointments',
                                       style: const TextStyle(
                                           fontSize: 12,
-                                          color: Color.fromARGB(
-                                              255, 130, 145, 157)),
+                                          color: AppColors.textSecondary),
                                     ),
                                   ],
                                 ),
@@ -337,7 +469,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.bold,
-          color: Color.fromARGB(255, 120, 140, 155),
+          color: AppColors.textSecondary,
           letterSpacing: 0.8,
         ),
       );
@@ -347,58 +479,57 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: 14,
         child: child,
       );
+}
 
-  Widget _buildField({
-    required String label,
-    required TextEditingController controller,
-    required IconData icon,
-    bool enabled = true,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: enabled ? Colors.white : AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: enabled ? AppColors.primary : AppColors.primaryLight,
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        enabled: enabled,
-        keyboardType: keyboardType,
-        validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: AppColors.primary, fontSize: 14),
-          prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        ),
-      ),
-    );
-  }
+/// A labelled [AppTextField] used in the profile form so view vs. edit mode
+/// share the same widget (just toggling [enabled]).
+class _LabeledField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final IconData icon;
+  final bool enabled;
+  final int maxLines;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
-  Widget _primaryButton({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+  const _LabeledField({
+    required this.label,
+    required this.controller,
+    required this.icon,
+    required this.enabled,
+    this.maxLines = 1,
+    this.keyboardType,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          AppTextField(
+            controller: controller,
+            hint: label,
+            prefixIcon: icon,
+            enabled: enabled,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            validator: validator,
+          ),
+        ],
       ),
     );
   }

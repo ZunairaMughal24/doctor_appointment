@@ -46,7 +46,6 @@ class ConfirmationBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Icon
           CircleAvatar(
             radius: 28,
             backgroundColor:
@@ -59,7 +58,6 @@ class ConfirmationBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Title
           Text(
             title,
             textAlign: TextAlign.center,
@@ -71,7 +69,6 @@ class ConfirmationBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Message
           Text(
             message,
             textAlign: TextAlign.center,
@@ -83,10 +80,8 @@ class ConfirmationBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 28),
 
-          // Buttons
           Row(
             children: [
-              // Cancel
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(false),
@@ -108,7 +103,6 @@ class ConfirmationBottomSheet extends StatelessWidget {
               ),
               const SizedBox(width: 12),
 
-              // Confirm
               Expanded(
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(true),

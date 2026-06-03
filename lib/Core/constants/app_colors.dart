@@ -62,26 +62,24 @@ class AppColors {
     ],
   );
 
+  /// Diagonal primary gradient — home header strip & primary surfaces.
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF034B6D), Color(0xFF0B4D69), Color(0xFF3A8EAC)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   // ── Form / input helpers ─────────────────────────────────────────────────
   static const Color fieldBgBlue = Color(0xFFA7CEE0);
   static const Color tabUnselected = Color(0xFFB4D2E1);
   static const Color navUnselected = Color(0xFFA0AEB9);
   static const Color dangerLight = Color(0xFFFFEBEB);
 
-  // ── UI / Theme helpers ────────────────────────────────────────────────────
-  /// Used by ColorScheme.secondary in AppTheme
-  static const Color accent = Color(0xFF00BCD4);
-  /// Input field border colour
+  // ── Borders & dividers ────────────────────────────────────────────────────
+  /// Input field border colour.
   static const Color inputBorder = Color(0xFFDDE2E8);
-  /// Divider line colour
+  /// Divider line colour.
   static const Color divider = Color(0xFFE8ECF0);
-
-  // ── Gradients ─────────────────────────────────────────────────────────────
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF034B6D), Color(0xFF0B4D69), Color(0xFF3A8EAC)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
 
   // ── Doctor tile backgrounds (rotating pastel cards) ──────────────────────
   static const List<Color> doctorTileColors = [

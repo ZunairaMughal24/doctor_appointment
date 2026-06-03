@@ -5,8 +5,9 @@ import 'package:fyp/core/constants/app_colors.dart';
 ///
 /// Built on a custom [FormField] so the validation error renders *below* the
 /// raised box rather than inside it. The box lifts off the background with a
-/// light highlight (top-left) and a soft shadow (bottom-right); on focus it
-/// gains a primary ring, and on error a red ring.
+/// soft shadow (bottom-right) for a clean 3D depth; on focus it gains a primary
+/// ring, and on error a red ring. When [enabled] is false it reads as a calm,
+/// non-editable display (used for profile view mode).
 class AppTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hint;
@@ -14,6 +15,8 @@ class AppTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final int maxLines;
+  final bool enabled;
 
   const AppTextField({
     super.key,
@@ -23,6 +26,8 @@ class AppTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.validator,
+    this.maxLines = 1,
+    this.enabled = true,
   });
 
   @override
@@ -54,11 +59,14 @@ class _AppTextFieldState extends State<AppTextField> {
   Widget build(BuildContext context) {
     return FormField<String>(
       validator: widget.validator,
+      // Seed the field value from the controller so validation works for
+      // pre-filled fields (e.g. editing an existing profile).
+      initialValue: widget.controller.text,
       builder: (field) {
         final hasError = field.hasError;
         final ringColor = hasError
             ? AppColors.error
-            : _focused
+            : _focused && widget.enabled
                 ? AppColors.primary
                 : Colors.transparent;
 
@@ -74,37 +82,40 @@ class _AppTextFieldState extends State<AppTextField> {
                   color: ringColor,
                   width: ringColor == Colors.transparent ? 0 : 1.4,
                 ),
+                // 3D depth only — soft shadow cast bottom-right, no top sheen.
                 boxShadow: const [
-                  // Soft shadow bottom-right — lifts the field.
                   BoxShadow(
                     color: _darkShadow,
-                    offset: Offset(4, 4),
-                    blurRadius: 10,
-                  ),
-                  // Light highlight top-left — the neumorphic sheen.
-                  BoxShadow(
-                    color: Colors.white,
-                    offset: Offset(-4, -4),
-                    blurRadius: 10,
+                    offset: Offset(4, 5),
+                    blurRadius: 12,
                   ),
                 ],
               ),
               child: Row(
+                crossAxisAlignment: widget.maxLines > 1
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.center,
                 children: [
                   if (widget.prefixIcon != null)
                     Padding(
-                      padding: const EdgeInsets.only(left: 14),
+                      padding: EdgeInsets.only(
+                          left: 14, top: widget.maxLines > 1 ? 14 : 0),
                       child: Icon(widget.prefixIcon, color: AppColors.primary),
                     ),
                   Expanded(
                     child: TextField(
                       controller: widget.controller,
                       focusNode: _focusNode,
+                      enabled: widget.enabled,
                       obscureText: widget.obscureText,
                       keyboardType: widget.keyboardType,
+                      maxLines: widget.obscureText ? 1 : widget.maxLines,
                       onChanged: field.didChange,
-                      style: const TextStyle(
-                          fontSize: 16, color: AppColors.textPrimary),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: widget.enabled
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary),
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: widget.hint,

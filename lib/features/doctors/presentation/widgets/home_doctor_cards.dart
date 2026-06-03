@@ -130,12 +130,14 @@ class DoctorCardCompact extends StatelessWidget {
   final String name;
   final String speciality;
   final double rating;
+  final String availability;
 
   const DoctorCardCompact({
     super.key,
     required this.name,
     required this.speciality,
     required this.rating,
+    required this.availability,
   });
 
   @override
@@ -143,12 +145,50 @@ class DoctorCardCompact extends StatelessWidget {
     return Column(
       children: [
         Text(name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
                 fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.bold)),
         Text(speciality,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: AppColors.textRed, fontSize: 12)),
         const SizedBox(height: 3),
         _StarRow(rating: rating, color: AppColors.primary, textColor: AppColors.primary),
+        if (availability.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          _AvailabilityChip(text: availability),
+        ],
+      ],
+    );
+  }
+}
+
+/// Compact "available timing" chip — mirrors the top-row availability style.
+class _AvailabilityChip extends StatelessWidget {
+  final String text;
+  const _AvailabilityChip({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.access_time_rounded,
+            size: 11, color: AppColors.primary),
+        const SizedBox(width: 3),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -18,7 +18,7 @@ class AppContainer extends StatelessWidget {
     this.onTap,
   });
 
-  // Shared neumorphic shadow — same tones as AppTextField for a consistent look.
+  // Shared neumorphic shadow — same tone as AppTextField for a consistent look.
   static const _darkShadow = Color(0xFFC2D2E1);
 
   @override
@@ -29,18 +29,13 @@ class AppContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: radius,
+        // 3D depth only — a single soft shadow cast to the bottom-right.
+        // No top-left highlight (keeps a clean raised look, not a halo).
         boxShadow: const [
-          // Soft shadow bottom-right.
           BoxShadow(
             color: _darkShadow,
-            offset: Offset(4, 4),
-            blurRadius: 10,
-          ),
-          // Light highlight top-left.
-          BoxShadow(
-            color: Colors.white,
-            offset: Offset(-4, -4),
-            blurRadius: 10,
+            offset: Offset(4, 5),
+            blurRadius: 12,
           ),
         ],
       ),
