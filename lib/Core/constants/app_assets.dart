@@ -22,6 +22,11 @@ class AppAssets {
     doctorMale3,
   ];
 
+  /// A stable avatar for a given doctor id — so the same doctor always shows
+  /// the same photo (used on the detail screen, which has no list index).
+  static String avatarForDoctor(String id) =>
+      doctorAvatars[id.hashCode.abs() % doctorAvatars.length];
+
   // ── Disease icons ─────────────────────────────────────────────────────────
   static const String diseaseDengue = 'assets/images/Diseases/dengue.png';
   static const String diseaseStomach = 'assets/images/Diseases/stomach.png';

@@ -10,6 +10,7 @@ import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dar
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
+import 'package:fyp/features/notifications/presentation/bloc/notification_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         // Load doctors once at app start — HomePage reads this without re-fetching.
         BlocProvider(create: (context) => di.sl<DoctorBloc>()..add(const LoadAllDoctors())),
         BlocProvider(create: (context) => di.sl<AppointmentBloc>()),
+        BlocProvider(create: (context) => di.sl<NotificationBloc>()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

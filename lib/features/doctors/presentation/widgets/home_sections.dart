@@ -4,16 +4,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
 
 String _imgFor(int index) =>
     AppAssets.doctorAvatars[index % AppAssets.doctorAvatars.length];
 
-// ── 1. Header ─────────────────────────────────────────────────────────────────
-
-/// Greeting strip (avatar, username, notification) with the search bar
-/// overlapping its bottom edge.
 class HomeHeader extends StatelessWidget {
   final String username;
   const HomeHeader({super.key, required this.username});
@@ -70,16 +67,15 @@ class HomeHeader extends StatelessWidget {
                           ),
                           const Text(
                             'Find your suitable Doctor here',
-                            style: TextStyle(fontSize: 15, color: Colors.white),
+                            style: TextStyle(fontSize: 14, color: Colors.white),
                           ),
                         ],
                       ),
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(top: 18, right: 5),
-                    child: Icon(Icons.notifications_sharp,
-                        size: 30, color: Colors.white),
+                    padding: EdgeInsets.only(top: 14, right: 4),
+                    child: NotificationBell(size: 30),
                   ),
                 ],
               ),

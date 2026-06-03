@@ -8,4 +8,9 @@ abstract class AppointmentRepository {
       String patientId);
   Future<Either<Failure, List<AppointmentEntity>>> getDoctorAppointments(
       String doctorId);
+  Future<Either<Failure, void>> updateAppointmentStatus({
+    required String appointmentId,
+    required AppointmentStatus status,
+    required bool actorIsDoctor,
+  });
 }

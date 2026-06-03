@@ -19,6 +19,7 @@ import '../../features/doctors/presentation/pages/all_doctors_page.dart';
 import '../../features/doctors/presentation/pages/doctor_detail_page.dart';
 import '../../features/doctors/presentation/pages/home_page.dart';
 import '../../features/doctors/presentation/pages/search_results_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -37,6 +38,7 @@ class AppRoutes {
   static const search = '/search';
   static const scheduleAppointment = '/schedule-appointment';
   static const appointmentDetail = '/appointment-detail';
+  static const notifications = '/notifications';
 
   static String doctorDetailPath(String id) => '/doctor/$id';
 }
@@ -144,6 +146,10 @@ class AppRouter {
           final appointment = state.extra as AppointmentEntity;
           return AppointmentDetailPage(appointment: appointment);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (_, __) => const NotificationsPage(),
       ),
     ],
   );

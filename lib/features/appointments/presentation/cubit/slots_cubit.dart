@@ -52,8 +52,9 @@ class SlotsCubit extends Cubit<SlotsState> {
     result.fold(
       (failure) => emit(SlotsError(failure.message)),
       (appointments) {
+        // A cancelled appointment frees its slot, so exclude those.
         final booked = appointments
-            .where((a) => a.appointmentDate == date)
+            .where((a) => a.appointmentDate == date && !a.isCancelled)
             .map((a) => a.appointmentTime)
             .where((t) => t.isNotEmpty)
             .toList();

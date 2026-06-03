@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/communication_launcher.dart';
 import '../../../../core/utils/app_feedback.dart';
@@ -62,15 +63,9 @@ class DoctorDetailPage extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 42,
-                          backgroundColor: AppColors.primary,
-                          child: Image.asset(
-                            'assets/images/Doctors/MDryle.png',
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                          ),
+                          backgroundColor: AppColors.primaryLight,
+                          backgroundImage:
+                              AssetImage(AppAssets.avatarForDoctor(data.id)),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),

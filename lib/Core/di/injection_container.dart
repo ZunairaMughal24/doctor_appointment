@@ -11,8 +11,16 @@ import '../../features/appointments/domain/repositories/appointment_repository.d
 import '../../features/appointments/domain/usecases/book_appointment_usecase.dart';
 import '../../features/appointments/domain/usecases/get_doctor_appointments_usecase.dart';
 import '../../features/appointments/domain/usecases/get_user_appointments_usecase.dart';
+import '../../features/appointments/domain/usecases/update_appointment_status_usecase.dart';
 import '../../features/appointments/presentation/bloc/appointment_bloc.dart';
 import '../../features/appointments/presentation/cubit/slots_cubit.dart';
+import '../../features/notifications/data/datasources/notification_remote_data_source.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/domain/usecases/create_reminder_usecase.dart';
+import '../../features/notifications/domain/usecases/get_notifications_usecase.dart';
+import '../../features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -105,6 +113,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => BookAppointmentUseCase(sl()));
   sl.registerLazySingleton(() => GetUserAppointmentsUseCase(sl()));
   sl.registerLazySingleton(() => GetDoctorAppointmentsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAppointmentStatusUseCase(sl()));
   sl.registerFactory(
     () => AppointmentBloc(
       bookAppointment: sl(),
@@ -113,4 +122,23 @@ Future<void> initDependencies() async {
     ),
   );
   sl.registerFactory(() => SlotsCubit(sl()));
+
+  // --- Notifications
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(firestore: sl()),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllNotificationsReadUseCase(sl()));
+  sl.registerLazySingleton(() => CreateReminderUseCase(sl()));
+  sl.registerFactory(
+    () => NotificationBloc(
+      getNotifications: sl(),
+      markRead: sl(),
+      markAllRead: sl(),
+    ),
+  );
 }
