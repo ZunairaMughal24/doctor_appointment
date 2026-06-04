@@ -1,16 +1,17 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_feedback.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../doctors/presentation/bloc/doctor_bloc.dart';
+import '../../../doctors/presentation/bloc/doctor_event.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../viewmodels/register_as_doctor_viewmodel.dart';
 
 class RegisterAsDoctorPage extends StatefulWidget {
   final String uid;
@@ -29,49 +30,22 @@ class RegisterAsDoctorPage extends StatefulWidget {
 }
 
 class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
-  late final TextEditingController _emailController;
-  final _specialityController = TextEditingController();
-  final _experienceController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _availabilityController = TextEditingController();
-  final _servicesController = TextEditingController();
+  late final RegisterAsDoctorViewModel _vm;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.prefillName);
-    _emailController = TextEditingController(text: widget.prefillEmail);
+    _vm = RegisterAsDoctorViewModel(
+      uid: widget.uid,
+      prefillName: widget.prefillName,
+      prefillEmail: widget.prefillEmail,
+    );
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _specialityController.dispose();
-    _experienceController.dispose();
-    _phoneController.dispose();
-    _locationController.dispose();
-    _availabilityController.dispose();
-    _servicesController.dispose();
+    _vm.dispose();
     super.dispose();
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    context.read<AuthBloc>().add(AuthRegisterAsDoctorRequested(
-          uid: widget.uid,
-          name: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-          speciality: _specialityController.text.trim(),
-          experience: _experienceController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-          location: _locationController.text.trim(),
-          availability: _availabilityController.text.trim(),
-          services: _servicesController.text.trim(),
-        ));
   }
 
   @override
@@ -83,6 +57,8 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
       listener: (context, state) {
         if (state is AuthAuthenticated && state.user.hasDoctorProfile) {
           AppFeedback.showSuccess(context, 'Doctor profile created successfully!');
+          // Refresh global doctor list
+          context.read<DoctorBloc>().add(const LoadAllDoctors());
           context.go(AppRoutes.profile);
         } else if (state is AuthFailureState) {
           AppFeedback.showError(context, state.message);
@@ -124,58 +100,58 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 Form(
-                  key: _formKey,
+                  key: _vm.formKey,
                   child: Column(
                     children: [
                       _buildField(
-                        controller: _nameController,
+                        controller: _vm.nameController,
                         hint: 'Full Name',
                         icon: Icons.person,
-                        validator: (v) => Validators.required(v, 'Full name'),
+                        validator: _vm.nameValidator,
                       ),
                       _buildField(
-                        controller: _emailController,
+                        controller: _vm.emailController,
                         hint: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: Validators.email,
+                        validator: _vm.emailValidator,
                       ),
                       _buildField(
-                        controller: _specialityController,
+                        controller: _vm.specialityController,
                         hint: 'Speciality (e.g. Cardiologist)',
                         icon: Icons.medical_services,
-                        validator: (v) => Validators.required(v, 'Speciality'),
+                        validator: _vm.specialityValidator,
                       ),
                       _buildField(
-                        controller: _experienceController,
+                        controller: _vm.experienceController,
                         hint: 'Experience (e.g. 10 years)',
                         icon: Icons.workspace_premium,
-                        validator: (v) => Validators.required(v, 'Experience'),
+                        validator: _vm.experienceValidator,
                       ),
                       _buildField(
-                        controller: _phoneController,
+                        controller: _vm.phoneController,
                         hint: 'Phone Number',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
-                        validator: Validators.phone,
+                        validator: _vm.phoneValidator,
                       ),
                       _buildField(
-                        controller: _locationController,
+                        controller: _vm.locationController,
                         hint: 'Clinic / Hospital Location',
                         icon: Icons.location_on,
-                        validator: (v) => Validators.required(v, 'Location'),
+                        validator: _vm.locationValidator,
                       ),
                       _buildField(
-                        controller: _availabilityController,
+                        controller: _vm.availabilityController,
                         hint: 'Availability (e.g. Mon–Fri: 9am–5pm)',
                         icon: Icons.access_time,
-                        validator: (v) => Validators.required(v, 'Availability'),
+                        validator: _vm.availabilityValidator,
                       ),
                       _buildField(
-                        controller: _servicesController,
+                        controller: _vm.servicesController,
                         hint: 'Services (comma separated)',
                         icon: Icons.list_alt,
-                        validator: (v) => Validators.required(v, 'Services'),
+                        validator: _vm.servicesValidator,
                       ),
                     ],
                   ),
@@ -186,7 +162,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                     return AppButton(
                       label: 'Create Doctor Profile',
                       loading: state is AuthLoading,
-                      onPressed: _submit,
+                      onPressed: () => _vm.submit(context),
                     );
                   },
                 ),
@@ -230,5 +206,3 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
     );
   }
 }
-
-

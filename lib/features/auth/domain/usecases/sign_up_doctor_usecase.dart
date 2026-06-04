@@ -20,6 +20,7 @@ class SignUpDoctorUseCase implements UseCase<UserEntity, SignUpDoctorParams> {
         location: params.location,
         availability: params.availability,
         services: params.services,
+        description: params.description,
       );
 }
 
@@ -33,6 +34,7 @@ class SignUpDoctorParams {
   final String location;
   final String availability;
   final String services;
+  final String description;
 
   const SignUpDoctorParams({
     required this.name,
@@ -44,5 +46,6 @@ class SignUpDoctorParams {
     required this.location,
     required this.availability,
     required this.services,
+    required this.description,
   });
 }

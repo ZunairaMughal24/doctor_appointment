@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
@@ -8,7 +7,8 @@ import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_state.dart';
-import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/features/doctors/presentation/viewmodels/home_view_model.dart';
+import 'package:fyp/features/doctors/presentation/widgets/health_tip_card.dart';
 import 'package:fyp/features/doctors/presentation/widgets/home_sections.dart';
 import 'package:fyp/features/doctors/presentation/widgets/home_skeleton.dart';
 
@@ -22,11 +22,9 @@ class HomePage extends StatelessWidget {
 class _HomeView extends StatelessWidget {
   const _HomeView();
 
-  void _openDetail(BuildContext context, DoctorEntity doctor) =>
-      context.push(AppRoutes.doctorDetailPath(doctor.id), extra: doctor);
-
   @override
   Widget build(BuildContext context) {
+    const vm = HomeViewModel();
     final authState = context.watch<AuthBloc>().state;
     final username = authState is AuthAuthenticated ? authState.user.name : '';
 
@@ -48,20 +46,21 @@ class _HomeView extends StatelessWidget {
               children: [
                 HomeHeader(username: username),
                 const SizedBox(height: 35),
+                HealthTipCard(tip: vm.tipOfTheDay),
                 FeaturedDoctorsSection(
                   doctors: doctors,
-                  onTap: (d) => _openDetail(context, d),
+                  onTap: (d) => vm.openDoctor(context, d),
                 ),
                 const SizedBox(height: 5),
                 const CategoriesSection(),
                 AvailableDoctorsSection(
                   doctors: doctors,
-                  onTap: (d) => _openDetail(context, d),
+                  onTap: (d) => vm.openDoctor(context, d),
                 ),
                 const SizedBox(height: 3),
                 RecommendedDoctorsSection(
                   doctors: doctors,
-                  onTap: (d) => _openDetail(context, d),
+                  onTap: (d) => vm.openDoctor(context, d),
                 ),
                 const SizedBox(height: 16),
               ],

@@ -24,6 +24,7 @@ abstract class AuthRepository {
     required String location,
     required String availability,
     required String services,
+    required String description,
   });
 
   Future<Either<Failure, UserEntity>> registerAsDoctor({

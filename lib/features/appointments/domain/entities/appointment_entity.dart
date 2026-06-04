@@ -16,13 +16,14 @@ extension ConsultationTypeX on ConsultationType {
 
 /// Lifecycle of an appointment. A new booking starts [pending]; the doctor
 /// then [confirmed]s or either party [cancelled]s it.
-enum AppointmentStatus { pending, confirmed, cancelled }
+enum AppointmentStatus { pending, confirmed, cancelled, completed }
 
 extension AppointmentStatusX on AppointmentStatus {
   String get label => switch (this) {
         AppointmentStatus.pending => 'Pending',
         AppointmentStatus.confirmed => 'Confirmed',
         AppointmentStatus.cancelled => 'Cancelled',
+        AppointmentStatus.completed => 'Completed',
       };
 
   /// Stable string for Firestore (matches the enum name).
@@ -31,6 +32,7 @@ extension AppointmentStatusX on AppointmentStatus {
   static AppointmentStatus fromKey(String? key) => switch (key) {
         'confirmed' => AppointmentStatus.confirmed,
         'cancelled' => AppointmentStatus.cancelled,
+        'completed' => AppointmentStatus.completed,
         _ => AppointmentStatus.pending,
       };
 }
@@ -78,6 +80,62 @@ class AppointmentEntity extends Equatable {
 
   bool get isVideo => consultationType == ConsultationType.video;
   bool get isCancelled => status == AppointmentStatus.cancelled;
+
+  /// A consultation session is assumed to run this long from its start time.
+  static const Duration _sessionLength = Duration(minutes: 60);
+
+  /// Scheduled start parsed from 'dd/MM/yyyy' + 'HH:mm'. Null if either is
+  /// missing/malformed (e.g. legacy records without a time).
+  DateTime? get startsAt {
+    if (appointmentDate.isEmpty || appointmentTime.isEmpty) return null;
+    final d = appointmentDate.split('/');
+    final t = appointmentTime.split(':');
+    if (d.length != 3 || t.length < 2) return null;
+    final day = int.tryParse(d[0]);
+    final month = int.tryParse(d[1]);
+    final year = int.tryParse(d[2]);
+    final hour = int.tryParse(t[0]);
+    final minute = int.tryParse(t[1]);
+    if (day == null ||
+        month == null ||
+        year == null ||
+        hour == null ||
+        minute == null) {
+      return null;
+    }
+    return DateTime(year, month, day, hour, minute);
+  }
+
+  DateTime? get endsAt => startsAt?.add(_sessionLength);
+
+  /// The scheduled session window has fully passed.
+  bool get hasEnded {
+    final e = endsAt;
+    return e != null && DateTime.now().isAfter(e);
+  }
+
+  /// WhatsApp video join is available only for a confirmed video appointment
+  /// whose start time has arrived and whose window hasn't ended.
+  bool get isJoinable {
+    final s = startsAt;
+    return isVideo &&
+        status == AppointmentStatus.confirmed &&
+        s != null &&
+        !DateTime.now().isBefore(s) &&
+        !hasEnded;
+  }
+
+  /// Status to *display*: a confirmed appointment whose window has passed reads
+  /// as completed even before the persisted status catches up.
+  AppointmentStatus get effectiveStatus =>
+      (status == AppointmentStatus.confirmed && hasEnded)
+          ? AppointmentStatus.completed
+          : status;
+
+  /// A confirmed appointment whose window ended and should be persisted as
+  /// completed on the next load.
+  bool get shouldAutoComplete =>
+      status == AppointmentStatus.confirmed && hasEnded;
 
   AppointmentEntity copyWith({AppointmentStatus? status}) {
     return AppointmentEntity(

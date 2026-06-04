@@ -83,6 +83,7 @@ class _StatusChip extends StatelessWidget {
       AppointmentStatus.pending => AppColors.warning,
       AppointmentStatus.confirmed => AppColors.success,
       AppointmentStatus.cancelled => AppColors.error,
+      AppointmentStatus.completed => AppColors.primary,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

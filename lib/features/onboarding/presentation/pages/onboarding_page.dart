@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/services/app_preferences.dart';
+import 'package:fyp/features/onboarding/presentation/viewmodels/onboarding_viewmodel.dart';
 import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
 import 'package:fyp/features/onboarding/presentation/widgets/onboarding_arts.dart';
 
@@ -17,8 +14,7 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  final _controller = PageController();
-  int _index = 0;
+  late final OnboardingViewModel _vm;
 
   static const _slides = [
     _Slide(
@@ -45,28 +41,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
     ),
   ];
 
-  bool get _isLast => _index == _slides.length - 1;
+  @override
+  void initState() {
+    super.initState();
+    _vm = OnboardingViewModel(slideCount: _slides.length);
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _vm.dispose();
     super.dispose();
-  }
-
-  void _finish() {
-    sl<AppPreferences>().markOnboardingSeen();
-    context.go(AppRoutes.welcome);
-  }
-
-  void _next() {
-    if (_isLast) {
-      _finish();
-    } else {
-      _controller.nextPage(
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeInOut,
-      );
-    }
   }
 
   @override
@@ -80,10 +64,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
             Align(
               alignment: Alignment.centerRight,
               child: AnimatedOpacity(
-                opacity: _isLast ? 0 : 1,
+                opacity: _vm.isLast ? 0 : 1,
                 duration: const Duration(milliseconds: 200),
                 child: TextButton(
-                  onPressed: _isLast ? null : _finish,
+                  onPressed: _vm.isLast ? null : () => _vm.finish(context),
                   child: const Text(
                     'Skip',
                     style: TextStyle(
@@ -97,9 +81,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
             Expanded(
               child: PageView.builder(
-                controller: _controller,
+                controller: _vm.pageController,
                 itemCount: _slides.length,
-                onPageChanged: (i) => setState(() => _index = i),
+                onPageChanged: (i) => setState(() => _vm.onPageChanged(i)),
                 itemBuilder: (_, i) => _SlideView(slide: _slides[i]),
               ),
             ),
@@ -108,7 +92,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 _slides.length,
-                (i) => _Dot(active: i == _index),
+                (i) => _Dot(active: i == _vm.index),
               ),
             ),
             const SizedBox(height: 28),
@@ -121,11 +105,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(16),
                   child: InkWell(
-                    onTap: _next,
+                    onTap: () => _vm.next(context),
                     borderRadius: BorderRadius.circular(16),
                     child: Center(
                       child: Text(
-                        _isLast ? 'Get Started' : 'Next',
+                        _vm.isLast ? 'Get Started' : 'Next',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

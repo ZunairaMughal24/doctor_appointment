@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_loader.dart';
 import '../bloc/doctor_bloc.dart';
 import '../bloc/doctor_event.dart';
 import '../bloc/doctor_state.dart';
+import '../viewmodels/search_results_viewmodel.dart';
 import '../widgets/doctor_card.dart';
 
 class SearchResultsPage extends StatelessWidget {
@@ -42,17 +43,17 @@ class _SearchView extends StatefulWidget {
 }
 
 class _SearchViewState extends State<_SearchView> {
-  late final TextEditingController _controller;
+  late final SearchResultsViewModel _vm;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialQuery);
+    _vm = SearchResultsViewModel(widget.initialQuery);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _vm.dispose();
     super.dispose();
   }
 
@@ -68,7 +69,7 @@ class _SearchViewState extends State<_SearchView> {
           onPressed: () => context.pop(),
         ),
         title: TextField(
-          controller: _controller,
+          controller: _vm.controller,
           autofocus: true,
           style: const TextStyle(color: Colors.white),
           decoration: const InputDecoration(
@@ -78,13 +79,7 @@ class _SearchViewState extends State<_SearchView> {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
           ),
-          onChanged: (query) {
-            if (query.isEmpty) {
-              context.read<DoctorBloc>().add(const LoadAllDoctors());
-            } else {
-              context.read<DoctorBloc>().add(SearchDoctors(query));
-            }
-          },
+          onChanged: (query) => _vm.onQueryChanged(context, query),
         ),
       ),
       body: BlocBuilder<DoctorBloc, DoctorState>(

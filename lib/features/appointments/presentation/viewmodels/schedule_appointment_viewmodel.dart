@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fyp/core/utils/app_feedback.dart';
+import 'package:fyp/core/utils/app_pickers.dart';
 import 'package:fyp/core/utils/validators.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
+import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 
 /// Holds all non-UI state/logic for the schedule-appointment form.
@@ -71,6 +79,56 @@ class ScheduleAppointmentViewModel {
       appointmentTime: selectedTime ?? '',
       consultationType: consultationType,
     );
+  }
+
+  // ── Coordination (context-bound) ─────────────────────────────────────────────
+
+  String _uid(BuildContext context) {
+    final s = context.read<AuthBloc>().state;
+    return s is AuthAuthenticated ? s.user.uid : '';
+  }
+
+  /// Shows the date picker, updates selection and refreshes live availability.
+  /// Returns true if a date was chosen so the page can rebuild.
+  Future<bool> pickDate(BuildContext context) async {
+    final picked = await AppPickers.pickDate(context);
+    if (picked == null) return false;
+    onDatePicked(picked);
+    if (context.mounted) _loadSlots(context);
+    return true;
+  }
+
+  /// Reloads availability for the selected date (e.g. after a failed booking
+  /// because a slot was just taken).
+  void refreshSlots(BuildContext context) {
+    if (hasDate) _loadSlots(context);
+  }
+
+  void _loadSlots(BuildContext context) {
+    context
+        .read<SlotsCubit>()
+        .loadBookedTimes(doctorId: doctor.id, date: formattedDate);
+  }
+
+  /// Validates the form and dispatches the booking. Shows inline errors for the
+  /// missing pieces.
+  void submit(BuildContext context) {
+    if (_uid(context).isEmpty) {
+      AppFeedback.showError(context, 'Please sign in to book an appointment.');
+      return;
+    }
+    if (!validateFields()) return;
+    if (!hasDate) {
+      AppFeedback.showError(context, 'Please select an appointment date.');
+      return;
+    }
+    if (!hasTime) {
+      AppFeedback.showError(context, 'Please select an available time slot.');
+      return;
+    }
+    context
+        .read<AppointmentBloc>()
+        .add(BookAppointment(buildAppointment(patientId: _uid(context))));
   }
 
   void dispose() {

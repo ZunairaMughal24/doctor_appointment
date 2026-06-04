@@ -21,6 +21,7 @@ abstract class AuthRemoteDataSource {
     required String location,
     required String availability,
     required String services,
+    required String description,
   });
   Future<UserModel> registerAsDoctor({
     required String uid,
@@ -162,6 +163,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String location,
     required String availability,
     required String services,
+    required String description,
   }) async {
     try {
       final credential = await firebaseAuth.createUserWithEmailAndPassword(
@@ -180,7 +182,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'location': location,
         'availability': availability,
         'services': services,
-        'description': '',
+        'description': description,
         'rating': 4.5,
         'isSeed': false,
         'createdAt': FieldValue.serverTimestamp(),

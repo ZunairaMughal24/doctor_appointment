@@ -1,7 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_error_banner.dart';
@@ -10,8 +9,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../viewmodels/sign_in_viewmodel.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -21,14 +20,17 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late final SignInViewModel _vm;
+
+  @override
+  void initState() {
+    super.initState();
+    _vm = SignInViewModel();
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _vm.dispose();
     super.dispose();
   }
 
@@ -98,26 +100,26 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Form(
-                  key: _formKey,
+                  key: _vm.formKey,
                   child: Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                     child: Column(
                       children: [
                         AppTextField(
-                          controller: _emailController,
+                          controller: _vm.emailController,
                           hint: 'Email',
                           prefixIcon: Icons.person,
                           keyboardType: TextInputType.emailAddress,
-                          validator: Validators.email,
+                          validator: _vm.emailValidator,
                         ),
                         const SizedBox(height: 16),
                         AppTextField(
-                          controller: _passwordController,
+                          controller: _vm.passwordController,
                           hint: 'Password',
                           prefixIcon: Icons.lock,
                           obscureText: true,
-                          validator: Validators.password,
+                          validator: _vm.passwordValidator,
                         ),
                       ],
                     ),
@@ -144,14 +146,7 @@ class _SignInPageState extends State<SignInPage> {
                       return AppButton(
                         label: 'Sign In',
                         loading: state is AuthLoading,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.read<AuthBloc>().add(AuthSignInRequested(
-                                  email: _emailController.text.trim(),
-                                  password: _passwordController.text.trim(),
-                                ));
-                          }
-                        },
+                        onPressed: () => _vm.submit(context),
                       );
                     },
                   ),

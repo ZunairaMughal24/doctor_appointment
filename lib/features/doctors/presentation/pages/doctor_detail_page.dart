@@ -1,8 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/services/communication_launcher.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/doctor_entity.dart';
 import '../../domain/entities/weekly_availability.dart';
+import '../viewmodels/doctor_detail_viewmodel.dart';
 
 class DoctorDetailPage extends StatelessWidget {
   final String docId;
@@ -64,8 +63,11 @@ class DoctorDetailPage extends StatelessWidget {
                         CircleAvatar(
                           radius: 42,
                           backgroundColor: AppColors.primaryLight,
-                          backgroundImage:
-                              AssetImage(AppAssets.avatarForDoctor(data.id)),
+                          backgroundImage: (data.imageUrl != null &&
+                                  data.imageUrl!.isNotEmpty)
+                              ? NetworkImage(data.imageUrl!)
+                              : AssetImage(AppAssets.avatarForDoctor(data.id))
+                                  as ImageProvider,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -137,31 +139,6 @@ class DoctorDetailPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            Container(
-                              height: 55,
-                              width: 55,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(16),
-                                color: AppColors.primary,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: AppColors.shadowCard,
-                                    offset: Offset(2, 3),
-                                    blurRadius: 0.5,
-                                    spreadRadius: 0.1,
-                                  ),
-                                ],
-                              ),
-                              child: IconButton(
-                                onPressed: () => CommunicationLauncher.call(
-                                    data.phoneNumber),
-                                icon:
-                                    const Icon(Icons.call, color: Colors.white),
-                                iconSize: 30,
-                              ),
-                            ),
                           ],
                         ),
 
@@ -231,42 +208,39 @@ class DoctorDetailPage extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 19),
-
-                        // Video consultation (WhatsApp)
-                        AppButton.outlined(
-                          icon: Icons.videocam_rounded,
-                          label: 'Video Consultation',
-                          onPressed: () async {
-                            final ok = await CommunicationLauncher.whatsApp(
-                              data.phoneNumber,
-                              message:
-                                  'Hello Dr. ${data.name.replaceFirst('Dr. ', '')}, '
-                                  "I'd like to book a video consultation.",
-                            );
-                            if (!ok && context.mounted) {
-                              AppFeedback.showError(context,
-                                  'Could not open WhatsApp. Make sure it is installed.');
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Make an Appointment
-                        AppButton(
-                          icon: Icons.event_available_rounded,
-                          label: 'Make an Appointment',
-                          onPressed: () => context.push(
-                            AppRoutes.scheduleAppointment,
-                            extra: data,
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Booking enquiries go to the shared clinic assistant line — never
+              // the doctor's personal number.
+              AppButton.outlined(
+                icon: Icons.call_rounded,
+                label: 'Call Assistant',
+                onPressed: () => const DoctorDetailViewModel().callAssistant(context),
+              ),
+              const SizedBox(height: 10),
+              AppButton(
+                icon: Icons.event_available_rounded,
+                label: 'Make an Appointment',
+                onPressed: () => context.push(
+                  AppRoutes.scheduleAppointment,
+                  extra: data,
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -42,6 +42,7 @@ class AuthSignUpDoctorRequested extends AuthEvent {
   final String location;
   final String availability;
   final String services;
+  final String description;
 
   const AuthSignUpDoctorRequested({
     required this.name,
@@ -53,6 +54,7 @@ class AuthSignUpDoctorRequested extends AuthEvent {
     required this.location,
     required this.availability,
     required this.services,
+    required this.description,
   });
   @override
   List<Object?> get props =>

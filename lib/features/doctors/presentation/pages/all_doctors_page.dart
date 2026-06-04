@@ -1,15 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../bloc/doctor_bloc.dart';
 import '../bloc/doctor_event.dart';
 import '../bloc/doctor_state.dart';
+import '../viewmodels/all_doctors_view_model.dart';
 import '../widgets/doctor_list_tile.dart';
 
 class AllDoctorsPage extends StatelessWidget {
@@ -18,28 +16,14 @@ class AllDoctorsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final bloc = sl<DoctorBloc>();
-        if (speciality != null) {
-          bloc.add(LoadDoctorsBySpeciality(speciality!));
-        } else {
-          bloc.add(const LoadAllDoctors());
-        }
-        return bloc;
-      },
-      child: _AllDoctorsView(speciality: speciality),
-    );
-  }
-}
+    const vm = AllDoctorsViewModel();
 
-class _AllDoctorsView extends StatelessWidget {
-  final String? speciality;
-  const _AllDoctorsView({this.speciality});
+    // Reuse the app-wide DoctorBloc loaded once at startup. Repeat visits (e.g.
+    // tapping disease categories) read this cached list instantly — no refetch,
+    // no loading spinner. Only trigger a load if it somehow hasn't loaded yet.
+    final bloc = context.read<DoctorBloc>();
+    if (bloc.state is DoctorInitial) bloc.add(const LoadAllDoctors());
 
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       appBar: AppBar(
@@ -58,7 +42,7 @@ class _AllDoctorsView extends StatelessWidget {
           }
 
           if (state is DoctorsLoaded) {
-            final doctors = state.doctors;
+            final doctors = vm.filter(state.doctors, speciality);
 
             if (doctors.isEmpty) {
               return const Center(child: Text('No doctors found'));
@@ -72,12 +56,11 @@ class _AllDoctorsView extends StatelessWidget {
                 final doctor = doctors[index];
                 return DoctorListTile(
                   doctor: doctor,
-                  tileColor: AppColors.doctorTileColors[index % AppColors.doctorTileColors.length],
-                  image: AppAssets.doctorAvatars[index % AppAssets.doctorAvatars.length],
-                  onTap: () => context.push(
-                    AppRoutes.doctorDetailPath(doctor.id),
-                    extra: doctor,
-                  ),
+                  tileColor: AppColors
+                      .doctorTileColors[index % AppColors.doctorTileColors.length],
+                  image: AppAssets
+                      .doctorAvatars[index % AppAssets.doctorAvatars.length],
+                  onTap: () => vm.openDoctor(context, doctor),
                 );
               },
             );
@@ -89,4 +72,3 @@ class _AllDoctorsView extends StatelessWidget {
     );
   }
 }
-

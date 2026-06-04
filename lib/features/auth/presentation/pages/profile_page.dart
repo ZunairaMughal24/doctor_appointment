@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../doctors/domain/usecases/get_doctor_by_id_usecase.dart';
-import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../viewmodels/profile_viewmodel.dart';
 
 /// User profile screen with inline edit mode (toggled from the app-bar pencil).
 ///
@@ -32,105 +30,21 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-
-  // Doctor-only professional fields.
-  final _specialityController = TextEditingController();
-  final _experienceController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _availabilityController = TextEditingController();
-  final _servicesController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
-  bool _editing = false;
-  bool _doctorLoaded = false;
+  late final ProfileViewModel _vm;
 
   @override
   void initState() {
     super.initState();
-    final state = context.read<AuthBloc>().state;
-    if (state is! AuthAuthenticated) {
-      context.read<AuthBloc>().add(const AuthCheckRequested());
-    }
-    final user = state is AuthAuthenticated ? state.user : null;
-    _nameController = TextEditingController(text: user?.name ?? '');
-    _emailController = TextEditingController(text: user?.email ?? '');
-    if (user != null && user.isDoctor) {
-      _loadDoctorProfile(user.uid);
-    }
-  }
-
-  /// Pulls the doctor's stored professional details to pre-fill the form.
-  Future<void> _loadDoctorProfile(String uid) async {
-    final result = await sl<GetDoctorByIdUseCase>()(uid);
-    result.fold(
-      (_) {},
-      (doctor) {
-        if (!mounted) return;
-        setState(() {
-          _specialityController.text = doctor.speciality;
-          _experienceController.text = doctor.experience;
-          _phoneController.text = doctor.phoneNumber;
-          _locationController.text = doctor.location;
-          _availabilityController.text = doctor.availability;
-          _servicesController.text = doctor.services;
-          _descriptionController.text = doctor.description;
-          _doctorLoaded = true;
-        });
-      },
-    );
+    _vm = ProfileViewModel(onChange: () {
+      if (mounted) setState(() {});
+    });
+    _vm.init(context);
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _specialityController.dispose();
-    _experienceController.dispose();
-    _phoneController.dispose();
-    _locationController.dispose();
-    _availabilityController.dispose();
-    _servicesController.dispose();
-    _descriptionController.dispose();
+    _vm.dispose();
     super.dispose();
-  }
-
-  void _saveProfile(UserEntity user) {
-    if (!_formKey.currentState!.validate()) return;
-    context.read<AuthBloc>().add(AuthUpdateProfileRequested(
-          uid: user.uid,
-          name: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-          // Only doctors persist the professional fields.
-          speciality:
-              user.isDoctor ? _specialityController.text.trim() : null,
-          experience:
-              user.isDoctor ? _experienceController.text.trim() : null,
-          phoneNumber: user.isDoctor ? _phoneController.text.trim() : null,
-          location: user.isDoctor ? _locationController.text.trim() : null,
-          availability:
-              user.isDoctor ? _availabilityController.text.trim() : null,
-          services: user.isDoctor ? _servicesController.text.trim() : null,
-          description:
-              user.isDoctor ? _descriptionController.text.trim() : null,
-        ));
-    setState(() => _editing = false);
-  }
-
-  void _cancelEditing(UserEntity user) {
-    setState(() => _editing = false);
-    _nameController.text = user.name;
-    _emailController.text = user.email;
-    if (user.isDoctor) _loadDoctorProfile(user.uid);
-  }
-
-  void _switchRole(UserEntity user) {
-    final newRole =
-        user.role == UserRole.doctor ? UserRole.patient : UserRole.doctor;
-    context.read<AuthBloc>().add(AuthSwitchRoleRequested(newRole));
   }
 
   @override
@@ -142,22 +56,21 @@ class _ProfilePageState extends State<ProfilePage> {
         } else if (state is AuthFailureState) {
           AppFeedback.showError(context, state.message);
         } else if (state is AuthAuthenticated) {
-          _nameController.text = state.user.name;
-          _emailController.text = state.user.email;
-          if (state.user.isDoctor && !_doctorLoaded) {
-            _loadDoctorProfile(state.user.uid);
-          }
+          _vm.onAuthenticated(context, state.user);
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          if (state is! AuthAuthenticated) {
+          if (state is AuthAuthenticated) {
+            _vm.cachedUser = state.user;
+          }
+          if (_vm.cachedUser == null) {
             return const Scaffold(
               backgroundColor: AppColors.cardBg,
-              body: Center(child: CircularProgressIndicator()),
+              body: AppLoader(),
             );
           }
-          final user = state.user;
+          final user = _vm.cachedUser!;
           return Scaffold(
             backgroundColor: AppColors.cardBg,
             appBar: AppBar(
@@ -170,161 +83,193 @@ class _ProfilePageState extends State<ProfilePage> {
                     fontWeight: FontWeight.bold),
               ),
               actions: [
-                if (!_editing)
+                if (!_vm.editing)
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.white),
-                    onPressed: () => setState(() => _editing = true),
+                    onPressed: () => setState(() => _vm.editing = true),
                   )
                 else
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => _cancelEditing(user),
+                    onPressed: () => _vm.cancelEditing(user),
                   ),
               ],
             ),
-            body: state is AuthLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                    padding: const EdgeInsets.all(18),
-                    children: [
-                      // ── Avatar ──────────────────────────────────────
-                      Center(
-                        child: CircleAvatar(
-                          radius: 44,
-                          backgroundColor: AppColors.primary,
-                          child: Text(
-                            user.name.isNotEmpty
-                                ? user.name[0].toUpperCase()
-                                : '?',
-                            style: const TextStyle(
-                                fontSize: 34,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+            body: Stack(
+              children: [
+                ListView(
+                  padding: const EdgeInsets.all(18),
+                  children: [
+                    // ── Avatar ──────────────────────────────────────
+                    Center(
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 44,
+                            backgroundColor: AppColors.primary,
+                            backgroundImage: (_vm.doctorEntity?.imageUrl != null &&
+                                    _vm.doctorEntity!.imageUrl!.isNotEmpty)
+                                ? NetworkImage(_vm.doctorEntity!.imageUrl!)
+                                : null,
+                            child: _vm.uploadingImage
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : (_vm.doctorEntity?.imageUrl == null ||
+                                        _vm.doctorEntity!.imageUrl!.isEmpty)
+                                    ? Text(
+                                        user.name.isNotEmpty
+                                            ? user.name[0].toUpperCase()
+                                            : '?',
+                                        style: const TextStyle(
+                                            fontSize: 34,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      )
+                                    : null,
                           ),
-                        ),
+                          if (_vm.editing && user.isDoctor)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: InkWell(
+                                onTap: () => _vm.pickAndUploadImage(context),
+                                child: const CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.primary,
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: user.isDoctor
+                              ? AppColors.primary
+                              : AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          user.isDoctor ? 'Doctor Mode' : 'Patient Mode',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
                             color: user.isDoctor
-                                ? AppColors.primary
-                                : AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            user.isDoctor ? 'Doctor Mode' : 'Patient Mode',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: user.isDoctor
-                                  ? Colors.white
-                                  : AppColors.primary,
-                            ),
+                                ? Colors.white
+                                : AppColors.primary,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                    ),
+                    const SizedBox(height: 24),
 
-                      // ── Personal / Professional Info ─────────────────
-                      _sectionHeader('Personal Information'),
-                      const SizedBox(height: 12),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
+                    // ── Personal / Professional Info ─────────────────
+                    _sectionHeader('Personal Information'),
+                    const SizedBox(height: 12),
+                    Form(
+                      key: _vm.formKey,
+                      child: Column(
+                        children: [
+                          _LabeledField(
+                            label: 'Full Name',
+                            controller: _vm.nameController,
+                            icon: Icons.person_outline,
+                            enabled: _vm.editing,
+                            validator: (v) =>
+                                Validators.required(v, 'Name'),
+                          ),
+                          _LabeledField(
+                            label: 'Email',
+                            controller: _vm.emailController,
+                            icon: Icons.email_outlined,
+                            enabled: _vm.editing,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: Validators.email,
+                          ),
+                          if (user.isDoctor) ...[
+                            const SizedBox(height: 16),
+                            _sectionHeader('Professional Details'),
+                            const SizedBox(height: 12),
                             _LabeledField(
-                              label: 'Full Name',
-                              controller: _nameController,
-                              icon: Icons.person_outline,
-                              enabled: _editing,
+                              label: 'Speciality',
+                              controller: _vm.specialityController,
+                              icon: Icons.medical_services_outlined,
+                              enabled: _vm.editing,
                               validator: (v) =>
-                                  Validators.required(v, 'Name'),
+                                  Validators.required(v, 'Speciality'),
                             ),
                             _LabeledField(
-                              label: 'Email',
-                              controller: _emailController,
-                              icon: Icons.email_outlined,
-                              enabled: _editing,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: Validators.email,
+                              label: 'Experience',
+                              controller: _vm.experienceController,
+                              icon: Icons.workspace_premium_outlined,
+                              enabled: _vm.editing,
+                              validator: (v) =>
+                                  Validators.required(v, 'Experience'),
                             ),
-                            if (user.isDoctor) ...[
-                              const SizedBox(height: 16),
-                              _sectionHeader('Professional Details'),
-                              const SizedBox(height: 12),
-                              _LabeledField(
-                                label: 'Speciality',
-                                controller: _specialityController,
-                                icon: Icons.medical_services_outlined,
-                                enabled: _editing,
-                                validator: (v) =>
-                                    Validators.required(v, 'Speciality'),
-                              ),
-                              _LabeledField(
-                                label: 'Experience',
-                                controller: _experienceController,
-                                icon: Icons.workspace_premium_outlined,
-                                enabled: _editing,
-                                validator: (v) =>
-                                    Validators.required(v, 'Experience'),
-                              ),
-                              _LabeledField(
-                                label: 'Phone Number',
-                                controller: _phoneController,
-                                icon: Icons.phone_outlined,
-                                enabled: _editing,
-                                keyboardType: TextInputType.phone,
-                                validator: Validators.phone,
-                              ),
-                              _LabeledField(
-                                label: 'Clinic / Hospital Location',
-                                controller: _locationController,
-                                icon: Icons.location_on_outlined,
-                                enabled: _editing,
-                                validator: (v) =>
-                                    Validators.required(v, 'Location'),
-                              ),
-                              _LabeledField(
-                                label: 'Availability',
-                                controller: _availabilityController,
-                                icon: Icons.access_time_outlined,
-                                enabled: _editing,
-                                validator: (v) =>
-                                    Validators.required(v, 'Availability'),
-                              ),
-                              _LabeledField(
-                                label: 'Services',
-                                controller: _servicesController,
-                                icon: Icons.list_alt_outlined,
-                                enabled: _editing,
-                                maxLines: 2,
-                                validator: (v) =>
-                                    Validators.required(v, 'Services'),
-                              ),
-                              _LabeledField(
-                                label: 'About / Description',
-                                controller: _descriptionController,
-                                icon: Icons.info_outline,
-                                enabled: _editing,
-                                maxLines: 4,
-                              ),
-                            ],
+                            _LabeledField(
+                              label: 'Phone Number',
+                              controller: _vm.phoneController,
+                              icon: Icons.phone_outlined,
+                              enabled: _vm.editing,
+                              keyboardType: TextInputType.phone,
+                              validator: Validators.phone,
+                            ),
+                            _LabeledField(
+                              label: 'Clinic / Hospital Location',
+                              controller: _vm.locationController,
+                              icon: Icons.location_on_outlined,
+                              enabled: _vm.editing,
+                              validator: (v) =>
+                                  Validators.required(v, 'Location'),
+                            ),
+                            _LabeledField(
+                              label: 'Availability',
+                              controller: _vm.availabilityController,
+                              icon: Icons.access_time_outlined,
+                              enabled: _vm.editing,
+                              validator: (v) =>
+                                  Validators.required(v, 'Availability'),
+                            ),
+                            _LabeledField(
+                              label: 'Services',
+                              controller: _vm.servicesController,
+                              icon: Icons.list_alt_outlined,
+                              enabled: _vm.editing,
+                              maxLines: 2,
+                              validator: (v) =>
+                                  Validators.required(v, 'Services'),
+                            ),
+                            _LabeledField(
+                              label: 'About / Description',
+                              controller: _vm.descriptionController,
+                              icon: Icons.info_outline,
+                              enabled: _vm.editing,
+                              maxLines: 4,
+                            ),
                           ],
-                        ),
+                        ],
                       ),
-                      if (_editing) ...[
-                        const SizedBox(height: 20),
-                        AppButton(
-                          label: 'Save Changes',
-                          icon: Icons.check_rounded,
-                          onPressed: () => _saveProfile(user),
-                        ),
-                      ],
+                    ),
+                    if (_vm.editing) ...[
+                      const SizedBox(height: 20),
+                      AppButton(
+                        label: 'Save Changes',
+                        icon: Icons.check_rounded,
+                        loading: state is AuthLoading,
+                        onPressed: () => _vm.saveProfile(context, user),
+                      ),
+                    ],
 
-                      const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
                       // ── Role Switching ───────────────────────────────
                       if (user.hasDoctorProfile) ...[
@@ -368,7 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Switch(
                                 value: user.isDoctor,
                                 activeThumbColor: AppColors.primary,
-                                onChanged: (_) => _switchRole(user),
+                                onChanged: (_) => _vm.switchRole(context, user),
                               ),
                             ],
                           ),
@@ -436,28 +381,23 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: AppColors.error,
                             ),
                           ),
-                          onTap: () async {
-                            final confirmed =
-                                await AppFeedback.showConfirmation(
-                              context,
-                              title: 'Sign Out',
-                              message:
-                                  'Are you sure you want to sign out of your account?',
-                              confirmLabel: 'Sign Out',
-                              cancelLabel: 'Cancel',
-                              isDanger: true,
-                            );
-                            if (confirmed && context.mounted) {
-                              context
-                                  .read<AuthBloc>()
-                                  .add(const AuthSignOutRequested());
-                            }
-                          },
+                          onTap: () => _vm.signOut(context),
                         ),
                       ),
                       const SizedBox(height: 24),
                     ],
                   ),
+                  if (state is AuthLoading)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        child: const Center(
+                          child: AppLoader(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
           );
         },
       ),

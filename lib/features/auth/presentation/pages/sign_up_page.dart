@@ -1,7 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_error_banner.dart';
@@ -10,8 +9,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../viewmodels/sign_up_viewmodel.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -21,18 +20,17 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  late final SignUpViewModel _vm;
+
+  @override
+  void initState() {
+    super.initState();
+    _vm = SignUpViewModel();
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _vm.dispose();
     super.dispose();
   }
 
@@ -100,42 +98,41 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 4),
                 Form(
-                  key: _formKey,
+                  key: _vm.formKey,
                   child: Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                     child: Column(
                       children: [
                         AppTextField(
-                          controller: _nameController,
+                          controller: _vm.nameController,
                           hint: 'Name',
                           prefixIcon: Icons.person,
-                          validator: (v) => Validators.required(v, 'Name'),
+                          validator: _vm.nameValidator,
                         ),
                         const SizedBox(height: 14),
                         AppTextField(
-                          controller: _emailController,
+                          controller: _vm.emailController,
                           hint: 'Email',
                           prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
-                          validator: Validators.email,
+                          validator: _vm.emailValidator,
                         ),
                         const SizedBox(height: 14),
                         AppTextField(
-                          controller: _passwordController,
+                          controller: _vm.passwordController,
                           hint: 'Password',
                           prefixIcon: Icons.lock,
                           obscureText: true,
-                          validator: Validators.password,
+                          validator: _vm.passwordValidator,
                         ),
                         const SizedBox(height: 14),
                         AppTextField(
-                          controller: _confirmPasswordController,
+                          controller: _vm.confirmPasswordController,
                           hint: 'Confirm password',
                           prefixIcon: Icons.lock,
                           obscureText: true,
-                          validator: (v) => Validators.confirmPassword(
-                              v, _passwordController.text),
+                          validator: _vm.confirmPasswordValidator,
                         ),
                       ],
                     ),
@@ -162,17 +159,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       return AppButton(
                         label: 'Sign Up',
                         loading: state is AuthLoading,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context
-                                .read<AuthBloc>()
-                                .add(AuthSignUpPatientRequested(
-                                  name: _nameController.text.trim(),
-                                  email: _emailController.text.trim(),
-                                  password: _passwordController.text.trim(),
-                                ));
-                          }
-                        },
+                        onPressed: () => _vm.submit(context),
                       );
                     },
                   ),
@@ -193,7 +180,4 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
   }
-
 }
-
-

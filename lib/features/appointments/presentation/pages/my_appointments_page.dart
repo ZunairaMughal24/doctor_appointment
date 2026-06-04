@@ -14,6 +14,9 @@ import 'package:fyp/features/appointments/presentation/bloc/appointment_event.da
 import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
 import 'package:fyp/features/appointments/presentation/widgets/appointment_list_skeleton.dart';
 import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
+import 'package:fyp/features/appointments/presentation/viewmodels/appointment_auto_complete.dart';
+import 'package:fyp/features/appointments/presentation/viewmodels/appointment_reminders.dart';
+import 'package:fyp/features/notifications/presentation/widgets/notification_bell.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
   final bool isUser;
@@ -65,11 +68,18 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: NotificationBell(),
+          ),
+        ],
       ),
       body: BlocBuilder<AppointmentBloc, AppointmentState>(
         builder: (context, state) => _AppointmentListBody(
           state: state,
           titleOf: (a) => a.doctorName,
+          currentUserId: _uid,
           emptyMessage: 'No appointments yet',
           emptyIcon: Icons.calendar_today_outlined,
           onRetry: () =>
@@ -129,6 +139,12 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: NotificationBell(),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -151,6 +167,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                 state: state,
                 titleOf: (a) => a.patientName,
                 isPatient: true,
+                currentUserId: _uid,
                 emptyMessage: 'No patients yet',
                 emptyIcon: Icons.people_outline,
                 onRetry: () =>
@@ -166,6 +183,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
               builder: (context, state) => _AppointmentListBody(
                 state: state,
                 titleOf: (a) => a.doctorName,
+                currentUserId: _uid,
                 emptyMessage: 'No personal visits yet',
                 emptyIcon: Icons.calendar_today_outlined,
                 onRetry: () => _visitsBloc.add(LoadUserAppointments(_uid)),
@@ -184,6 +202,7 @@ class _AppointmentListBody extends StatelessWidget {
   final AppointmentState state;
   final String Function(AppointmentEntity) titleOf;
   final bool isPatient;
+  final String currentUserId;
   final String emptyMessage;
   final IconData emptyIcon;
   final VoidCallback onRetry;
@@ -191,6 +210,7 @@ class _AppointmentListBody extends StatelessWidget {
   const _AppointmentListBody({
     required this.state,
     required this.titleOf,
+    required this.currentUserId,
     required this.emptyMessage,
     required this.emptyIcon,
     required this.onRetry,
@@ -213,6 +233,10 @@ class _AppointmentListBody extends StatelessWidget {
       if (state.appointments.isEmpty) {
         return AppointmentEmptyState(message: emptyMessage, icon: emptyIcon);
       }
+      // Fire idempotent in-app reminders for any of today's appointments, and
+      // persist completion for any whose session window has ended.
+      AppointmentReminders.fireDayOf(state.appointments, currentUserId, titleOf);
+      AppointmentAutoComplete.run(state.appointments);
       return ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: state.appointments.length,
@@ -223,8 +247,12 @@ class _AppointmentListBody extends StatelessWidget {
             title: titleOf(appt),
             subtitle: appt.appointmentDay,
             isPatient: isPatient,
-            onTap: () =>
-                context.push(AppRoutes.appointmentDetail, extra: appt),
+            status: appt.effectiveStatus,
+            onTap: () async {
+              final changed =
+                  await context.push(AppRoutes.appointmentDetail, extra: appt);
+              if (changed == true) onRetry(); // refresh after confirm/cancel
+            },
           );
         },
       );

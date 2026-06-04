@@ -1,17 +1,9 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/services/app_preferences.dart';
 import '../../../../core/utils/app_animations.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
+import '../viewmodels/splash_viewmodel.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -21,38 +13,12 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  final _vm = const SplashViewModel();
+
   @override
   void initState() {
     super.initState();
-    context.read<AuthBloc>().add(const AuthCheckRequested());
-    _goNext();
-  }
-
-  Future<void> _goNext() async {
-    final bloc = context.read<AuthBloc>();
-
-    // Stay on the splash for at least 3 seconds.
-    await Future.delayed(const Duration(seconds: 3));
-
-    // In the rare case auth hasn't resolved yet, wait for it.
-    if (_destinationFor(bloc.state) == null) {
-      await bloc.stream.firstWhere((s) => _destinationFor(s) != null);
-    }
-
-    if (mounted) context.go(_destinationFor(bloc.state)!);
-  }
-
-  String? _destinationFor(AuthState state) {
-    if (state is AuthAuthenticated) {
-      return state.user.isDoctor ? AppRoutes.appointments : AppRoutes.home;
-    }
-    if (state is AuthUnauthenticated) {
-      // Release: onboarding on first launch only. Debug: always show it.
-      final showOnboarding =
-          kDebugMode || !sl<AppPreferences>().onboardingSeen;
-      return showOnboarding ? AppRoutes.onboarding : AppRoutes.welcome;
-    }
-    return null; // still loading
+    _vm.start(context);
   }
 
   @override

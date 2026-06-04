@@ -6,14 +6,11 @@ import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/core/utils/app_feedback.dart';
-import 'package:fyp/core/utils/app_pickers.dart';
 import 'package:fyp/core/widgets/app_button.dart';
+import 'package:fyp/core/widgets/app_loader.dart';
 import 'package:fyp/core/widgets/app_text_field.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
 import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
@@ -56,38 +53,6 @@ class _ScheduleViewState extends State<_ScheduleView> {
     super.dispose();
   }
 
-  String get _uid {
-    final s = context.read<AuthBloc>().state;
-    return s is AuthAuthenticated ? s.user.uid : '';
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await AppPickers.pickDate(context);
-    if (picked == null) return;
-    setState(() => _vm.onDatePicked(picked));
-    if (mounted) {
-      context.read<SlotsCubit>().loadBookedTimes(
-            doctorId: widget.doctor.id,
-            date: _vm.formattedDate,
-          );
-    }
-  }
-
-  void _submit() {
-    if (!_vm.validateFields()) return;
-    if (!_vm.hasDate) {
-      AppFeedback.showError(context, 'Please select an appointment date.');
-      return;
-    }
-    if (!_vm.hasTime) {
-      AppFeedback.showError(context, 'Please select an available time slot.');
-      return;
-    }
-    context
-        .read<AppointmentBloc>()
-        .add(BookAppointment(_vm.buildAppointment(patientId: _uid)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +76,9 @@ class _ScheduleViewState extends State<_ScheduleView> {
             context.go(AppRoutes.appointments);
           } else if (state is AppointmentError) {
             AppFeedback.showError(context, state.message);
+            // Booking may have failed because the slot was just taken —
+            // refresh live availability so it greys out.
+            _vm.refreshSlots(context);
           }
         },
         child: Form(
@@ -148,19 +116,26 @@ class _ScheduleViewState extends State<_ScheduleView> {
                     ? '${_vm.selectedDay}, ${_vm.formattedDate}'
                     : 'Tap to pick a date',
                 isPlaceholder: !_vm.hasDate,
-                onTap: _pickDate,
+                onTap: () async {
+                  if (await _vm.pickDate(context) && mounted) setState(() {});
+                },
               ),
               const SizedBox(height: 16),
               const _SectionLabel('Available slots'),
               _SlotsArea(vm: _vm, onPick: (t) => setState(() => _vm.selectTime(t))),
-              const SizedBox(height: 28),
-              BlocBuilder<AppointmentBloc, AppointmentState>(
-                builder: (context, state) => _SubmitButton(
-                  loading: state is AppointmentLoading,
-                  onTap: _submit,
-                ),
-              ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: SafeArea(
+          child: BlocBuilder<AppointmentBloc, AppointmentState>(
+            builder: (context, state) => _SubmitButton(
+              loading: state is AppointmentLoading,
+              onTap: () => _vm.submit(context),
+            ),
           ),
         ),
       ),
@@ -190,7 +165,7 @@ class _SlotsArea extends StatelessWidget {
         if (state is SlotsLoading) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: AppLoader(dotSize: 9),
           );
         }
         if (state is SlotsError) {

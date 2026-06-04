@@ -1,4 +1,4 @@
-﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart' as di;
 import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/core/services/push_notification_service.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
@@ -25,6 +26,11 @@ void main() async {
 
   // Initialize Dependency Injection
   await di.initDependencies();
+
+  // Initialize Push Notifications
+  try {
+    await PushNotificationService.initialize();
+  } catch (_) {}
 
   runApp(const MyApp());
 }

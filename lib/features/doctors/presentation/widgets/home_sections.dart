@@ -142,7 +142,9 @@ class FeaturedDoctorsSection extends StatelessWidget {
                         SizedBox(
                           height: 165,
                           width: 110,
-                          child: Image.asset(_imgFor(index), fit: BoxFit.cover),
+                          child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
+                              ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
+                              : Image.asset(_imgFor(index), fit: BoxFit.cover),
                         ),
                       ],
                     ),
@@ -312,8 +314,9 @@ class AvailableDoctorsSection extends StatelessWidget {
                           SizedBox(
                             height: 150,
                             width: 90,
-                            child:
-                                Image.asset(_imgFor(index), fit: BoxFit.cover),
+                            child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
+                                ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
+                                : Image.asset(_imgFor(index), fit: BoxFit.cover),
                           ),
                           DoctorCardAvailable(
                             name: doctor.name,
@@ -393,12 +396,19 @@ class RecommendedDoctorsSection extends StatelessWidget {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: Image.asset(
-                                _imgFor(index),
-                                height: 78,
-                                width: 78,
-                                fit: BoxFit.cover,
-                              ),
+                              child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
+                                  ? Image.network(
+                                      doctor.imageUrl!,
+                                      height: 78,
+                                      width: 78,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      _imgFor(index),
+                                      height: 78,
+                                      width: 78,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                             const SizedBox(height: 6),
                             DoctorCardCompact(

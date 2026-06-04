@@ -8,6 +8,7 @@ import '../../domain/usecases/sign_up_doctor_usecase.dart';
 import '../../domain/usecases/sign_up_patient_usecase.dart';
 import '../../domain/usecases/switch_role_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
+import '../../../../core/services/push_notification_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -60,7 +61,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         SignInParams(email: event.email, password: event.password));
     result.fold(
       (failure) => emit(AuthFailureState(failure.userMessage)),
-      (user) => emit(AuthAuthenticated(user)),
+      (user) {
+        emit(AuthAuthenticated(user));
+        PushNotificationService.updateDeviceToken();
+      },
     );
   }
 
@@ -74,7 +78,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ));
     result.fold(
       (failure) => emit(AuthFailureState(failure.userMessage)),
-      (user) => emit(AuthAuthenticated(user)),
+      (user) {
+        emit(AuthAuthenticated(user));
+        PushNotificationService.updateDeviceToken();
+      },
     );
   }
 
@@ -91,10 +98,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       location: event.location,
       availability: event.availability,
       services: event.services,
+      description: event.description,
     ));
     result.fold(
       (failure) => emit(AuthFailureState(failure.userMessage)),
-      (user) => emit(AuthAuthenticated(user)),
+      (user) {
+        emit(AuthAuthenticated(user));
+        PushNotificationService.updateDeviceToken();
+      },
     );
   }
 
@@ -114,7 +125,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ));
     result.fold(
       (failure) => emit(AuthFailureState(failure.userMessage)),
-      (user) => emit(AuthAuthenticated(user)),
+      (user) {
+        emit(AuthAuthenticated(user));
+        PushNotificationService.updateDeviceToken();
+      },
     );
   }
 

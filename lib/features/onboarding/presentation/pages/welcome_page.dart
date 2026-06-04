@@ -1,14 +1,11 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/services/app_preferences.dart';
 import 'package:fyp/core/utils/app_animations.dart';
 import 'package:fyp/core/widgets/app_button.dart';
+import 'package:fyp/features/onboarding/presentation/viewmodels/welcome_viewmodel.dart';
 
 /// Landing screen for unauthenticated users.
 ///
@@ -20,6 +17,7 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const vm = WelcomeViewModel();
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Column(
@@ -57,10 +55,7 @@ class WelcomePage extends StatelessWidget {
                     child: GestureDetector(
                       // Debug-only: long-press to replay onboarding.
                       onLongPress: kDebugMode
-                          ? () {
-                              sl<AppPreferences>().resetOnboarding();
-                              context.go(AppRoutes.onboarding);
-                            }
+                          ? () => vm.replayOnboarding(context)
                           : null,
                       child: const Text(
                         'Welcome to Medic',
@@ -91,7 +86,7 @@ class WelcomePage extends StatelessWidget {
                     child: AppButton(
                       label: 'Sign In',
                       height: 54,
-                      onPressed: () => context.go(AppRoutes.signIn),
+                      onPressed: () => vm.goSignIn(context),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -100,7 +95,7 @@ class WelcomePage extends StatelessWidget {
                     child: AppButton.outlined(
                       label: 'Create Account',
                       height: 54,
-                      onPressed: () => context.go(AppRoutes.signUp),
+                      onPressed: () => vm.goSignUp(context),
                     ),
                   ),
                 ],
