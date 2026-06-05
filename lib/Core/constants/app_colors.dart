@@ -94,4 +94,18 @@ class AppColors {
   // ── Shadows ───────────────────────────────────────────────────────────────
   static const Color shadowLight = Color(0xFFD9DADA);
   static const Color shadowCard = Color(0xFFC9C9C9);
+
+  /// Soft layered shadow for elevated cards (home screen).
+  static List<BoxShadow> softCardShadow({double opacity = 0.08}) => [
+        BoxShadow(
+          color: primary.withValues(alpha: opacity),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
+        ),
+        BoxShadow(
+          color: primary.withValues(alpha: opacity * 0.5),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ];
 }

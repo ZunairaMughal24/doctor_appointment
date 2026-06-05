@@ -40,38 +40,43 @@ class HomeViewModel {
   static const List<HealthTip> _tips = [
     HealthTip(
       icon: Icons.local_drink_rounded,
-      title: 'Stay hydrated',
-      body: 'Aim for 6–8 glasses of water today to keep your energy steady.',
+      title: 'Maintain Optimal Hydration',
+      body: 'Clinical guidelines recommend 6–8 glasses of water daily to support kidney function and metabolic balance.',
     ),
     HealthTip(
       icon: Icons.directions_walk_rounded,
-      title: 'Move a little',
-      body: 'A brisk 20-minute walk can lift your mood and heart health.',
+      title: 'Incorporate Daily Movement',
+      body: 'A minimum of 20 minutes of moderate-intensity activity per day significantly reduces cardiovascular risk.',
     ),
     HealthTip(
       icon: Icons.bedtime_rounded,
-      title: 'Protect your sleep',
-      body: 'Try to wind down screen-free 30 minutes before bed tonight.',
+      title: 'Prioritise Sleep Hygiene',
+      body: 'Adults require 7–9 hours of uninterrupted sleep. Discontinue screen use at least 30 minutes before bedtime.',
     ),
     HealthTip(
       icon: Icons.restaurant_rounded,
-      title: 'Eat the rainbow',
-      body: 'Add one extra serving of fruit or vegetables to a meal today.',
+      title: 'Adopt a Balanced Diet',
+      body: 'Increase your intake of whole foods and varied vegetables to meet micronutrient requirements.',
     ),
     HealthTip(
       icon: Icons.self_improvement_rounded,
-      title: 'Breathe & reset',
-      body: 'Two minutes of slow breathing can ease stress between tasks.',
+      title: 'Manage Stress Proactively',
+      body: 'Practising 2–5 minutes of diaphragmatic breathing can measurably reduce cortisol and stress response.',
     ),
     HealthTip(
       icon: Icons.medication_rounded,
-      title: 'Stay on schedule',
-      body: 'Keep up with any prescribed medication — set a daily reminder.',
+      title: 'Adhere to Your Medication Plan',
+      body: 'Consistent medication adherence improves treatment outcomes. Set daily reminders to stay on schedule.',
     ),
     HealthTip(
       icon: Icons.sunny,
-      title: 'Get some light',
-      body: 'A few minutes of morning sunlight helps regulate your body clock.',
+      title: 'Regulate Your Circadian Rhythm',
+      body: 'Brief morning sunlight exposure helps synchronise your body\'s internal clock for improved sleep and energy.',
+    ),
+    HealthTip(
+      icon: Icons.monitor_heart_rounded,
+      title: 'Schedule Preventive Check-Ups',
+      body: 'Annual health screenings allow early detection of conditions before symptoms arise — prevention is key.',
     ),
   ];
 }

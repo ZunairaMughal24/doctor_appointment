@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../viewmodels/home_view_model.dart';
+import 'home_sections.dart' show kHomeHorizontalPadding;
 
 /// Clean "Health Tip" card — a soft white panel with a rounded icon badge that
 /// sits naturally on the light home background. Purely presentational: the tip
@@ -13,7 +14,8 @@ class HealthTipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+      padding: EdgeInsets.fromLTRB(
+          kHomeHorizontalPadding, 6, kHomeHorizontalPadding, 8),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -49,7 +51,7 @@ class HealthTipCard extends StatelessWidget {
                           size: 13, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
-                        'HEALTH TIP',
+                        'DAILY WELLNESS INSIGHT',
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,

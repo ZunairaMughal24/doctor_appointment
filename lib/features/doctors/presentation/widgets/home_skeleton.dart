@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/widgets/skeleton_loader.dart';
+import 'package:fyp/features/doctors/presentation/widgets/home_sections.dart'
+    show kHomeHorizontalPadding;
 
 /// Static skeleton for the home screen, shown while doctors load.
 /// Mirrors the real layout: header, featured cards, categories,
@@ -16,7 +18,8 @@ class HomeSkeleton extends StatelessWidget {
         children: [
           // ── Header ──────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            padding: EdgeInsets.fromLTRB(
+                kHomeHorizontalPadding, 20, kHomeHorizontalPadding, 12),
             child: Row(
               children: [
                 const SkeletonLoader(width: 54, height: 54, borderRadius: 27),
@@ -35,7 +38,7 @@ class HomeSkeleton extends StatelessWidget {
 
           // ── Search bar ──────────────────────────────────────────
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
             child: SkeletonLoader(
                 width: double.infinity, height: 50, borderRadius: 16),
           ),
@@ -51,7 +54,8 @@ class HomeSkeleton extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
             child: Row(
               children: List.generate(
                 5,
@@ -87,7 +91,7 @@ class HomeSkeleton extends StatelessWidget {
   }
 
   Widget _sectionHeader() => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -105,7 +109,8 @@ class HomeSkeleton extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding:
+          const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
       child: Row(
         children: List.generate(
           count,

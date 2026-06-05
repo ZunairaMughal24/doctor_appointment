@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/app_container.dart';
 
 class DoctorCardFeatured extends StatelessWidget {
   final String name;
@@ -178,7 +177,6 @@ class DoctorCardCompact extends StatelessWidget {
   }
 }
 
-/// Compact "available timing" chip — mirrors the top-row availability style.
 class _AvailabilityChip extends StatelessWidget {
   final String text;
   const _AvailabilityChip({required this.text});
@@ -225,40 +223,70 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     super.dispose();
   }
 
+  void _submit() {
+    if (_controller.text.trim().isNotEmpty) {
+      context.push('${AppRoutes.search}?q=${_controller.text.trim()}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AppContainer(
-      padding: EdgeInsets.zero,
-      borderRadius: 14,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+        boxShadow: AppColors.softCardShadow(opacity: 0.06),
+      ),
       child: TextField(
         controller: _controller,
+        onSubmitted: (_) => _submit(),
+        style: const TextStyle(
+          fontSize: 15,
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
-          hintText: 'Search for a Doctor....',
-          hintStyle: const TextStyle(color: AppColors.textHint),
+          hintText: 'Search doctors, specialties...',
+          hintStyle: TextStyle(
+            color: AppColors.textHint.withValues(alpha: 0.85),
+            fontWeight: FontWeight.w400,
+          ),
           filled: true,
           fillColor: Colors.transparent,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              if (_controller.text.isNotEmpty) {
-                context.push('${AppRoutes.search}?q=${_controller.text}');
-              }
-            },
-            child: const Icon(Icons.send, color: AppColors.primaryDark),
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 4),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.primary,
+            size: 22,
           ),
-          prefixIcon: const Icon(Icons.search, color: AppColors.primaryDark),
+          suffixIcon: Material(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: _submit,
+              borderRadius: BorderRadius.circular(12),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-
-// ── Shared star-rating row ────────────────────────────────────────────────────
 
 class _StarRow extends StatelessWidget {
   final double rating;
@@ -273,9 +301,6 @@ class _StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // mainAxisSize.min so the row shrinks to its content — this lets it follow
-    // the parent column's alignment (centered on the Recommended card, instead
-    // of stretching full width and pinning the stars to the left).
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Row(
           mainAxisSize: MainAxisSize.min,

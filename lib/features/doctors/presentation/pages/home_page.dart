@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 
@@ -29,9 +29,9 @@ class _HomeView extends StatelessWidget {
     final username = authState is AuthAuthenticated ? authState.user.name : '';
 
     return Scaffold(
-      backgroundColor: AppColors.cardBg,
+      backgroundColor: AppColors.background,
       body: Container(
-        color: AppColors.cardBg,
+        color: AppColors.background,
         child: BlocBuilder<DoctorBloc, DoctorState>(
           builder: (context, state) {
             if (state is DoctorInitial || state is DoctorLoading) {
@@ -43,10 +43,15 @@ class _HomeView extends StatelessWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.zero,
               children: [
                 HomeHeader(greeting: vm.greeting(), username: username),
+                const HomeSectionTitle(
+                  title: 'Overview',
+                  subtitle: 'Quick numbers on our medical network',
+                ),
+                const HomeStatsStrip(),
                 const SizedBox(height: 8),
-                HealthTipCard(tip: vm.tipOfTheDay),
                 FeaturedDoctorsSection(
                   doctors: doctors,
                   onTap: (d) => vm.openDoctor(context, d),
@@ -57,12 +62,18 @@ class _HomeView extends StatelessWidget {
                   doctors: doctors,
                   onTap: (d) => vm.openDoctor(context, d),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 12),
+                const HomeSectionTitle(
+                  title: 'Wellness Insight',
+                  subtitle: 'Daily health tips for a better lifestyle',
+                ),
+                HealthTipCard(tip: vm.tipOfTheDay),
+                const SizedBox(height: 8),
                 RecommendedDoctorsSection(
                   doctors: doctors,
                   onTap: (d) => vm.openDoctor(context, d),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
               ],
             );
           },

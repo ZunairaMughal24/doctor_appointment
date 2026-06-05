@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
@@ -8,6 +7,9 @@ import '../../../../core/router/app_router.dart';
 import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
+
+/// Shared horizontal inset for all home screen content.
+const double kHomeHorizontalPadding = 16.0;
 
 class HomeHeader extends StatelessWidget {
   final String greeting;
@@ -20,57 +22,153 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // No AppBar and no coloured block — a clean, minimal header on the light
-    // background. Dark status-bar icons keep the system bar readable.
-    final topInset = MediaQuery.of(context).padding.top;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // Android
-        statusBarBrightness: Brightness.light, // iOS
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, topInset + 14, 16, 6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    final topInset = MediaQuery.of(context).viewPadding.top;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // ── Header Background Card ──
+        Container(
+          margin: const EdgeInsets.only(
+              bottom: 27), // Half of the search bar height (54 / 2)
+          decoration: const BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(32),
+              bottomRight: Radius.circular(32),
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              kHomeHorizontalPadding,
+              topInset + 16,
+              kHomeHorizontalPadding,
+              44, // Extra bottom padding so elements don't get covered by the overlapping search bar
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const CircleAvatar(
-                  radius: 23,
-                  backgroundColor: AppColors.primaryLight,
-                  backgroundImage: AssetImage(AppAssets.appLogo),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        greeting,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          width: 2,
                         ),
                       ),
-                      Text(
-                        username.isNotEmpty ? username : 'Welcome',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 19,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
+                      child: const CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.white,
+                        backgroundImage: AssetImage(AppAssets.appLogo),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greeting,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.85),
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            username.isNotEmpty ? username : 'Welcome',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          const Text(
+                            'Your health, our priority.',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white70,
+                              letterSpacing: 0.1,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 44,
+                      width: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          width: 1,
                         ),
                       ),
-                    ],
-                  ),
+                      child: const Center(
+                        child: NotificationBell(color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ],
                 ),
-                const NotificationBell(color: AppColors.primary, size: 27),
               ],
             ),
-            const SizedBox(height: 14),
-            const HomeSearchBar(),
+          ),
+        ),
+        // ── Search Bar positioned half in, half out ──
+        Positioned(
+          left: kHomeHorizontalPadding,
+          right: kHomeHorizontalPadding,
+          bottom: 0,
+          height: 54,
+          child: const HomeSearchBar(),
+        ),
+      ],
+    );
+  }
+}
+
+class HomeStatsStrip extends StatelessWidget {
+  const HomeStatsStrip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: kHomeHorizontalPadding, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              offset: const Offset(0, 4),
+              blurRadius: 12,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _StatItem(label: 'Specialists', value: '500+'),
+            _StatDivider(),
+            _StatItem(label: 'Specialties', value: '20+'),
+            _StatDivider(),
+            _StatItem(label: 'Patients Served', value: '10K+'),
           ],
         ),
       ),
@@ -78,7 +176,93 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-// ── 2. Featured doctors ───────────────────────────────────────────────────────
+// ── Stats helper widgets ───────────────────────────────────────────────────────
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatItem({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
+            letterSpacing: 0.1,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  const _StatDivider();
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 28,
+        width: 1,
+        color: const Color(0xFFD4E5F3),
+      );
+}
+
+class HomeSectionTitle extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  const HomeSectionTitle({super.key, required this.title, this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          kHomeHorizontalPadding, 16, kHomeHorizontalPadding, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 17.5,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+              letterSpacing: -0.2,
+            ),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle!,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textSecondary,
+                letterSpacing: 0.1,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ── Featured doctors ──────────────────────────────────────────────────────────
 
 class FeaturedDoctorsSection extends StatelessWidget {
   final List<DoctorEntity> doctors;
@@ -92,60 +276,138 @@ class FeaturedDoctorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: SizedBox(
-        height: 165,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: doctors.length.clamp(0, 4),
-          itemBuilder: (context, index) {
-            final doctor = doctors[index];
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Material(
-                color: AppColors.featuredCard,
-                borderRadius: BorderRadius.circular(8),
-                child: InkWell(
-                  onTap: () => onTap(doctor),
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    height: 160,
-                    width: 255,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: DoctorCardFeatured(
-                              name: doctor.name,
-                              speciality: doctor.speciality,
-                              rating: doctor.rating,
-                              availability: doctor.availability,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 165,
-                          width: 110,
-                          child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
-                              ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
-                              : Image.asset(AppAssets.avatarForDoctor(doctor.id), fit: BoxFit.cover),
-                        ),
-                      ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              kHomeHorizontalPadding, 10, kHomeHorizontalPadding, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Top Specialists',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 3),
+              const Text(
+                'Highly rated, verified medical professionals',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 165,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding:
+                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
+            itemCount: doctors.length.clamp(0, 4),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final doctor = doctors[index];
+              return _FeaturedDoctorCard(
+                doctor: doctor,
+                onTap: () => onTap(doctor),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeaturedDoctorCard extends StatelessWidget {
+  final DoctorEntity doctor;
+  final VoidCallback onTap;
+
+  const _FeaturedDoctorCard({required this.doctor, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          width: 255,
+          height: 160,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: AppColors.softCardShadow(opacity: 0.18),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -20,
+                  top: -20,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: DoctorCardFeatured(
+                          name: doctor.name,
+                          speciality: doctor.speciality,
+                          rating: doctor.rating,
+                          availability: doctor.availability,
+                        ),
+                      ),
+                    ),
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: SizedBox(
+                        width: 110,
+                        height: 165,
+                        child: (doctor.imageUrl != null &&
+                                doctor.imageUrl!.isNotEmpty)
+                            ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
+                            : Image.asset(
+                                AppAssets.avatarForDoctor(doctor.id),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-// ── 3. Disease categories ─────────────────────────────────────────────────────
+// ── Disease categories ────────────────────────────────────────────────────────
 
 class CategoriesSection extends StatelessWidget {
   const CategoriesSection({super.key});
@@ -165,20 +427,21 @@ class CategoriesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: 'Categories',
+          title: 'Browse by Specialty',
+          subtitle: 'Find care for your condition',
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
           height: 112,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding:
+                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
             itemCount: AppAssets.diseaseIcons.length,
             itemBuilder: (context, index) {
               return _CategoryTile(
                 icon: AppAssets.diseaseIcons[index],
                 label: _diseaseNames[index],
-                // Each category opens the related specialists list.
                 onTap: () => context.push(AppRoutes.allDoctors),
               );
             },
@@ -189,7 +452,6 @@ class CategoriesSection extends StatelessWidget {
   }
 }
 
-/// Circular, tappable category tile with a label underneath.
 class _CategoryTile extends StatelessWidget {
   final String icon;
   final String label;
@@ -219,7 +481,6 @@ class _CategoryTile extends StatelessWidget {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  // Match the app's 3D depth (bottom-right shadow only).
                   boxShadow: [
                     BoxShadow(
                       color: Color(0xFFC2D2E1),
@@ -256,7 +517,7 @@ class _CategoryTile extends StatelessWidget {
   }
 }
 
-// ── 4. Available doctors ──────────────────────────────────────────────────────
+// ── Available doctors ───────────────────────────────────────────────────────
 
 class AvailableDoctorsSection extends StatelessWidget {
   final List<DoctorEntity> doctors;
@@ -273,48 +534,54 @@ class AvailableDoctorsSection extends StatelessWidget {
     return Column(
       children: [
         _SectionHeader(
-          title: 'Available Doctors',
+          title: 'Available Now',
+          subtitle: 'Ready to consult today',
           onSeeAll: () => context.push(AppRoutes.allDoctors),
         ),
         const SizedBox(height: 5),
         SizedBox(
           height: 140,
-          child: ListView.builder(
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            padding:
+                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
             itemCount: doctors.length.clamp(0, 4),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final doctor = doctors[index];
-              return Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Material(
-                  color: AppColors.primaryLight,
+              return Material(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  onTap: () => onTap(doctor),
                   borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: () => onTap(doctor),
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      height: 140,
-                      width: 230,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            height: 150,
-                            width: 90,
-                            child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
-                                ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
-                                : Image.asset(AppAssets.avatarForDoctor(doctor.id), fit: BoxFit.cover),
+                  child: SizedBox(
+                    height: 140,
+                    width: 230,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          height: 150,
+                          width: 90,
+                          child: (doctor.imageUrl != null &&
+                                  doctor.imageUrl!.isNotEmpty)
+                              ? Image.network(doctor.imageUrl!,
+                                  fit: BoxFit.cover)
+                              : Image.asset(
+                                  AppAssets.avatarForDoctor(doctor.id),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                        Expanded(
+                          child: DoctorCardAvailable(
+                            name: doctor.name,
+                            speciality: doctor.speciality,
+                            rating: doctor.rating,
+                            availability: doctor.availability,
+                            experience: doctor.experience,
                           ),
-                          Expanded(
-                            child: DoctorCardAvailable(
-                              name: doctor.name,
-                              speciality: doctor.speciality,
-                              rating: doctor.rating,
-                              availability: doctor.availability,
-                              experience: doctor.experience,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -327,7 +594,7 @@ class AvailableDoctorsSection extends StatelessWidget {
   }
 }
 
-// ── 5. Recommended doctors ────────────────────────────────────────────────────
+// ── Recommended doctors ─────────────────────────────────────────────────────
 
 class RecommendedDoctorsSection extends StatelessWidget {
   final List<DoctorEntity> doctors;
@@ -344,19 +611,22 @@ class RecommendedDoctorsSection extends StatelessWidget {
     return Column(
       children: [
         _SectionHeader(
-          title: 'Recommended Doctors',
+          title: 'Recommended For You',
+          subtitle: 'Personalised picks based on your needs',
           onSeeAll: () => context.push(AppRoutes.allDoctors),
         ),
         SizedBox(
           height: 188,
-          child: ListView.builder(
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding:
+                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
             itemCount: doctors.length.clamp(0, 4),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final doctor = doctors[index];
               return Padding(
-                padding: const EdgeInsets.only(left: 8, top: 2, bottom: 4),
+                padding: const EdgeInsets.only(top: 2, bottom: 4),
                 child: Material(
                   color: AppColors.cardBg,
                   borderRadius: BorderRadius.circular(14),
@@ -384,7 +654,8 @@ class RecommendedDoctorsSection extends StatelessWidget {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
+                              child: (doctor.imageUrl != null &&
+                                      doctor.imageUrl!.isNotEmpty)
                                   ? Image.network(
                                       doctor.imageUrl!,
                                       height: 78,
@@ -420,37 +691,72 @@ class RecommendedDoctorsSection extends StatelessWidget {
   }
 }
 
-// ── Shared section header row ─────────────────────────────────────────────────
+// ── Shared section header row ───────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final VoidCallback onSeeAll;
 
-  const _SectionHeader({required this.title, required this.onSeeAll});
+  const _SectionHeader({
+    required this.title,
+    required this.onSeeAll,
+    this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      padding: const EdgeInsets.fromLTRB(
+          kHomeHorizontalPadding, 10, kHomeHorizontalPadding, 0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           InkWell(
             onTap: onSeeAll,
-            borderRadius: BorderRadius.circular(4),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              child: Text(
-                'see all',
-                style: TextStyle(fontSize: 16, color: AppColors.primary),
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLighter,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'View All →',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                  letterSpacing: 0.2,
+                ),
               ),
             ),
           ),
