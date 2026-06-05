@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
@@ -8,87 +9,70 @@ import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
 
-String _imgFor(int index) =>
-    AppAssets.doctorAvatars[index % AppAssets.doctorAvatars.length];
-
 class HomeHeader extends StatelessWidget {
+  final String greeting;
   final String username;
-  const HomeHeader({super.key, required this.username});
+  const HomeHeader({
+    super.key,
+    required this.greeting,
+    required this.username,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            height: 120,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x330B4D69),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
+    // No AppBar and no coloured block — a clean, minimal header on the light
+    // background. Dark status-bar icons keep the system bar readable.
+    final topInset = MediaQuery.of(context).padding.top;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // Android
+        statusBarBrightness: Brightness.light, // iOS
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, topInset + 14, 16, 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  radius: 23,
+                  backgroundColor: AppColors.primaryLight,
+                  backgroundImage: AssetImage(AppAssets.appLogo),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        greeting,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      Text(
+                        username.isNotEmpty ? username : 'Welcome',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 19,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const NotificationBell(color: AppColors.primary, size: 27),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircleAvatar(
-                      radius: 27,
-                      backgroundImage: AssetImage(AppAssets.appLogo),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 17),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            username.isNotEmpty ? username : 'Welcome',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text(
-                            'Find your suitable Doctor here',
-                            style: TextStyle(fontSize: 14, color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 14, right: 4),
-                    child: NotificationBell(size: 30),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Positioned(
-            bottom: -25,
-            left: 16,
-            right: 16,
-            child: HomeSearchBar(),
-          ),
-        ],
+            const SizedBox(height: 14),
+            const HomeSearchBar(),
+          ],
+        ),
       ),
     );
   }
@@ -144,7 +128,7 @@ class FeaturedDoctorsSection extends StatelessWidget {
                           width: 110,
                           child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
                               ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
-                              : Image.asset(_imgFor(index), fit: BoxFit.cover),
+                              : Image.asset(AppAssets.avatarForDoctor(doctor.id), fit: BoxFit.cover),
                         ),
                       ],
                     ),
@@ -183,7 +167,7 @@ class CategoriesSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
-          height: 100,
+          height: 112,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -218,7 +202,7 @@ class _CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(
         children: [
           Material(
@@ -228,8 +212,8 @@ class _CategoryTile extends StatelessWidget {
               onTap: onTap,
               customBorder: const CircleBorder(),
               child: Container(
-                height: 56,
-                width: 56,
+                height: 66,
+                width: 66,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
@@ -243,7 +227,7 @@ class _CategoryTile extends StatelessWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(11),
+                  padding: const EdgeInsets.all(12),
                   child: Image.asset(icon, fit: BoxFit.contain),
                 ),
               ),
@@ -316,7 +300,7 @@ class AvailableDoctorsSection extends StatelessWidget {
                             width: 90,
                             child: (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty)
                                 ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
-                                : Image.asset(_imgFor(index), fit: BoxFit.cover),
+                                : Image.asset(AppAssets.avatarForDoctor(doctor.id), fit: BoxFit.cover),
                           ),
                           DoctorCardAvailable(
                             name: doctor.name,
@@ -404,7 +388,7 @@ class RecommendedDoctorsSection extends StatelessWidget {
                                       fit: BoxFit.cover,
                                     )
                                   : Image.asset(
-                                      _imgFor(index),
+                                      AppAssets.avatarForDoctor(doctor.id),
                                       height: 78,
                                       width: 78,
                                       fit: BoxFit.cover,

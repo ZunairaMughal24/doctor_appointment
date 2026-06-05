@@ -16,7 +16,6 @@ import 'package:fyp/features/appointments/presentation/widgets/appointment_list_
 import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/appointment_auto_complete.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/appointment_reminders.dart';
-import 'package:fyp/features/notifications/presentation/widgets/notification_bell.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
   final bool isUser;
@@ -68,12 +67,6 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: NotificationBell(),
-          ),
-        ],
       ),
       body: BlocBuilder<AppointmentBloc, AppointmentState>(
         builder: (context, state) => _AppointmentListBody(
@@ -139,12 +132,6 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: NotificationBell(),
-          ),
-        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,

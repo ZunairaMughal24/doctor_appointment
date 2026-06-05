@@ -119,10 +119,10 @@ class DoctorDetailPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
+                            const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Contact Number',
                                   style: TextStyle(
                                     color: AppColors.primary,
@@ -131,13 +131,44 @@ class DoctorDetailPage extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  data.phoneNumber,
-                                  style: const TextStyle(
+                                  'Clinic reception line',
+                                  style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 14,
                                   ),
                                 ),
                               ],
+                            ),
+                            // Original-position call button — dials the clinic
+                            // assistant, never the doctor's personal number.
+                            Material(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(12),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () => const DoctorDetailViewModel()
+                                    .callAssistant(context),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.call,
+                                          color: Colors.white, size: 16),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Call Assistant',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -221,26 +252,13 @@ class DoctorDetailPage extends StatelessWidget {
         color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Booking enquiries go to the shared clinic assistant line — never
-              // the doctor's personal number.
-              AppButton.outlined(
-                icon: Icons.call_rounded,
-                label: 'Call Assistant',
-                onPressed: () => const DoctorDetailViewModel().callAssistant(context),
-              ),
-              const SizedBox(height: 10),
-              AppButton(
-                icon: Icons.event_available_rounded,
-                label: 'Make an Appointment',
-                onPressed: () => context.push(
-                  AppRoutes.scheduleAppointment,
-                  extra: data,
-                ),
-              ),
-            ],
+          child: AppButton(
+            icon: Icons.event_available_rounded,
+            label: 'Make an Appointment',
+            onPressed: () => context.push(
+              AppRoutes.scheduleAppointment,
+              extra: data,
+            ),
           ),
         ),
       ),

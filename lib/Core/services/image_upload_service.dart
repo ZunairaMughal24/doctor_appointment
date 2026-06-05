@@ -1,60 +1,139 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config/supabase_config.dart';
 import '../constants/app_colors.dart';
+import '../widgets/modern_bottom_sheet.dart';
 
 /// Centralises picking (camera or gallery) and uploading doctor profile photos
-/// to Firebase Storage, and persisting the download URL on the doctor record.
-/// Shared by the doctor sign-up flow and the profile screen.
+/// to Supabase Storage, and persisting the public URL on the doctor record in
+/// Firestore. Shared by the doctor sign-up flow and the profile screen.
 class ImageUploadService {
   ImageUploadService._();
 
   static final ImagePicker _picker = ImagePicker();
 
+  /// Guards against a second pick being launched while one is still active.
+  /// A rapid double-tap (or re-opening the chooser before the OS picker
+  /// returns) otherwise throws `PlatformException(already_active)` — the most
+  /// common image_picker crash, and the one that halts the debugger on tap.
+  static bool _picking = false;
+
   /// Shows a camera/gallery chooser sheet, then returns the picked file — or
-  /// null if the user cancels either the chooser or the picker.
+  /// null if the user cancels (either the chooser or the picker) or an error
+  /// occurs. Never throws: any picker error is logged in detail and surfaced as
+  /// a null result so the caller can simply ignore it.
   static Future<File?> pickWithChooser(BuildContext context) async {
+    debugPrint('[ImagePicker] pickWithChooser() — showing chooser sheet');
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => ModernBottomSheet(
+        title: 'Add a photo',
+        subtitle: 'Choose how to add your profile photo',
+        icon: Icons.add_a_photo_rounded,
+        child: Row(
           children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera, color: AppColors.primary),
-              title: const Text('Take a photo'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            Expanded(
+              child: _PhotoSourceTile(
+                icon: Icons.photo_camera_rounded,
+                label: 'Camera',
+                onTap: () => Navigator.pop(ctx, ImageSource.camera),
+              ),
             ),
-            ListTile(
-              leading:
-                  const Icon(Icons.photo_library, color: AppColors.primary),
-              title: const Text('Choose from gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _PhotoSourceTile(
+                icon: Icons.photo_library_rounded,
+                label: 'Gallery',
+                onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+              ),
             ),
           ],
         ),
       ),
     );
-    if (source == null) return null;
 
-    final picked = await _picker.pickImage(
-      source: source,
-      imageQuality: 80,
-      maxWidth: 600,
-    );
-    return picked == null ? null : File(picked.path);
+    if (source == null) {
+      debugPrint('[ImagePicker] chooser dismissed — no source selected');
+      return null;
+    }
+    debugPrint('[ImagePicker] source selected: $source');
+
+    if (_picking) {
+      debugPrint('[ImagePicker] aborted — a pick is already in progress');
+      return null;
+    }
+    _picking = true;
+
+    try {
+      debugPrint('[ImagePicker] calling pickImage(source: $source)…');
+      final picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1080,
+      );
+
+      if (picked == null) {
+        debugPrint('[ImagePicker] user cancelled the picker (null result)');
+        return null;
+      }
+
+      final file = File(picked.path);
+      final exists = await file.exists();
+      final length = exists ? await file.length() : 0;
+      debugPrint('[ImagePicker] picked: path="${picked.path}" '
+          'exists=$exists bytes=$length');
+      if (!exists || length == 0) {
+        debugPrint('[ImagePicker] picked file missing/empty — discarding');
+        return null;
+      }
+      return file;
+    } on PlatformException catch (e, st) {
+      // The actual platform error — code is the useful part:
+      //   already_active        → a pick was already running (now guarded)
+      //   photo_access_denied   → gallery permission denied
+      //   camera_access_denied  → camera permission denied
+      //   no_available_camera   → device/emulator has no camera
+      debugPrint('[ImagePicker] PlatformException: code="${e.code}" '
+          'message="${e.message}" details="${e.details}"');
+      debugPrint('$st');
+      return null;
+    } catch (e, st) {
+      debugPrint('[ImagePicker] unexpected error: $e');
+      debugPrint('$st');
+      return null;
+    } finally {
+      _picking = false;
+      debugPrint('[ImagePicker] pick finished — guard released');
+    }
   }
 
-  /// Uploads [file] to `doctor_photos/{uid}.jpg` and returns its download URL.
+  /// Uploads [file] to the Supabase `doctor-photos` bucket at `{uid}.jpg`
+  /// (overwriting any previous photo) and returns its public URL. A cache-buster
+  /// query param is appended so a re-uploaded photo refreshes immediately.
   static Future<String> uploadDoctorPhoto(String uid, File file) async {
-    final ref =
-        FirebaseStorage.instance.ref().child('doctor_photos').child('$uid.jpg');
-    await ref.putFile(file);
-    return ref.getDownloadURL();
+    if (!SupabaseConfig.isConfigured) {
+      throw StateError(
+          'Supabase is not configured — set url/anonKey in supabase_config.dart');
+    }
+    final bucket = Supabase.instance.client.storage.from(
+      SupabaseConfig.photoBucket,
+    );
+    final path = '$uid.jpg';
+    await bucket.upload(
+      path,
+      file,
+      fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+    );
+    final url = bucket.getPublicUrl(path);
+    return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
   }
 
   /// Uploads [file] and merges the resulting URL onto the doctor's Firestore
@@ -66,5 +145,59 @@ class ImageUploadService {
         .doc(uid)
         .set({'imageUrl': url}, SetOptions(merge: true));
     return url;
+  }
+}
+
+/// A tappable source card (Camera / Gallery) used in the photo chooser sheet.
+class _PhotoSourceTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _PhotoSourceTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primaryLight),
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 52,
+                width: 52,
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryLighter,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 26),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

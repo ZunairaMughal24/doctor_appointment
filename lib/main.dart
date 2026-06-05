@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:fyp/core/config/supabase_config.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart' as di;
 import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/services/push_notification_service.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
@@ -16,6 +18,11 @@ import 'package:fyp/features/notifications/presentation/bloc/notification_bloc.d
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load runtime config from the gitignored .env (no-op if the file is absent).
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {}
+
   // Initialize Firebase
   await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -24,13 +31,18 @@ void main() async {
           messagingSenderId: '201017378885',
           projectId: 'final-project-e6c97'));
 
+  // Initialize Supabase (used only for profile-photo storage). Skipped until
+  // real credentials are pasted into supabase_config.dart so the app still runs.
+  if (SupabaseConfig.isConfigured) {
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      // Accepts either the legacy "anon public" key or a new publishable key.
+      publishableKey: SupabaseConfig.anonKey,
+    );
+  }
+
   // Initialize Dependency Injection
   await di.initDependencies();
-
-  // Initialize Push Notifications
-  try {
-    await PushNotificationService.initialize();
-  } catch (_) {}
 
   runApp(const MyApp());
 }

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/doctor_form_options.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
+import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
@@ -228,6 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _vm.locationController,
                               icon: Icons.location_on_outlined,
                               enabled: _vm.editing,
+                              options: DoctorFormOptions.locations,
                               validator: (v) =>
                                   Validators.required(v, 'Location'),
                             ),
@@ -236,6 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _vm.availabilityController,
                               icon: Icons.access_time_outlined,
                               enabled: _vm.editing,
+                              options: DoctorFormOptions.availability,
                               validator: (v) =>
                                   Validators.required(v, 'Availability'),
                             ),
@@ -244,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _vm.servicesController,
                               icon: Icons.list_alt_outlined,
                               enabled: _vm.editing,
-                              maxLines: 2,
+                              options: DoctorFormOptions.services,
                               validator: (v) =>
                                   Validators.required(v, 'Services'),
                             ),
@@ -421,8 +425,9 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
-/// A labelled [AppTextField] used in the profile form so view vs. edit mode
-/// share the same widget (just toggling [enabled]).
+/// A labelled field used in the profile form so view vs. edit mode share the
+/// same widget (just toggling [enabled]). When [options] is supplied it renders
+/// a constrained [AppDropdownField]; otherwise a free-text [AppTextField].
 class _LabeledField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
@@ -431,6 +436,7 @@ class _LabeledField extends StatelessWidget {
   final int maxLines;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final List<String>? options;
 
   const _LabeledField({
     required this.label,
@@ -440,6 +446,7 @@ class _LabeledField extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType,
     this.validator,
+    this.options,
   });
 
   @override
@@ -460,15 +467,25 @@ class _LabeledField extends StatelessWidget {
               ),
             ),
           ),
-          AppTextField(
-            controller: controller,
-            hint: label,
-            prefixIcon: icon,
-            enabled: enabled,
-            maxLines: maxLines,
-            keyboardType: keyboardType,
-            validator: validator,
-          ),
+          if (options != null)
+            AppDropdownField(
+              controller: controller,
+              hint: label,
+              prefixIcon: icon,
+              enabled: enabled,
+              options: options!,
+              validator: validator,
+            )
+          else
+            AppTextField(
+              controller: controller,
+              hint: label,
+              prefixIcon: icon,
+              enabled: enabled,
+              maxLines: maxLines,
+              keyboardType: keyboardType,
+              validator: validator,
+            ),
         ],
       ),
     );
