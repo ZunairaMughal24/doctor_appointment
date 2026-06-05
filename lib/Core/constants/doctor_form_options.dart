@@ -1,8 +1,42 @@
 /// Predefined option sets for the constrained doctor profile dropdowns
-/// (Services, Location, Availability). Shared by doctor sign-up and the profile
-/// editor so both offer the exact same choices.
+/// (Speciality, Experience, Services, Location, Availability). Shared by doctor
+/// sign-up and the profile editor so both offer the exact same choices.
 class DoctorFormOptions {
   DoctorFormOptions._();
+
+  /// Medical specialities.
+  static const List<String> specialities = [
+    'Cardiologist',
+    'Dermatologist',
+    'Neurologist',
+    'Pediatrician',
+    'Orthopedic Surgeon',
+    'Gynecologist',
+    'Psychiatrist',
+    'General Physician',
+    'ENT Specialist',
+    'Ophthalmologist',
+    'Dentist',
+    'Urologist',
+    'Gastroenterologist',
+    'Pulmonologist',
+  ];
+
+  /// Years of professional experience.
+  static const List<String> experienceYears = [
+    '1 year',
+    '2 years',
+    '3 years',
+    '4 years',
+    '5 years',
+    '6 years',
+    '7 years',
+    '8 years',
+    '10 years',
+    '12 years',
+    '15 years',
+    '20+ years',
+  ];
 
   /// Common service buckets a doctor can offer.
   static const List<String> services = [

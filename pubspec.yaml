@@ -71,6 +71,10 @@ dependencies:
   # Runtime config (.env)
   flutter_dotenv: ^5.1.0
 
+  # On-device AI photo validation (doctor profile photos)
+  google_mlkit_face_detection: ^0.13.0
+  image: ^4.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

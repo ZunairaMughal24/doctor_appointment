@@ -60,4 +60,14 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, UserEntity?>> getCurrentUser();
+
+  /// Deletes all of the user's data and their auth account.
+  Future<Either<Failure, void>> deleteAccount(String uid);
+
+  /// Removes the doctor profile and converts the account to a patient.
+  Future<Either<Failure, UserEntity>> deleteDoctorProfile({
+    required String uid,
+    required String name,
+    required String email,
+  });
 }

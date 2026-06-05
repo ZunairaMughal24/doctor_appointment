@@ -138,3 +138,24 @@ class AuthSwitchRoleRequested extends AuthEvent {
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();
 }
+
+class AuthDeleteAccountRequested extends AuthEvent {
+  final String uid;
+  const AuthDeleteAccountRequested(this.uid);
+  @override
+  List<Object?> get props => [uid];
+}
+
+/// A doctor removing their professional profile to continue as a patient.
+class AuthDeleteDoctorProfileRequested extends AuthEvent {
+  final String uid;
+  final String name;
+  final String email;
+  const AuthDeleteDoctorProfileRequested({
+    required this.uid,
+    required this.name,
+    required this.email,
+  });
+  @override
+  List<Object?> get props => [uid, name, email];
+}

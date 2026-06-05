@@ -49,6 +49,17 @@ abstract class AuthRemoteDataSource {
   Future<void> switchRole({required String uid, required UserRole role});
   Future<void> signOut();
   Future<UserModel?> getCurrentUser();
+
+  /// Deletes all of the user's Firestore data and their auth account.
+  Future<void> deleteAccount(String uid);
+
+  /// Removes a doctor's professional profile and converts the account to a
+  /// patient (keeping the login). Returns the resulting patient user.
+  Future<UserModel> deleteDoctorProfile({
+    required String uid,
+    required String name,
+    required String email,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -304,6 +315,94 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOut() => firebaseAuth.signOut();
+
+  @override
+  Future<void> deleteAccount(String uid) async {
+    // 1. Remove the user's Firestore data (best-effort per collection).
+    try {
+      await firestore.collection('users').doc(uid).delete();
+      await firestore.collection('doctors').doc(uid).delete();
+
+      // Appointments the user booked or is the doctor for.
+      for (final field in ['appointment_by_id', 'appointment_with_id']) {
+        final snap = await firestore
+            .collection('appointments')
+            .where(field, isEqualTo: uid)
+            .get();
+        for (final doc in snap.docs) {
+          await doc.reference.delete();
+        }
+      }
+
+      // Their notifications.
+      final notifs = await firestore
+          .collection('notifications')
+          .where('user_id', isEqualTo: uid)
+          .get();
+      for (final doc in notifs.docs) {
+        await doc.reference.delete();
+      }
+    } catch (_) {
+      // Permission/network issue on a collection — continue to auth deletion.
+    }
+
+    // 2. Delete the auth account (or sign out if it can't be deleted).
+    try {
+      final current = firebaseAuth.currentUser;
+      if (current != null && current.uid == uid) {
+        await current.delete();
+      } else {
+        await firebaseAuth.signOut();
+      }
+    } on FirebaseAuthException catch (e) {
+      await firebaseAuth.signOut();
+      if (e.code == 'requires-recent-login') {
+        throw const AuthException(
+          'Your data was removed. Please sign in again to finish deleting your login.',
+        );
+      }
+      throw AuthException(e.message ?? 'Could not delete account.');
+    }
+  }
+
+  @override
+  Future<UserModel> deleteDoctorProfile({
+    required String uid,
+    required String name,
+    required String email,
+  }) async {
+    try {
+      // Remove the doctor profile and the appointments where they were the
+      // provider (their own visits as a patient are kept).
+      await firestore.collection('doctors').doc(uid).delete();
+      final incoming = await firestore
+          .collection('appointments')
+          .where('appointment_with_id', isEqualTo: uid)
+          .get();
+      for (final doc in incoming.docs) {
+        await doc.reference.delete();
+      }
+
+      // Ensure a patient user record exists and is the active role.
+      await firestore.collection('users').doc(uid).set({
+        'uid': uid,
+        'name': name,
+        'email': email,
+        'role': 'patient',
+        'currentRole': 'patient',
+      }, SetOptions(merge: true));
+
+      return UserModel(
+        uid: uid,
+        name: name,
+        email: email,
+        role: UserRole.patient,
+        hasDoctorProfile: false,
+      );
+    } catch (e) {
+      throw AuthException('Failed to remove doctor profile: ${e.toString()}');
+    }
+  }
 
   @override
   Future<UserModel?> getCurrentUser() async {

@@ -7,6 +7,7 @@ class UserModel extends UserEntity {
     required super.email,
     required super.role,
     super.hasDoctorProfile = false,
+    super.imageUrl,
   });
 
   factory UserModel.fromFirestore(
@@ -22,6 +23,7 @@ class UserModel extends UserEntity {
       email: data['email'] ?? '',
       role: roleOverride ?? (isDoctor ? UserRole.doctor : UserRole.patient),
       hasDoctorProfile: hasDoctorProfile || isDoctor,
+      imageUrl: data['imageUrl'],
     );
   }
 

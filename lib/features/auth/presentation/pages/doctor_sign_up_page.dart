@@ -135,6 +135,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                   _buildInputField(
                     _vm.nameController,
                     "Enter your name",
+                    maxLength: 40,
                     validator: _vm.nameValidator,
                   ),
                   _buildLabel("Email"),
@@ -142,6 +143,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                     _vm.emailController,
                     "Enter your email",
                     keyboardType: TextInputType.emailAddress,
+                    maxLength: 60,
                     validator: _vm.emailValidator,
                   ),
                   _buildLabel("Password"),
@@ -159,15 +161,17 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                     validator: _vm.confirmPasswordValidator,
                   ),
                   _buildLabel("Speciality"),
-                  _buildInputField(
+                  _buildDropdownField(
                     _vm.specialityController,
-                    "Mention your speciality",
+                    "Select your speciality",
+                    options: DoctorFormOptions.specialities,
                     validator: _vm.specialityValidator,
                   ),
                   _buildLabel("Experience"),
-                  _buildInputField(
+                  _buildDropdownField(
                     _vm.experienceController,
-                    "Your work experience",
+                    "Select years of experience",
+                    options: DoctorFormOptions.experienceYears,
                     validator: _vm.experienceValidator,
                   ),
                   _buildLabel("Contact number"),
@@ -175,6 +179,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                     _vm.numberController,
                     "Enter number",
                     keyboardType: TextInputType.phone,
+                    maxLength: 15,
                     validator: _vm.phoneValidator,
                   ),
                   _buildLabel("Location"),
@@ -203,6 +208,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                     _vm.descriptionController,
                     "Tell patients about your experience and approach",
                     maxLines: 3,
+                    maxLength: 300,
                     validator: _vm.descriptionValidator,
                   ),
                   const SizedBox(height: 25),
@@ -251,6 +257,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
     bool obscure = false,
     TextInputType? keyboardType,
     int maxLines = 1,
+    int? maxLength,
     String? Function(String?)? validator,
   }) {
     return Padding(
@@ -261,6 +268,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
         obscureText: obscure,
         keyboardType: keyboardType,
         maxLines: maxLines,
+        maxLength: maxLength,
         validator: validator,
       ),
     );

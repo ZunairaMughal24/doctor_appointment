@@ -101,6 +101,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
               _Field(
                 controller: _vm.nameController,
                 hint: 'Enter your full name',
+                maxLength: 40,
                 validator: _vm.nameValidator,
               ),
               const _SectionLabel('Contact number'),
@@ -108,6 +109,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
                 controller: _vm.phoneController,
                 hint: 'Enter your number',
                 keyboardType: TextInputType.phone,
+                maxLength: 15,
                 validator: _vm.phoneValidator,
               ),
               const _SectionLabel('Appointment date'),
@@ -180,8 +182,8 @@ class _SlotsArea extends StatelessWidget {
         }
 
         return Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: 8,
+          runSpacing: 8,
           children: [
             for (final slot in slots)
               _SlotChip(
@@ -234,27 +236,21 @@ class _SlotChip extends StatelessWidget {
           onTap: isBooked ? null : onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected ? AppColors.primary : AppColors.inputBorder,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: fg,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    decoration:
-                        isBooked ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-              ],
+            child: Text(
+              label,
+              style: TextStyle(
+                color: fg,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                decoration: isBooked ? TextDecoration.lineThrough : null,
+              ),
             ),
           ),
         ),
@@ -473,12 +469,14 @@ class _Field extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final TextInputType? keyboardType;
+  final int? maxLength;
   final String? Function(String?)? validator;
 
   const _Field({
     required this.controller,
     required this.hint,
     this.keyboardType,
+    this.maxLength,
     this.validator,
   });
 
@@ -488,6 +486,7 @@ class _Field extends StatelessWidget {
       controller: controller,
       hint: hint,
       keyboardType: keyboardType,
+      maxLength: maxLength,
       validator: validator,
     );
   }

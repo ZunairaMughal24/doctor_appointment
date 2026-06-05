@@ -9,12 +9,17 @@ class UserEntity extends Equatable {
   final UserRole role;
   final bool hasDoctorProfile;
 
+  /// Profile photo URL. For patients this is shown only on the profile screen;
+  /// for doctors the doctor record's imageUrl is what syncs across the app.
+  final String? imageUrl;
+
   const UserEntity({
     required this.uid,
     required this.name,
     required this.email,
     required this.role,
     this.hasDoctorProfile = false,
+    this.imageUrl,
   });
 
   bool get isDoctor => role == UserRole.doctor;
@@ -25,6 +30,7 @@ class UserEntity extends Equatable {
     String? email,
     UserRole? role,
     bool? hasDoctorProfile,
+    String? imageUrl,
   }) {
     return UserEntity(
       uid: uid ?? this.uid,
@@ -32,9 +38,11 @@ class UserEntity extends Equatable {
       email: email ?? this.email,
       role: role ?? this.role,
       hasDoctorProfile: hasDoctorProfile ?? this.hasDoctorProfile,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
   @override
-  List<Object?> get props => [uid, name, email, role, hasDoctorProfile];
+  List<Object?> get props =>
+      [uid, name, email, role, hasDoctorProfile, imageUrl];
 }

@@ -39,11 +39,13 @@ service cloud.firestore {
     }
 
     // In-app notifications. Readable only by the recipient; any signed-in user
-    // may create one (e.g. a patient notifying a doctor) or mark it read.
+    // may create one (e.g. a patient notifying a doctor) or mark it read. The
+    // recipient may delete their own (used by account deletion).
     match /notifications/{id} {
       allow read: if signedIn() && resource.data.user_id == request.auth.uid;
       allow create: if signedIn();
       allow update: if signedIn();
+      allow delete: if signedIn() && resource.data.user_id == request.auth.uid;
     }
   }
 }

@@ -21,6 +21,8 @@ import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/delete_account_usecase.dart';
+import '../../features/auth/domain/usecases/delete_doctor_profile_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/register_as_doctor_usecase.dart';
 import '../../features/auth/domain/usecases/sign_in_usecase.dart';
@@ -63,6 +65,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => SwitchRoleUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAccountUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteDoctorProfileUseCase(sl()));
   sl.registerFactory(
     () => AuthBloc(
       signIn: sl(),
@@ -73,6 +77,8 @@ Future<void> initDependencies() async {
       signOut: sl(),
       getCurrentUser: sl(),
       switchRole: sl(),
+      deleteAccount: sl(),
+      deleteDoctorProfile: sl(),
     ),
   );
 

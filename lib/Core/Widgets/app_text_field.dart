@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 import 'package:fyp/core/constants/app_colors.dart';
 
 /// Reusable neumorphic (soft 3D) form text field.
@@ -20,6 +21,10 @@ class AppTextField extends FormField<String> {
   /// fields, which show the show/hide eye toggle instead.
   final Widget? suffix;
 
+  /// Hard character cap, enforced silently via an input formatter so text can
+  /// never overflow the widgets it later renders in. Null = no cap.
+  final int? maxLength;
+
   AppTextField({
     super.key,
     required this.controller,
@@ -31,6 +36,7 @@ class AppTextField extends FormField<String> {
     this.maxLines = 1,
     super.enabled,
     this.suffix,
+    this.maxLength,
   }) : super(
           initialValue: controller.text,
           builder: (FormFieldState<String> field) {
@@ -86,6 +92,12 @@ class AppTextField extends FormField<String> {
                           maxLines: state.widget.obscureText
                               ? 1
                               : state.widget.maxLines,
+                          inputFormatters: state.widget.maxLength != null
+                              ? [
+                                  LengthLimitingTextInputFormatter(
+                                      state.widget.maxLength),
+                                ]
+                              : null,
                           onChanged: state.didChange,
                           style: TextStyle(
                               fontSize: 16,

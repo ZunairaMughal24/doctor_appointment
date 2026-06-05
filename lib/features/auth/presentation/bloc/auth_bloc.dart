@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/usecases/delete_account_usecase.dart';
+import '../../domain/usecases/delete_doctor_profile_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/register_as_doctor_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
@@ -20,6 +22,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOutUseCase signOut;
   final GetCurrentUserUseCase getCurrentUser;
   final SwitchRoleUseCase switchRole;
+  final DeleteAccountUseCase deleteAccount;
+  final DeleteDoctorProfileUseCase deleteDoctorProfile;
 
   AuthBloc({
     required this.signIn,
@@ -30,6 +34,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signOut,
     required this.getCurrentUser,
     required this.switchRole,
+    required this.deleteAccount,
+    required this.deleteDoctorProfile,
   }) : super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>(_onSignIn);
@@ -39,6 +45,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthUpdateProfileRequested>(_onUpdateProfile);
     on<AuthSwitchRoleRequested>(_onSwitchRole);
     on<AuthSignOutRequested>(_onSignOut);
+    on<AuthDeleteAccountRequested>(_onDeleteAccount);
+    on<AuthDeleteDoctorProfileRequested>(_onDeleteDoctorProfile);
   }
 
   Future<void> _onCheckRequested(
@@ -170,5 +178,39 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthSignOutRequested event, Emitter<AuthState> emit) async {
     await signOut(NoParams());
     emit(const AuthUnauthenticated());
+  }
+
+  Future<void> _onDeleteAccount(
+      AuthDeleteAccountRequested event, Emitter<AuthState> emit) async {
+    final previous = state;
+    emit(const AuthLoading());
+    final result = await deleteAccount(event.uid);
+    result.fold(
+      (failure) {
+        emit(AuthFailureState(failure.userMessage));
+        // Restore the session so the user isn't stuck on a blank state.
+        if (previous is AuthAuthenticated) emit(previous);
+      },
+      (_) => emit(const AuthUnauthenticated()),
+    );
+  }
+
+  Future<void> _onDeleteDoctorProfile(
+      AuthDeleteDoctorProfileRequested event, Emitter<AuthState> emit) async {
+    final previous = state;
+    emit(const AuthLoading());
+    final result = await deleteDoctorProfile(DeleteDoctorProfileParams(
+      uid: event.uid,
+      name: event.name,
+      email: event.email,
+    ));
+    result.fold(
+      (failure) {
+        emit(AuthFailureState(failure.userMessage));
+        if (previous is AuthAuthenticated) emit(previous);
+      },
+      // Account stays signed in, now as a patient.
+      (user) => emit(AuthAuthenticated(user)),
+    );
   }
 }
