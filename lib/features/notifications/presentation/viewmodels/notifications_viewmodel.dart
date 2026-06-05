@@ -14,14 +14,13 @@ class NotificationsViewModel {
     return s is AuthAuthenticated ? s.user.uid : '';
   }
 
-  /// Loads the list and clears the unread badge — opening the centre counts as
-  /// "seen", so everything is marked read.
+  /// Loads the list. Notifications are NOT auto-marked read on open — the user
+  /// decides, via swipe, tapping a tile, or the persistent "Mark all as read"
+  /// button — so the action never vanishes on its own.
   void open(BuildContext context) {
     final uid = _uid(context);
     if (uid.isEmpty) return;
-    final bloc = context.read<NotificationBloc>();
-    bloc.add(LoadNotifications(uid));
-    bloc.add(MarkAllNotificationsRead(uid));
+    context.read<NotificationBloc>().add(LoadNotifications(uid));
   }
 
   void markAllRead(BuildContext context) {
