@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/services/image_upload_service.dart';
+import '../../../../core/services/image_validation_service.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/connectivity.dart';
 import '../../../doctors/domain/entities/doctor_entity.dart';
@@ -92,10 +95,30 @@ class ProfileViewModel {
     final file = await ImageUploadService.pickWithChooser(context);
     if (file == null) return;
 
+    // Doctor photos must pass the professional-criteria check before upload;
+    // a failure blocks saving and shows the specific reason.
+    if (user.isDoctor) {
+      _set(() => uploadingImage = true);
+      final result = await ImageValidationService.validateDoctorPhoto(file);
+      _set(() => uploadingImage = false);
+      if (!result.ok) {
+        if (context.mounted) AppFeedback.showError(context, result.message);
+        return;
+      }
+    }
+
     _set(() => uploadingImage = true);
     try {
-      await ImageUploadService.setDoctorPhoto(user.uid, file);
-      await loadDoctorProfile(user.uid);
+      if (user.isDoctor) {
+        await ImageUploadService.setDoctorPhoto(user.uid, file);
+        await loadDoctorProfile(user.uid);
+      } else {
+        // Patient photo lives on the user record (profile-only).
+        await ImageUploadService.setUserPhoto(user.uid, file);
+        if (context.mounted) {
+          context.read<AuthBloc>().add(const AuthCheckRequested());
+        }
+      }
       if (context.mounted) {
         AppFeedback.showSuccess(
             context, 'Profile picture updated successfully!');
@@ -166,6 +189,65 @@ class ProfileViewModel {
       return;
     }
     context.read<AuthBloc>().add(const AuthSignOutRequested());
+  }
+
+  /// Delete-account action. Behaviour differs by role:
+  ///  * Patient → confirms, then permanently deletes everything and signs out
+  ///    (handleAuthState routes to sign-in on AuthUnauthenticated).
+  ///  * Doctor → confirms, removes only the doctor profile and continues the
+  ///    same account as a patient (the views switch reactively on the new
+  ///    AuthAuthenticated patient state).
+  Future<void> deleteAccount(BuildContext context) async {
+    final user = cachedUser;
+    if (user == null) return;
+
+    if (user.isDoctor) {
+      final confirmed = await AppFeedback.showConfirmation(
+        context,
+        title: 'Delete Doctor Profile',
+        message:
+            'This removes your doctor profile and professional data. Your '
+            'account will continue as a patient.',
+        confirmLabel: 'Continue as Patient',
+        cancelLabel: 'Cancel',
+        isDanger: true,
+      );
+      if (!confirmed || !context.mounted) return;
+
+      context.read<AuthBloc>().add(AuthDeleteDoctorProfileRequested(
+            uid: user.uid,
+            name: user.name,
+            email: user.email,
+          ));
+      // Drop the removed doctor from the global list immediately.
+      context.read<DoctorBloc>().add(const LoadAllDoctors());
+      return;
+    }
+
+    final confirmed = await AppFeedback.showConfirmation(
+      context,
+      title: 'Delete Account',
+      message:
+          'This permanently deletes your account and all your data (profile, '
+          'appointments and notifications). This cannot be undone.',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      isDanger: true,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    context.read<AuthBloc>().add(AuthDeleteAccountRequested(user.uid));
+  }
+
+  /// Single entry point for the page's auth listener, so the page stays pure UI.
+  void handleAuthState(BuildContext context, AuthState state) {
+    if (state is AuthUnauthenticated) {
+      context.go(AppRoutes.signIn);
+    } else if (state is AuthFailureState) {
+      AppFeedback.showError(context, state.message);
+    } else if (state is AuthAuthenticated) {
+      onAuthenticated(context, state.user);
+    }
   }
 
   void dispose() {

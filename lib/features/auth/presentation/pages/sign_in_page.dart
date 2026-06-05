@@ -111,6 +111,7 @@ class _SignInPageState extends State<SignInPage> {
                           hint: 'Email',
                           prefixIcon: Icons.person,
                           keyboardType: TextInputType.emailAddress,
+                          maxLength: 60,
                           validator: _vm.emailValidator,
                         ),
                         const SizedBox(height: 16),

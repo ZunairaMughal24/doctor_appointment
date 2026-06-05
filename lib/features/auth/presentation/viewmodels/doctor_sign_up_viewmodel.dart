@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/image_upload_service.dart';
+import '../../../../core/services/image_validation_service.dart';
+import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -52,10 +54,19 @@ class DoctorSignUpViewModel {
   // ── Actions ─────────────────────────────────────────────────────────
   bool validate() => formKey.currentState?.validate() ?? false;
 
-  /// Opens the camera/gallery chooser and stores the picked photo.
+  /// Opens the camera/gallery chooser, runs the professional-photo AI check,
+  /// and only stores the photo if it passes. Shows the specific reason on fail.
   Future<void> pickPhoto(BuildContext context) async {
     final file = await ImageUploadService.pickWithChooser(context);
-    if (file != null) photo = file;
+    if (file == null) return;
+
+    final result = await ImageValidationService.validateDoctorPhoto(file);
+    if (!result.ok) {
+      if (context.mounted) AppFeedback.showError(context, result.message);
+      return;
+    }
+    photo = file;
+    if (context.mounted) AppFeedback.showSuccess(context, result.message);
   }
 
   void submit(BuildContext context) {
