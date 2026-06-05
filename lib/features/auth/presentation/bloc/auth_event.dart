@@ -61,6 +61,7 @@ class AuthSignUpDoctorRequested extends AuthEvent {
       [name, email, speciality, experience, phoneNumber, location];
 }
 
+/// An existing patient registering an additional doctor profile.
 class AuthRegisterAsDoctorRequested extends AuthEvent {
   final String uid;
   final String name;
@@ -71,6 +72,8 @@ class AuthRegisterAsDoctorRequested extends AuthEvent {
   final String location;
   final String availability;
   final String services;
+  final String description;
+  final Map<String, dynamic>? weeklySchedule;
 
   const AuthRegisterAsDoctorRequested({
     required this.uid,
@@ -82,9 +85,11 @@ class AuthRegisterAsDoctorRequested extends AuthEvent {
     required this.location,
     required this.availability,
     required this.services,
+    required this.description,
+    this.weeklySchedule,
   });
   @override
-  List<Object?> get props => [uid, speciality];
+  List<Object?> get props => [uid, speciality, description];
 }
 
 class AuthUpdateProfileRequested extends AuthEvent {
@@ -100,6 +105,7 @@ class AuthUpdateProfileRequested extends AuthEvent {
   final String? availability;
   final String? services;
   final String? description;
+  final Map<String, dynamic>? weeklySchedule;
 
   const AuthUpdateProfileRequested({
     required this.uid,
@@ -112,6 +118,7 @@ class AuthUpdateProfileRequested extends AuthEvent {
     this.availability,
     this.services,
     this.description,
+    this.weeklySchedule,
   });
   @override
   List<Object?> get props => [

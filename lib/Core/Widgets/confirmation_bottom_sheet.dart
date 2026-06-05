@@ -25,13 +25,16 @@ class ConfirmationBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confirmColor = isDanger ? AppColors.error : AppColors.primary;
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      // Add system nav bar / home-indicator clearance inside the sheet so the
+      // Container itself stays flush with the screen bottom.
+      padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottomPad),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

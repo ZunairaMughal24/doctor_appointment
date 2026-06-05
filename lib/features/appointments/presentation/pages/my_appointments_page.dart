@@ -132,49 +132,78 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: AppColors.tabUnselected,
-          tabs: const [
-            Tab(text: 'My Patients'),
-            Tab(text: 'My Visits'),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // Tab 1 – patients who booked with this doctor
-          BlocProvider.value(
-            value: _patientsBloc,
-            child: BlocBuilder<AppointmentBloc, AppointmentState>(
-              builder: (context, state) => _AppointmentListBody(
-                state: state,
-                titleOf: (a) => a.patientName,
-                isPatient: true,
-                currentUserId: _uid,
-                emptyMessage: 'No patients yet',
-                emptyIcon: Icons.people_outline,
-                onRetry: () =>
-                    _patientsBloc.add(LoadDoctorAppointments(_uid)),
+          // ── Modern pill-style tab bar ───────────────────────────────
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLighter,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                dividerColor: Colors.transparent,
+                indicator: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: Colors.white,
+                unselectedLabelColor: AppColors.primary,
+                labelStyle: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600),
+                unselectedLabelStyle: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w500),
+                tabs: const [
+                  Tab(text: 'My Patients'),
+                  Tab(text: 'My Visits'),
+                ],
               ),
             ),
           ),
+          // ── Tab content ─────────────────────────────────────────────
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Tab 1 – patients who booked with this doctor
+                BlocProvider.value(
+                  value: _patientsBloc,
+                  child: BlocBuilder<AppointmentBloc, AppointmentState>(
+                    builder: (context, state) => _AppointmentListBody(
+                      state: state,
+                      titleOf: (a) => a.patientName,
+                      isPatient: true,
+                      currentUserId: _uid,
+                      emptyMessage: 'No patients yet',
+                      emptyIcon: Icons.people_outline,
+                      onRetry: () =>
+                          _patientsBloc.add(LoadDoctorAppointments(_uid)),
+                    ),
+                  ),
+                ),
 
-          // Tab 2 – this doctor's own visits as a patient
-          BlocProvider.value(
-            value: _visitsBloc,
-            child: BlocBuilder<AppointmentBloc, AppointmentState>(
-              builder: (context, state) => _AppointmentListBody(
-                state: state,
-                titleOf: (a) => a.doctorName,
-                currentUserId: _uid,
-                emptyMessage: 'No personal visits yet',
-                emptyIcon: Icons.calendar_today_outlined,
-                onRetry: () => _visitsBloc.add(LoadUserAppointments(_uid)),
-              ),
+                // Tab 2 – this doctor's own visits as a patient
+                BlocProvider.value(
+                  value: _visitsBloc,
+                  child: BlocBuilder<AppointmentBloc, AppointmentState>(
+                    builder: (context, state) => _AppointmentListBody(
+                      state: state,
+                      titleOf: (a) => a.doctorName,
+                      currentUserId: _uid,
+                      emptyMessage: 'No personal visits yet',
+                      emptyIcon: Icons.calendar_today_outlined,
+                      onRetry: () =>
+                          _visitsBloc.add(LoadUserAppointments(_uid)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

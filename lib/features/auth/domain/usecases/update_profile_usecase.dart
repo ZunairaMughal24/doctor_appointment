@@ -21,6 +21,7 @@ class UpdateProfileUseCase implements UseCase<UserEntity, UpdateProfileParams> {
         availability: params.availability,
         services: params.services,
         description: params.description,
+        weeklySchedule: params.weeklySchedule,
       );
 }
 
@@ -37,6 +38,7 @@ class UpdateProfileParams {
   final String? availability;
   final String? services;
   final String? description;
+  final Map<String, dynamic>? weeklySchedule;
 
   const UpdateProfileParams({
     required this.uid,
@@ -49,5 +51,6 @@ class UpdateProfileParams {
     this.availability,
     this.services,
     this.description,
+    this.weeklySchedule,
   });
 }

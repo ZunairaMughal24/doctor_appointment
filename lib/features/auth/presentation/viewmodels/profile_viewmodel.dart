@@ -9,6 +9,7 @@ import '../../../../core/services/image_validation_service.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/connectivity.dart';
 import '../../../doctors/domain/entities/doctor_entity.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../../../doctors/domain/usecases/get_doctor_by_id_usecase.dart';
 import '../../../doctors/presentation/bloc/doctor_bloc.dart';
 import '../../../doctors/presentation/bloc/doctor_event.dart';
@@ -30,9 +31,13 @@ class ProfileViewModel {
   final experienceController = TextEditingController();
   final phoneController = TextEditingController();
   final locationController = TextEditingController();
-  final availabilityController = TextEditingController();
   final servicesController = TextEditingController();
   final descriptionController = TextEditingController();
+
+  // Weekly schedule — replaces the availability string field.
+  WeeklyAvailability _weeklySchedule = WeeklyAvailability.standard;
+  WeeklyAvailability get weeklySchedule => _weeklySchedule;
+  void updateSchedule(WeeklyAvailability s) => _set(() => _weeklySchedule = s);
 
   bool editing = false;
   bool doctorLoaded = false;
@@ -65,6 +70,13 @@ class ProfileViewModel {
     cachedUser = user;
     nameController.text = user.name;
     emailController.text = user.email;
+    // If the user is no longer a doctor (profile deleted) but we still hold
+    // stale doctor data, purge it so the "Register as Doctor" card appears.
+    if (!user.isDoctor && (doctorLoaded || doctorEntity != null)) {
+      doctorLoaded = false;
+      doctorEntity = null;
+      _weeklySchedule = WeeklyAvailability.standard;
+    }
     if (user.isDoctor && !doctorLoaded) loadDoctorProfile(user.uid);
     // Refresh the global list of doctors so edits propagate to the home screen.
     context.read<DoctorBloc>().add(const LoadAllDoctors());
@@ -80,9 +92,9 @@ class ProfileViewModel {
         experienceController.text = doctor.experience;
         phoneController.text = doctor.phoneNumber;
         locationController.text = doctor.location;
-        availabilityController.text = doctor.availability;
         servicesController.text = doctor.services;
         descriptionController.text = doctor.description;
+        _weeklySchedule = doctor.schedule;
         doctorLoaded = true;
       });
     });
@@ -95,8 +107,7 @@ class ProfileViewModel {
     final file = await ImageUploadService.pickWithChooser(context);
     if (file == null) return;
 
-    // Doctor photos must pass the professional-criteria check before upload;
-    // a failure blocks saving and shows the specific reason.
+    // Doctor photos must pass the professional-criteria check before upload.
     if (user.isDoctor) {
       _set(() => uploadingImage = true);
       final result = await ImageValidationService.validateDoctorPhoto(file);
@@ -113,7 +124,6 @@ class ProfileViewModel {
         await ImageUploadService.setDoctorPhoto(user.uid, file);
         await loadDoctorProfile(user.uid);
       } else {
-        // Patient photo lives on the user record (profile-only).
         await ImageUploadService.setUserPhoto(user.uid, file);
         if (context.mounted) {
           context.read<AuthBloc>().add(const AuthCheckRequested());
@@ -134,7 +144,12 @@ class ProfileViewModel {
   }
 
   void saveProfile(BuildContext context, UserEntity user) {
-    if (!(formKey.currentState?.validate() ?? false)) return;
+    // validate() marks fields with inline errors; force a parent rebuild so
+    // every error is visible before the user scrolls down to find them.
+    if (!(formKey.currentState?.validate() ?? false)) {
+      onChange();
+      return;
+    }
     context.read<AuthBloc>().add(AuthUpdateProfileRequested(
           uid: user.uid,
           name: nameController.text.trim(),
@@ -144,11 +159,10 @@ class ProfileViewModel {
           experience: user.isDoctor ? experienceController.text.trim() : null,
           phoneNumber: user.isDoctor ? phoneController.text.trim() : null,
           location: user.isDoctor ? locationController.text.trim() : null,
-          availability:
-              user.isDoctor ? availabilityController.text.trim() : null,
+          availability: user.isDoctor ? _buildAvailabilityString() : null,
           services: user.isDoctor ? servicesController.text.trim() : null,
-          description:
-              user.isDoctor ? descriptionController.text.trim() : null,
+          description: user.isDoctor ? descriptionController.text.trim() : null,
+          weeklySchedule: user.isDoctor ? _weeklySchedule.toMap() : null,
         ));
     _set(() => editing = false);
   }
@@ -177,8 +191,6 @@ class ProfileViewModel {
     );
     if (!confirmed || !context.mounted) return;
 
-    // Block sign-out while offline so the session isn't cleared without a
-    // chance to re-sync.
     final online = await Connectivity.hasInternet();
     if (!context.mounted) return;
     if (!online) {
@@ -191,12 +203,6 @@ class ProfileViewModel {
     context.read<AuthBloc>().add(const AuthSignOutRequested());
   }
 
-  /// Delete-account action. Behaviour differs by role:
-  ///  * Patient → confirms, then permanently deletes everything and signs out
-  ///    (handleAuthState routes to sign-in on AuthUnauthenticated).
-  ///  * Doctor → confirms, removes only the doctor profile and continues the
-  ///    same account as a patient (the views switch reactively on the new
-  ///    AuthAuthenticated patient state).
   Future<void> deleteAccount(BuildContext context) async {
     final user = cachedUser;
     if (user == null) return;
@@ -219,7 +225,6 @@ class ProfileViewModel {
             name: user.name,
             email: user.email,
           ));
-      // Drop the removed doctor from the global list immediately.
       context.read<DoctorBloc>().add(const LoadAllDoctors());
       return;
     }
@@ -250,6 +255,16 @@ class ProfileViewModel {
     }
   }
 
+  /// Auto-generate a concise display string from the weekly schedule.
+  String _buildAvailabilityString() {
+    final open = _weeklySchedule.days.where((d) => d.isOpen).toList();
+    if (open.isEmpty) return 'Not available';
+    final abbrs = open.map((d) => d.day.substring(0, 3)).join(', ');
+    final times =
+        '${WeeklyAvailability.to12h(open.first.open!)}–${WeeklyAvailability.to12h(open.first.close!)}';
+    return '$abbrs: $times';
+  }
+
   void dispose() {
     nameController.dispose();
     emailController.dispose();
@@ -257,7 +272,6 @@ class ProfileViewModel {
     experienceController.dispose();
     phoneController.dispose();
     locationController.dispose();
-    availabilityController.dispose();
     servicesController.dispose();
     descriptionController.dispose();
   }

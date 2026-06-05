@@ -33,6 +33,8 @@ abstract class AuthRemoteDataSource {
     required String location,
     required String availability,
     required String services,
+    required String description,
+    Map<String, dynamic>? weeklySchedule,
   });
   Future<UserModel> updateProfile({
     required String uid,
@@ -45,6 +47,7 @@ abstract class AuthRemoteDataSource {
     String? availability,
     String? services,
     String? description,
+    Map<String, dynamic>? weeklySchedule,
   });
   Future<void> switchRole({required String uid, required UserRole role});
   Future<void> signOut();
@@ -221,6 +224,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String location,
     required String availability,
     required String services,
+    required String description,
+    Map<String, dynamic>? weeklySchedule,
   }) async {
     try {
       await firestore.collection('doctors').doc(uid).set({
@@ -234,10 +239,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'location': location,
         'availability': availability,
         'services': services,
-        'description': '',
+        'description': description,
         'rating': 4.5,
         'isSeed': false,
         'createdAt': FieldValue.serverTimestamp(),
+        if (weeklySchedule != null) 'schedule': weeklySchedule,
       });
       return UserModel(
         uid: uid,
@@ -263,6 +269,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? availability,
     String? services,
     String? description,
+    Map<String, dynamic>? weeklySchedule,
   }) async {
     try {
       final batch = firestore.batch();
@@ -287,6 +294,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         put('availability', availability);
         put('services', services);
         put('description', description);
+        if (weeklySchedule != null) doctorData['schedule'] = weeklySchedule;
 
         batch.set(doctorRef, doctorData, SetOptions(merge: true));
       }

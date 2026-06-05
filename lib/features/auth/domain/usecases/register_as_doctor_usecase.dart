@@ -20,6 +20,8 @@ class RegisterAsDoctorUseCase implements UseCase<UserEntity, RegisterAsDoctorPar
         location: params.location,
         availability: params.availability,
         services: params.services,
+        description: params.description,
+        weeklySchedule: params.weeklySchedule,
       );
 }
 
@@ -33,6 +35,8 @@ class RegisterAsDoctorParams {
   final String location;
   final String availability;
   final String services;
+  final String description;
+  final Map<String, dynamic>? weeklySchedule;
 
   const RegisterAsDoctorParams({
     required this.uid,
@@ -44,5 +48,7 @@ class RegisterAsDoctorParams {
     required this.location,
     required this.availability,
     required this.services,
+    required this.description,
+    this.weeklySchedule,
   });
 }

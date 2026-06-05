@@ -60,6 +60,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
+        titleSpacing: 4,
         title: Text(
           widget.doctor.name,
           style: const TextStyle(

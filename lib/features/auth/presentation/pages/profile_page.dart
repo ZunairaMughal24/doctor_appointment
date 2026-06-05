@@ -11,6 +11,8 @@ import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/weekly_availability_field.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import '../viewmodels/profile_viewmodel.dart';
@@ -174,6 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 12),
                     Form(
                       key: _vm.formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           _LabeledField(
@@ -233,14 +236,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               validator: (v) =>
                                   Validators.required(v, 'Location'),
                             ),
-                            _LabeledField(
-                              label: 'Availability',
-                              controller: _vm.availabilityController,
-                              icon: Icons.access_time_outlined,
+                            _AvailabilitySection(
+                              schedule: _vm.weeklySchedule,
                               enabled: _vm.editing,
-                              options: DoctorFormOptions.availability,
-                              validator: (v) =>
-                                  Validators.required(v, 'Availability'),
+                              onChanged: _vm.updateSchedule,
                             ),
                             _LabeledField(
                               label: 'Services',
@@ -258,6 +257,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               enabled: _vm.editing,
                               maxLines: 4,
                               maxLength: 300,
+                              validator: (v) =>
+                                  Validators.required(v, 'Description'),
                             ),
                           ],
                         ],
@@ -449,6 +450,47 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: 14,
         child: child,
       );
+}
+
+/// Weekly availability section — label row + the interactive schedule widget.
+class _AvailabilitySection extends StatelessWidget {
+  final WeeklyAvailability schedule;
+  final bool enabled;
+  final ValueChanged<WeeklyAvailability> onChanged;
+
+  const _AvailabilitySection({
+    required this.schedule,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 6),
+            child: Text(
+              'Weekly Availability',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          WeeklyAvailabilityField(
+            value: schedule,
+            onChanged: onChanged,
+            enabled: enabled,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// A labelled field used in the profile form so view vs. edit mode share the

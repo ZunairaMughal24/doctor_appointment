@@ -120,6 +120,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       location: event.location,
       availability: event.availability,
       services: event.services,
+      description: event.description,
+      weeklySchedule: event.weeklySchedule,
     ));
     result.fold(
       (failure) => emit(AuthFailureState(failure.userMessage)),
@@ -142,6 +144,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       availability: event.availability,
       services: event.services,
       description: event.description,
+      weeklySchedule: event.weeklySchedule,
     ));
     result.fold(
       (failure) {

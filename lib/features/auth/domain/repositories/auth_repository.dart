@@ -37,6 +37,8 @@ abstract class AuthRepository {
     required String location,
     required String availability,
     required String services,
+    required String description,
+    Map<String, dynamic>? weeklySchedule,
   });
 
   Future<Either<Failure, UserEntity>> updateProfile({
@@ -50,6 +52,7 @@ abstract class AuthRepository {
     String? availability,
     String? services,
     String? description,
+    Map<String, dynamic>? weeklySchedule,
   });
 
   Future<Either<Failure, void>> switchRole({

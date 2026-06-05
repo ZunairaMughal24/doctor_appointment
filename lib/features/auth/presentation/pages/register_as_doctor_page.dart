@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/utils/app_feedback.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/doctor_form_options.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/utils/app_feedback.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_dropdown_field.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/weekly_availability_field.dart';
 import '../../../doctors/presentation/bloc/doctor_bloc.dart';
 import '../../../doctors/presentation/bloc/doctor_event.dart';
 import '../bloc/auth_bloc.dart';
@@ -50,14 +53,11 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated && state.user.hasDoctorProfile) {
-          AppFeedback.showSuccess(context, 'Doctor profile created successfully!');
-          // Refresh global doctor list
+          AppFeedback.showSuccess(
+              context, 'Doctor profile created successfully!');
           context.read<DoctorBloc>().add(const LoadAllDoctors());
           context.go(AppRoutes.profile);
         } else if (state is AuthFailureState) {
@@ -65,144 +65,201 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
         }
       },
       child: Scaffold(
-        body: Container(
-          height: screenHeight,
-          width: screenWidth,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                AppColors.primaryDark,
-                AppColors.surface,
-                AppColors.tabUnselected,
-              ],
+        backgroundColor: AppColors.cardBg,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleSpacing: 4,
+          title: const Text(
+            'Register as Doctor',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          child: SafeArea(
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                SizedBox(height: screenHeight * 0.04),
-                const Text(
-                  'Register as Doctor',
+        ),
+        body: Form(
+          key: _vm.formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              const Text(
+                'Your name and email are pre-filled. Complete the professional details below.',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 20),
+
+              _label('Full Name'),
+              _textField(
+                controller: _vm.nameController,
+                hint: 'Full Name',
+                icon: Icons.person_outlined,
+                maxLength: 40,
+                validator: _vm.nameValidator,
+              ),
+
+              _label('Email'),
+              _textField(
+                controller: _vm.emailController,
+                hint: 'Email',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                maxLength: 60,
+                validator: _vm.emailValidator,
+              ),
+
+              _label('Speciality'),
+              _dropdownField(
+                controller: _vm.specialityController,
+                hint: 'Select your speciality',
+                icon: Icons.medical_services_outlined,
+                options: DoctorFormOptions.specialities,
+                validator: _vm.specialityValidator,
+              ),
+
+              _label('Experience'),
+              _dropdownField(
+                controller: _vm.experienceController,
+                hint: 'Select years of experience',
+                icon: Icons.workspace_premium_outlined,
+                options: DoctorFormOptions.experienceYears,
+                validator: _vm.experienceValidator,
+              ),
+
+              _label('Phone Number'),
+              _textField(
+                controller: _vm.phoneController,
+                hint: 'e.g. +92 300 1234567',
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                maxLength: 15,
+                validator: _vm.phoneValidator,
+              ),
+
+              _label('Clinic / Hospital Location'),
+              _dropdownField(
+                controller: _vm.locationController,
+                hint: 'Select location',
+                icon: Icons.location_on_outlined,
+                options: DoctorFormOptions.locations,
+                validator: _vm.locationValidator,
+              ),
+
+              _label('Services'),
+              _dropdownField(
+                controller: _vm.servicesController,
+                hint: 'Select a service',
+                icon: Icons.list_alt_outlined,
+                options: DoctorFormOptions.services,
+                validator: _vm.servicesValidator,
+              ),
+
+              _label('Weekly Availability'),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: StatefulBuilder(
+                  builder: (context, setLocal) => WeeklyAvailabilityField(
+                    value: _vm.schedule,
+                    onChanged: (s) {
+                      _vm.updateSchedule(s);
+                      setLocal(() {});
+                    },
+                  ),
+                ),
+              ),
+
+              _label('About / Description'),
+              _textField(
+                controller: _vm.descriptionController,
+                hint: 'Tell patients about your experience and approach',
+                icon: Icons.info_outline,
+                maxLines: 3,
+                maxLength: 300,
+                validator: _vm.descriptionValidator,
+              ),
+
+              const SizedBox(height: 28),
+
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) => AppButton(
+                  label: 'Create Doctor Profile',
+                  icon: Icons.check_circle_outline_rounded,
+                  loading: state is AuthLoading,
+                  onPressed: () => _vm.submit(context),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => context.pop(),
+                child: const Text(
+                  'Cancel',
                   style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Your name and email are pre-filled. Add your professional details below.',
-                  style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 100, 120, 135)),
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                Form(
-                  key: _vm.formKey,
-                  child: Column(
-                    children: [
-                      _buildField(
-                        controller: _vm.nameController,
-                        hint: 'Full Name',
-                        icon: Icons.person,
-                        validator: _vm.nameValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.emailController,
-                        hint: 'Email',
-                        icon: Icons.email,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: _vm.emailValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.specialityController,
-                        hint: 'Speciality (e.g. Cardiologist)',
-                        icon: Icons.medical_services,
-                        validator: _vm.specialityValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.experienceController,
-                        hint: 'Experience (e.g. 10 years)',
-                        icon: Icons.workspace_premium,
-                        validator: _vm.experienceValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.phoneController,
-                        hint: 'Phone Number',
-                        icon: Icons.phone,
-                        keyboardType: TextInputType.phone,
-                        validator: _vm.phoneValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.locationController,
-                        hint: 'Clinic / Hospital Location',
-                        icon: Icons.location_on,
-                        validator: _vm.locationValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.availabilityController,
-                        hint: 'Availability (e.g. Mon–Fri: 9am–5pm)',
-                        icon: Icons.access_time,
-                        validator: _vm.availabilityValidator,
-                      ),
-                      _buildField(
-                        controller: _vm.servicesController,
-                        hint: 'Services (comma separated)',
-                        icon: Icons.list_alt,
-                        validator: _vm.servicesValidator,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      label: 'Create Doctor Profile',
-                      loading: state is AuthLoading,
-                      onPressed: () => _vm.submit(context),
-                    );
-                  },
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.04),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildField({
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(top: 14, bottom: 6, left: 4),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primary,
+          ),
+        ),
+      );
+
+  Widget _textField({
     required TextEditingController controller,
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
+    int maxLines = 1,
+    int? maxLength,
     String? Function(String?)? validator,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: AppTextField(
-        controller: controller,
-        hint: hint,
-        prefixIcon: icon,
-        keyboardType: keyboardType,
-        validator: validator,
-      ),
-    );
-  }
+  }) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: AppTextField(
+          controller: controller,
+          hint: hint,
+          prefixIcon: icon,
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          validator: validator,
+        ),
+      );
+
+  Widget _dropdownField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    required List<String> options,
+    String? Function(String?)? validator,
+  }) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: AppDropdownField(
+          controller: controller,
+          hint: hint,
+          prefixIcon: icon,
+          options: options,
+          validator: validator,
+        ),
+      );
 }

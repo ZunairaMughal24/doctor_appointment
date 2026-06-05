@@ -86,6 +86,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String location,
     required String availability,
     required String services,
+    required String description,
   }) async {
     try {
       final user = await remoteDataSource.registerAsDoctor(
@@ -98,6 +99,7 @@ class AuthRepositoryImpl implements AuthRepository {
         location: location,
         availability: availability,
         services: services,
+        description: description,
       );
       return Right(user);
     } on AuthException catch (e) {
