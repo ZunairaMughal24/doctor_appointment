@@ -115,35 +115,77 @@ class ImageUploadService {
     }
   }
 
-  /// Uploads [file] to the Supabase `doctor-photos` bucket at `{uid}.jpg`
-  /// (overwriting any previous photo) and returns its public URL. A cache-buster
-  /// query param is appended so a re-uploaded photo refreshes immediately.
+  /// Uploads [file] to the Supabase storage bucket at `{uid}.jpg` (overwriting
+  /// any previous photo) and returns its public URL. A cache-buster query param
+  /// is appended so a re-uploaded photo refreshes immediately. Logs every step
+  /// so the exact failure is visible in the console.
   static Future<String> uploadDoctorPhoto(String uid, File file) async {
+    debugPrint('[PhotoUpload] start — uid=$uid file="${file.path}"');
+
     if (!SupabaseConfig.isConfigured) {
+      debugPrint('[PhotoUpload] ABORT — Supabase not configured '
+          '(url/anonKey still placeholders in supabase_config.dart)');
       throw StateError(
-          'Supabase is not configured — set url/anonKey in supabase_config.dart');
+          'Supabase is not configured — set SUPABASE_URL / SUPABASE_ANON_KEY in .env');
     }
-    final bucket = Supabase.instance.client.storage.from(
-      SupabaseConfig.photoBucket,
-    );
-    final path = '$uid.jpg';
-    await bucket.upload(
-      path,
-      file,
-      fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-    );
-    final url = bucket.getPublicUrl(path);
-    return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
+
+    final String path = '$uid.jpg';
+    try {
+      final bucket = Supabase.instance.client.storage.from(
+        SupabaseConfig.photoBucket,
+      );
+      final int bytes = await file.length();
+      debugPrint('[PhotoUpload] uploading $bytes bytes → '
+          'bucket="${SupabaseConfig.photoBucket}" path="$path"');
+
+      await bucket.upload(
+        path,
+        file,
+        fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+      );
+
+      final url = bucket.getPublicUrl(path);
+      debugPrint('[PhotoUpload] success — publicUrl=$url');
+      return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
+    } on StorageException catch (e) {
+      // The Supabase-side error — the most useful part of the log:
+      //   statusCode 404 → bucket "${SupabaseConfig.photoBucket}" doesn't exist
+      //   statusCode 403 / "row-level security" → missing insert/update policy
+      //   "Bucket not found" → name mismatch (check it matches the dashboard)
+      debugPrint('[PhotoUpload] StorageException — statusCode=${e.statusCode} '
+          'error="${e.error}" message="${e.message}"');
+      throw Exception('Image upload failed: ${e.message}');
+    } catch (e, st) {
+      debugPrint('[PhotoUpload] unexpected error: $e');
+      debugPrint('$st');
+      rethrow;
+    }
   }
 
   /// Uploads [file] and merges the resulting URL onto the doctor's Firestore
   /// record (`doctors/{uid}.imageUrl`). Returns the stored URL.
   static Future<String> setDoctorPhoto(String uid, File file) async {
     final url = await uploadDoctorPhoto(uid, file);
+    debugPrint('[PhotoUpload] writing imageUrl to doctors/$uid');
     await FirebaseFirestore.instance
         .collection('doctors')
         .doc(uid)
         .set({'imageUrl': url}, SetOptions(merge: true));
+    debugPrint('[PhotoUpload] doctors/$uid.imageUrl saved');
+    return url;
+  }
+
+  /// Uploads [file] and merges the URL onto the patient's user record
+  /// (`users/{uid}.imageUrl`). Used for non-doctor profile photos, which stay
+  /// on the profile screen only. Returns the stored URL.
+  static Future<String> setUserPhoto(String uid, File file) async {
+    final url = await uploadDoctorPhoto(uid, file);
+    debugPrint('[PhotoUpload] writing imageUrl to users/$uid');
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .set({'imageUrl': url}, SetOptions(merge: true));
+    debugPrint('[PhotoUpload] users/$uid.imageUrl saved');
     return url;
   }
 }

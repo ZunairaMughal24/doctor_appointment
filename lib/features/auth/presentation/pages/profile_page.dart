@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/doctor_form_options.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
@@ -52,15 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          context.go(AppRoutes.signIn);
-        } else if (state is AuthFailureState) {
-          AppFeedback.showError(context, state.message);
-        } else if (state is AuthAuthenticated) {
-          _vm.onAuthenticated(context, state.user);
-        }
-      },
+      listener: (context, state) => _vm.handleAuthState(context, state),
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthAuthenticated) {
@@ -73,6 +64,11 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
           final user = _vm.cachedUser!;
+          // Doctors sync their photo from the doctor record; patients keep it on
+          // the user record (profile-only).
+          final photoUrl =
+              user.isDoctor ? _vm.doctorEntity?.imageUrl : user.imageUrl;
+          final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
           return Scaffold(
             backgroundColor: AppColors.cardBg,
             appBar: AppBar(
@@ -109,15 +105,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           CircleAvatar(
                             radius: 44,
                             backgroundColor: AppColors.primary,
-                            backgroundImage: (_vm.doctorEntity?.imageUrl != null &&
-                                    _vm.doctorEntity!.imageUrl!.isNotEmpty)
-                                ? NetworkImage(_vm.doctorEntity!.imageUrl!)
+                            backgroundImage: hasPhoto
+                                ? NetworkImage(photoUrl)
                                 : null,
                             child: _vm.uploadingImage
                                 ? const CircularProgressIndicator(
                                     color: Colors.white)
-                                : (_vm.doctorEntity?.imageUrl == null ||
-                                        _vm.doctorEntity!.imageUrl!.isEmpty)
+                                : (!hasPhoto)
                                     ? Text(
                                         user.name.isNotEmpty
                                             ? user.name[0].toUpperCase()
@@ -129,7 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       )
                                     : null,
                           ),
-                          if (_vm.editing && user.isDoctor)
+                          // All users can set a profile picture while editing.
+                          if (_vm.editing)
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -186,6 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             controller: _vm.nameController,
                             icon: Icons.person_outline,
                             enabled: _vm.editing,
+                            maxLength: 40,
                             validator: (v) =>
                                 Validators.required(v, 'Name'),
                           ),
@@ -195,6 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             icon: Icons.email_outlined,
                             enabled: _vm.editing,
                             keyboardType: TextInputType.emailAddress,
+                            maxLength: 60,
                             validator: Validators.email,
                           ),
                           if (user.isDoctor) ...[
@@ -206,6 +203,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _vm.specialityController,
                               icon: Icons.medical_services_outlined,
                               enabled: _vm.editing,
+                              options: DoctorFormOptions.specialities,
                               validator: (v) =>
                                   Validators.required(v, 'Speciality'),
                             ),
@@ -214,6 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _vm.experienceController,
                               icon: Icons.workspace_premium_outlined,
                               enabled: _vm.editing,
+                              options: DoctorFormOptions.experienceYears,
                               validator: (v) =>
                                   Validators.required(v, 'Experience'),
                             ),
@@ -258,6 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.info_outline,
                               enabled: _vm.editing,
                               maxLines: 4,
+                              maxLength: 300,
                             ),
                           ],
                         ],
@@ -388,6 +388,32 @@ class _ProfilePageState extends State<ProfilePage> {
                           onTap: () => _vm.signOut(context),
                         ),
                       ),
+                      const SizedBox(height: 12),
+
+                      // ── Delete Account ───────────────────────────────
+                      _card(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            backgroundColor: AppColors.dangerLight,
+                            child: Icon(Icons.delete_forever_rounded,
+                                color: AppColors.error),
+                          ),
+                          title: const Text(
+                            'Delete Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: AppColors.error,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Permanently remove your account and all data',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          onTap: () => _vm.deleteAccount(context),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -434,6 +460,7 @@ class _LabeledField extends StatelessWidget {
   final IconData icon;
   final bool enabled;
   final int maxLines;
+  final int? maxLength;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final List<String>? options;
@@ -444,6 +471,7 @@ class _LabeledField extends StatelessWidget {
     required this.icon,
     required this.enabled,
     this.maxLines = 1,
+    this.maxLength,
     this.keyboardType,
     this.validator,
     this.options,
@@ -483,6 +511,7 @@ class _LabeledField extends StatelessWidget {
               prefixIcon: icon,
               enabled: enabled,
               maxLines: maxLines,
+              maxLength: maxLength,
               keyboardType: keyboardType,
               validator: validator,
             ),
