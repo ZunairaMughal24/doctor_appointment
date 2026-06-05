@@ -35,6 +35,9 @@ class WeeklyAvailability extends Equatable {
     'Sunday',
   ];
 
+  /// Full name of today's weekday, matching [weekdayNames].
+  static String get todayName => weekdayNames[DateTime.now().weekday - 1];
+
   /// Sensible default used when a doctor has no stored schedule.
   static const WeeklyAvailability standard = WeeklyAvailability([
     DayHours(day: 'Monday', open: '09:00', close: '17:00'),

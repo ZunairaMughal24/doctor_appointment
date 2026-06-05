@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -29,6 +30,13 @@ class AllDoctorsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
+        titleSpacing: 4,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: Text(
           speciality ?? 'All Specialists',
           style: const TextStyle(

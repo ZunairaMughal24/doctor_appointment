@@ -35,6 +35,13 @@ class AllDiseasesPage extends StatelessWidget {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
+        titleSpacing: 4,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text(
           'All Diseases',
           style: TextStyle(

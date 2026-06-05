@@ -30,7 +30,10 @@ class DoctorModel extends DoctorEntity {
       availability: data['availability'] ?? '',
       services: data['services'] ?? '',
       schedule: WeeklyAvailability.fromMap(
-        (data['schedule'] as Map?)?.cast<String, dynamic>(),
+        // 'schedule' is the current key; fall back to the legacy 'weeklySchedule'
+        // key that was used before the naming fix.
+        ((data['schedule'] ?? data['weeklySchedule']) as Map?)
+            ?.cast<String, dynamic>(),
       ),
       description: data['description'] ?? '',
       rating: (data['rating'] ?? 4.5).toDouble(),

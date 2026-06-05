@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 
@@ -21,8 +22,13 @@ class RegisterAsDoctorViewModel {
   final experienceController = TextEditingController();
   final phoneController = TextEditingController();
   final locationController = TextEditingController();
-  final availabilityController = TextEditingController();
   final servicesController = TextEditingController();
+  final descriptionController = TextEditingController();
+
+  // Weekly schedule — replaces the availability string dropdown.
+  WeeklyAvailability _schedule = WeeklyAvailability.standard;
+  WeeklyAvailability get schedule => _schedule;
+  void updateSchedule(WeeklyAvailability s) => _schedule = s;
 
   // ── Validators ──────────────────────────────────────────────────────
   String? Function(String?) get nameValidator =>
@@ -35,10 +41,10 @@ class RegisterAsDoctorViewModel {
   String? Function(String?) get phoneValidator => Validators.phone;
   String? Function(String?) get locationValidator =>
       (v) => Validators.required(v, 'Location');
-  String? Function(String?) get availabilityValidator =>
-      (v) => Validators.required(v, 'Availability');
   String? Function(String?) get servicesValidator =>
       (v) => Validators.required(v, 'Services');
+  String? Function(String?) get descriptionValidator =>
+      (v) => Validators.required(v, 'Description');
 
   // ── Actions ─────────────────────────────────────────────────────────
   bool validate() => formKey.currentState?.validate() ?? false;
@@ -53,9 +59,20 @@ class RegisterAsDoctorViewModel {
           experience: experienceController.text.trim(),
           phoneNumber: phoneController.text.trim(),
           location: locationController.text.trim(),
-          availability: availabilityController.text.trim(),
+          availability: _buildAvailabilityString(),
           services: servicesController.text.trim(),
+          description: descriptionController.text.trim(),
+          weeklySchedule: _schedule.toMap(),
         ));
+  }
+
+  String _buildAvailabilityString() {
+    final open = _schedule.days.where((d) => d.isOpen).toList();
+    if (open.isEmpty) return 'Not available';
+    final abbrs = open.map((d) => d.day.substring(0, 3)).join(', ');
+    final times =
+        '${WeeklyAvailability.to12h(open.first.open!)}–${WeeklyAvailability.to12h(open.first.close!)}';
+    return '$abbrs: $times';
   }
 
   void dispose() {
@@ -65,7 +82,7 @@ class RegisterAsDoctorViewModel {
     experienceController.dispose();
     phoneController.dispose();
     locationController.dispose();
-    availabilityController.dispose();
     servicesController.dispose();
+    descriptionController.dispose();
   }
 }

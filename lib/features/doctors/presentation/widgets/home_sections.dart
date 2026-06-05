@@ -164,11 +164,11 @@ class HomeStatsStrip extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _StatItem(label: 'Specialists', value: '500+'),
+            _StatItem(label: 'Specialists', value: '500+', accent: true),
             _StatDivider(),
             _StatItem(label: 'Specialties', value: '20+'),
             _StatDivider(),
-            _StatItem(label: 'Patients Served', value: '10K+'),
+            _StatItem(label: 'Patients Served', value: '10K+', accent: true),
           ],
         ),
       ),
@@ -181,7 +181,8 @@ class HomeStatsStrip extends StatelessWidget {
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;
-  const _StatItem({required this.label, required this.value});
+  final bool accent;
+  const _StatItem({required this.label, required this.value, this.accent = false});
 
   @override
   Widget build(BuildContext context) {
@@ -190,10 +191,10 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: AppColors.primary,
+            color: accent ? AppColors.textRed : AppColors.primary,
             letterSpacing: -0.2,
           ),
         ),
@@ -550,14 +551,20 @@ class AvailableDoctorsSection extends StatelessWidget {
             itemBuilder: (context, index) {
               final doctor = doctors[index];
               return Material(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
                 child: InkWell(
                   onTap: () => onTap(doctor),
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
                     height: 140,
                     width: 230,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.inputBorder),
+                      boxShadow: AppColors.softCardShadow(opacity: 0.07),
+                    ),
                     child: Row(
                       children: [
                         SizedBox(
@@ -746,7 +753,7 @@ class _SectionHeader extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.primaryLighter,
+                color: AppColors.textRed.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
@@ -754,7 +761,7 @@ class _SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textRed,
                   letterSpacing: 0.2,
                 ),
               ),

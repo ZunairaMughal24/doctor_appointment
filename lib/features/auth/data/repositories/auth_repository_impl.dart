@@ -87,6 +87,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String availability,
     required String services,
     required String description,
+    Map<String, dynamic>? weeklySchedule,
   }) async {
     try {
       final user = await remoteDataSource.registerAsDoctor(
@@ -100,6 +101,7 @@ class AuthRepositoryImpl implements AuthRepository {
         availability: availability,
         services: services,
         description: description,
+        weeklySchedule: weeklySchedule,
       );
       return Right(user);
     } on AuthException catch (e) {
@@ -119,6 +121,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? availability,
     String? services,
     String? description,
+    Map<String, dynamic>? weeklySchedule,
   }) async {
     try {
       final user = await remoteDataSource.updateProfile(
@@ -132,6 +135,7 @@ class AuthRepositoryImpl implements AuthRepository {
         availability: availability,
         services: services,
         description: description,
+        weeklySchedule: weeklySchedule,
       );
       return Right(user);
     } on AuthException catch (e) {

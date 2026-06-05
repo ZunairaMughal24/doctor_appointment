@@ -51,6 +51,7 @@ class AppDropdownField extends StatelessWidget {
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _OptionsSheet(
         title: hint,

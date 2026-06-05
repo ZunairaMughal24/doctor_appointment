@@ -44,6 +44,12 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text(
           "Sign Up as Doctor",
           style: TextStyle(

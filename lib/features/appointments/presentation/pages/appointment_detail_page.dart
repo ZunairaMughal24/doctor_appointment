@@ -50,6 +50,13 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
           backgroundColor: AppColors.primary,
+          titleSpacing: 4,
+          leading: Navigator.of(context).canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(_vm.changed),
+                )
+              : null,
           title: const Text(
             'Appointment',
             style: TextStyle(

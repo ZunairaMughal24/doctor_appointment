@@ -24,7 +24,15 @@ class DoctorDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (doctor == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Detail")),
+        appBar: AppBar(
+          title: const Text("Detail"),
+          leading: context.canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () => context.pop(),
+                )
+              : null,
+        ),
         body: const Center(child: Text("Doctor details not found")),
       );
     }
@@ -36,8 +44,15 @@ class DoctorDetailPage extends StatelessWidget {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
+        titleSpacing: 4,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text(
-          'Dr. Detail',
+          'Doctor Details',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -212,14 +227,30 @@ class DoctorDetailPage extends StatelessWidget {
 
                         const SizedBox(height: 8),
                         const Text(
-                          'Weekly Availability',
+                          'Availability',
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        Text(
+                          data.availability,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Weekly Schedule',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
                         _WeeklyScheduleTable(schedule: data.schedule),
 
                         const SizedBox(height: 12),
@@ -281,33 +312,42 @@ class _WeeklyScheduleTable extends StatelessWidget {
   }
 
   Widget _row(DayHours d) {
+    final abbr = d.day.substring(0, 3);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            d.day,
-            style: const TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+          SizedBox(
+            width: 45,
+            child: Text(
+              abbr,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
-          d.isOpen
-              ? Text(
-                  '${WeeklyAvailability.to12h(d.open!)} - '
-                  '${WeeklyAvailability.to12h(d.close!)}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+          Expanded(
+            child: d.isOpen
+                ? Text(
+                    '${WeeklyAvailability.to12h(d.open!)}  –  '
+                    '${WeeklyAvailability.to12h(d.close!)}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                : Text(
+                    'Closed',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.textHint.withValues(alpha: 0.8),
+                    ),
                   ),
-                )
-              : const Text(
-                  'Closed',
-                  style: TextStyle(fontSize: 13, color: AppColors.textHint),
-                ),
+          ),
         ],
       ),
     );
