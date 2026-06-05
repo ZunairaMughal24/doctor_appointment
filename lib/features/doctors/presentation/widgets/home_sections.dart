@@ -114,13 +114,15 @@ class FeaturedDoctorsSection extends StatelessWidget {
                     width: 255,
                     child: Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: DoctorCardFeatured(
-                            name: doctor.name,
-                            speciality: doctor.speciality,
-                            rating: doctor.rating,
-                            availability: doctor.availability,
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: DoctorCardFeatured(
+                              name: doctor.name,
+                              speciality: doctor.speciality,
+                              rating: doctor.rating,
+                              availability: doctor.availability,
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -302,12 +304,14 @@ class AvailableDoctorsSection extends StatelessWidget {
                                 ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
                                 : Image.asset(AppAssets.avatarForDoctor(doctor.id), fit: BoxFit.cover),
                           ),
-                          DoctorCardAvailable(
-                            name: doctor.name,
-                            speciality: doctor.speciality,
-                            rating: doctor.rating,
-                            availability: doctor.availability,
-                            experience: doctor.experience,
+                          Expanded(
+                            child: DoctorCardAvailable(
+                              name: doctor.name,
+                              speciality: doctor.speciality,
+                              rating: doctor.rating,
+                              availability: doctor.availability,
+                              experience: doctor.experience,
+                            ),
                           ),
                         ],
                       ),

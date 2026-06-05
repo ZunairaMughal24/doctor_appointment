@@ -28,12 +28,18 @@ class DoctorCardFeatured extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold)),
           Text(speciality,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
           Text(availability,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, color: Colors.white70)),
           _StarRow(rating: rating, color: Colors.yellow, textColor: Colors.white70),
           const Row(children: [
@@ -92,15 +98,23 @@ class DoctorCardAvailable extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   fontSize: 15, color: AppColors.primary, fontWeight: FontWeight.bold)),
           Text(speciality,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 13, color: AppColors.textRed)),
           Text(availability,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary)),
           _StarRow(rating: rating, color: AppColors.primaryDark, textColor: AppColors.primary),
           Text(experience,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -259,8 +273,12 @@ class _StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
+    // mainAxisSize.min so the row shrinks to its content — this lets it follow
+    // the parent column's alignment (centered on the Recommended card, instead
+    // of stretching full width and pinning the stars to the left).
+    return Row(mainAxisSize: MainAxisSize.min, children: [
       Row(
+          mainAxisSize: MainAxisSize.min,
           children: List.generate(
               5,
               (i) => Icon(
