@@ -69,6 +69,31 @@ class AppColors {
     end: Alignment.bottomRight,
   );
 
+  /// Vertical header gradient - top to bottom with smooth fade to light
+  static const LinearGradient headerVerticalGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF034B6D),
+      Color(0xFF0B4D69),
+      Color(0xFF1B6B8F),
+      Color(0xFF2E8BA8),
+      Color(0xFF5BA8C5),
+      Color(0xFFB5D9E8),
+    ],
+  );
+
+  /// Alternative header gradient - subtle top to bottom fade
+  static const LinearGradient headerVerticalGradientAlt = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFE9F2FA),
+      Color(0xFF1D6C8F),
+      Color(0xFF0B4D69),
+    ],
+  );
+
   // ── Form / input helpers ─────────────────────────────────────────────────
   static const Color fieldBgBlue = Color(0xFFA7CEE0);
   static const Color tabUnselected = Color(0xFFB4D2E1);
@@ -78,6 +103,7 @@ class AppColors {
   // ── Borders & dividers ────────────────────────────────────────────────────
   /// Input field border colour.
   static const Color inputBorder = Color(0xFFDDE2E8);
+
   /// Divider line colour.
   static const Color divider = Color(0xFFE8ECF0);
 

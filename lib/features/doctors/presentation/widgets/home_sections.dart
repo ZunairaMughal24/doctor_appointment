@@ -31,18 +31,18 @@ class HomeHeader extends StatelessWidget {
           margin: const EdgeInsets.only(
               bottom: 27), // Half of the search bar height (54 / 2)
           decoration: const BoxDecoration(
-            gradient: AppColors.primaryGradient,
+            gradient: AppColors.headerVerticalGradientAlt,
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(32),
-              bottomRight: Radius.circular(32),
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(14),
             ),
           ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               kHomeHorizontalPadding,
-              topInset + 16,
+              topInset + 12,
               kHomeHorizontalPadding,
-              44, // Extra bottom padding so elements don't get covered by the overlapping search bar
+              35, // Extra bottom padding so elements don't get covered by the overlapping search bar
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,13 +92,13 @@ class HomeHeader extends StatelessWidget {
                               height: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 1),
                           const Text(
                             'Your health, our priority.',
                             style: TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 12.5,
                               fontWeight: FontWeight.w400,
-                              color: Colors.white70,
+                              color: Color.fromARGB(179, 255, 255, 255),
                               letterSpacing: 0.1,
                               fontStyle: FontStyle.italic,
                             ),
@@ -111,7 +111,7 @@ class HomeHeader extends StatelessWidget {
                       width: 44,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.25),
                           width: 1,
@@ -149,15 +149,16 @@ class HomeStatsStrip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(
           horizontal: kHomeHorizontalPadding, vertical: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              offset: const Offset(0, 4),
-              blurRadius: 12,
+              color: AppColors.primary.withValues(alpha: 0.06),
+              offset: const Offset(0, 2),
+              blurRadius: 8,
+              spreadRadius: 0,
             ),
           ],
         ),
@@ -182,7 +183,8 @@ class _StatItem extends StatelessWidget {
   final String label;
   final String value;
   final bool accent;
-  const _StatItem({required this.label, required this.value, this.accent = false});
+  const _StatItem(
+      {required this.label, required this.value, this.accent = false});
 
   @override
   Widget build(BuildContext context) {
@@ -202,9 +204,9 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 10.5,
+            fontSize: 12.5,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: Color.fromARGB(255, 109, 112, 114),
             letterSpacing: 0.1,
           ),
         ),
@@ -246,13 +248,13 @@ class HomeSectionTitle extends StatelessWidget {
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               subtitle!,
               style: const TextStyle(
-                fontSize: 11.5,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary,
+                color: Color.fromARGB(255, 109, 112, 114),
                 letterSpacing: 0.1,
               ),
             ),
@@ -299,9 +301,9 @@ class FeaturedDoctorsSection extends StatelessWidget {
               const Text(
                 'Highly rated, verified medical professionals',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.textSecondary,
+                  color: Color.fromARGB(255, 109, 112, 114),
                   letterSpacing: 0.1,
                 ),
               ),
@@ -309,11 +311,11 @@ class FeaturedDoctorsSection extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 165,
+          height: 175,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kHomeHorizontalPadding, vertical: 6),
             itemCount: doctors.length.clamp(0, 4),
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
@@ -342,17 +344,24 @@ class _FeaturedDoctorCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         child: Ink(
           width: 255,
           height: 160,
           decoration: BoxDecoration(
             gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: AppColors.softCardShadow(opacity: 0.18),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
+                spreadRadius: -2,
+              ),
+            ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(14),
             child: Stack(
               children: [
                 Positioned(
@@ -382,8 +391,8 @@ class _FeaturedDoctorCard extends StatelessWidget {
                     ),
                     ClipRRect(
                       borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
+                        topRight: Radius.circular(14),
+                        bottomRight: Radius.circular(14),
                       ),
                       child: SizedBox(
                         width: 110,
@@ -433,11 +442,11 @@ class CategoriesSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
-          height: 112,
+          height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kHomeHorizontalPadding, vertical: 4),
             itemCount: AppAssets.diseaseIcons.length,
             itemBuilder: (context, index) {
               return _CategoryTile(
@@ -467,39 +476,35 @@ class _CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Material(
             color: Colors.white,
             shape: const CircleBorder(),
+            elevation: 2,
+            shadowColor: const Color(0xFFC2D2E1),
             child: InkWell(
               onTap: onTap,
               customBorder: const CircleBorder(),
               child: Container(
-                height: 66,
-                width: 66,
+                height: 58,
+                width: 58,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFFC2D2E1),
-                      offset: Offset(3, 4),
-                      blurRadius: 10,
-                    ),
-                  ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(9),
                   child: Image.asset(icon, fit: BoxFit.contain),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 7),
+          const SizedBox(height: 5),
           SizedBox(
-            width: 74,
+            width: 64,
             child: Text(
               label,
               textAlign: TextAlign.center,
@@ -507,7 +512,7 @@ class _CategoryTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               ),
             ),
@@ -539,31 +544,38 @@ class AvailableDoctorsSection extends StatelessWidget {
           subtitle: 'Ready to consult today',
           onSeeAll: () => context.push(AppRoutes.allDoctors),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         SizedBox(
           height: 140,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kHomeHorizontalPadding, vertical: 4),
             itemCount: doctors.length.clamp(0, 4),
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final doctor = doctors[index];
               return Material(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () => onTap(doctor),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(10),
                   child: Container(
                     height: 140,
                     width: 230,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.inputBorder),
-                      boxShadow: AppColors.softCardShadow(opacity: 0.07),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.05),
+                          offset: const Offset(0, 2),
+                          blurRadius: 6,
+                          spreadRadius: 0,
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
@@ -623,7 +635,7 @@ class RecommendedDoctorsSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDoctors),
         ),
         SizedBox(
-          height: 188,
+          height: 190,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding:
@@ -715,9 +727,9 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          kHomeHorizontalPadding, 10, kHomeHorizontalPadding, 0),
+          kHomeHorizontalPadding, 12, kHomeHorizontalPadding, 4),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -733,13 +745,13 @@ class _SectionHeader extends StatelessWidget {
                   ),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     subtitle!,
                     style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textSecondary,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromARGB(255, 109, 112, 114),
                       letterSpacing: 0.1,
                     ),
                   ),
@@ -747,22 +759,19 @@ class _SectionHeader extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 16),
           InkWell(
             onTap: onSeeAll,
             borderRadius: BorderRadius.circular(6),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.textRed.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(6),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
               child: const Text(
-                'View All →',
+                'View All',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textRed,
-                  letterSpacing: 0.2,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),

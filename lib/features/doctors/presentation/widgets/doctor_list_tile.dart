@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/doctor_entity.dart';
+import 'home_doctor_cards.dart';
 
 /// Row-style tile used in AllDoctorsPage list view.
 class DoctorListTile extends StatelessWidget {
@@ -74,9 +75,8 @@ class DoctorListTile extends StatelessWidget {
                       Text(doctor.location,
                           style: const TextStyle(
                               fontSize: 12, color: AppColors.primary)),
-                      Text(doctor.availability,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.primary)),
+                      const SizedBox(height: 2),
+                      DoctorAvailabilityBadge(availability: doctor.availability),
                     ],
                   ),
                 ),
