@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
@@ -50,20 +49,14 @@ class WelcomePage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 150),
-                    child: GestureDetector(
-                      // Debug-only: long-press to replay onboarding.
-                      onLongPress: kDebugMode
-                          ? () => vm.replayOnboarding(context)
-                          : null,
-                      child: const Text(
-                        'Welcome to Medic',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
+                  const FadeSlideIn(
+                    delay: Duration(milliseconds: 150),
+                    child: Text(
+                      'Welcome to Medic',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),

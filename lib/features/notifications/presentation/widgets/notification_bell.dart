@@ -49,16 +49,16 @@ class _NotificationBellState extends State<NotificationBell> {
             ),
             if (unread > 0)
               Positioned(
-                right: -2,
-                top: -4,
+                right: 2,
+                top: 0,
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   constraints:
-                      const BoxConstraints(minWidth: 18, minHeight: 18),
+                      const BoxConstraints(minWidth: 15, minHeight: 15),
                   decoration: BoxDecoration(
                     color: AppColors.error,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.white, width: 1.5),
                   ),
                   child: Text(
@@ -66,7 +66,7 @@ class _NotificationBellState extends State<NotificationBell> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

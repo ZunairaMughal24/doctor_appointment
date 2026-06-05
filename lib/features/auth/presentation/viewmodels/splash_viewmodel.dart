@@ -1,17 +1,15 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection_container.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/services/app_preferences.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-/// Resolves where to send the user after the splash (auth + onboarding gate),
-/// keeping the page pure UI.
+/// Resolves where to send the user after the splash (auth gate), keeping the
+/// page pure UI. Onboarding is always shown to unauthenticated users — there is
+/// no persisted "seen" flag.
 class SplashViewModel {
   const SplashViewModel();
 
@@ -37,10 +35,8 @@ class SplashViewModel {
       return state.user.isDoctor ? AppRoutes.appointments : AppRoutes.home;
     }
     if (state is AuthUnauthenticated) {
-      // Release: onboarding on first launch only. Debug: always show it.
-      final showOnboarding =
-          kDebugMode || !sl<AppPreferences>().onboardingSeen;
-      return showOnboarding ? AppRoutes.onboarding : AppRoutes.welcome;
+      // Always onboard unauthenticated users (no SharedPreferences flag).
+      return AppRoutes.onboarding;
     }
     return null; // still loading
   }

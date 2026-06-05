@@ -187,9 +187,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         label: 'Cancel Appointment',
         icon: Icons.cancel_outlined,
         color: AppColors.error,
-        onPressed: _vm.busy
-            ? null
-            : () => _vm.confirmCancel(context, asDoctor: false),
+        onPressed:
+            _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: false),
       ));
     }
 
@@ -232,7 +231,10 @@ class _StatusBadge extends StatelessWidget {
           Icons.check_circle_rounded
         ),
       AppointmentStatus.cancelled => (AppColors.error, Icons.cancel_rounded),
-      AppointmentStatus.completed => (AppColors.primary, Icons.task_alt_rounded),
+      AppointmentStatus.completed => (
+          AppColors.primary,
+          Icons.task_alt_rounded
+        ),
     };
 
     return Container(
@@ -338,6 +340,7 @@ class _DetailRow extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(icon, size: 20, color: AppColors.primary),
               const SizedBox(width: 14),
@@ -348,11 +351,13 @@ class _DetailRow extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-              const Spacer(),
-              Flexible(
+              const SizedBox(width: 16),
+              // Expanded + wrap so long values (names, locations) never overflow.
+              Expanded(
                 child: Text(
                   value.isEmpty ? '—' : value,
                   textAlign: TextAlign.right,
+                  softWrap: true,
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 15,

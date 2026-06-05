@@ -16,6 +16,10 @@ class AppTextField extends FormField<String> {
   final TextInputType? keyboardType;
   final int maxLines;
 
+  /// Optional trailing widget (e.g. a dropdown chevron). Ignored on password
+  /// fields, which show the show/hide eye toggle instead.
+  final Widget? suffix;
+
   AppTextField({
     super.key,
     required this.controller,
@@ -26,6 +30,7 @@ class AppTextField extends FormField<String> {
     super.validator,
     this.maxLines = 1,
     super.enabled,
+    this.suffix,
   }) : super(
           initialValue: controller.text,
           builder: (FormFieldState<String> field) {
@@ -66,17 +71,21 @@ class AppTextField extends FormField<String> {
                       if (state.widget.prefixIcon != null)
                         Padding(
                           padding: EdgeInsets.only(
-                              left: 14, top: state.widget.maxLines > 1 ? 14 : 0),
-                          child: Icon(state.widget.prefixIcon, color: AppColors.primary),
+                              left: 14,
+                              top: state.widget.maxLines > 1 ? 14 : 0),
+                          child: Icon(state.widget.prefixIcon,
+                              color: AppColors.primary),
                         ),
                       Expanded(
                         child: TextField(
                           controller: state.widget.controller,
                           focusNode: state._focusNode,
                           enabled: state.widget.enabled,
-                          obscureText: state.widget.obscureText,
+                          obscureText: state._obscured,
                           keyboardType: state.widget.keyboardType,
-                          maxLines: state.widget.obscureText ? 1 : state.widget.maxLines,
+                          maxLines: state.widget.obscureText
+                              ? 1
+                              : state.widget.maxLines,
                           onChanged: state.didChange,
                           style: TextStyle(
                               fontSize: 16,
@@ -94,6 +103,26 @@ class AppTextField extends FormField<String> {
                           ),
                         ),
                       ),
+                      // Show/hide toggle — only on password (obscured) fields.
+                      if (state.widget.obscureText && state.widget.enabled)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: IconButton(
+                            splashRadius: 20,
+                            icon: Icon(
+                              state._obscured
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: AppColors.primary,
+                              size: 21,
+                            ),
+                            onPressed: state.toggleObscure,
+                          ),
+                        )
+                      // Otherwise an optional trailing widget (e.g. dropdown chevron).
+                      else if (state.widget.suffix != null &&
+                          state.widget.enabled)
+                        state.widget.suffix!,
                     ],
                   ),
                 ),
@@ -122,12 +151,20 @@ class _AppTextFieldState extends FormFieldState<String> {
   late final FocusNode _focusNode;
   bool _focused = false;
 
+  /// Live obscuring state — starts matching [AppTextField.obscureText] and is
+  /// flipped by the show/hide eye toggle.
+  bool _obscured = false;
+
   @override
   AppTextField get widget => super.widget as AppTextField;
+
+  /// Flips password visibility for the eye toggle.
+  void toggleObscure() => setState(() => _obscured = !_obscured);
 
   @override
   void initState() {
     super.initState();
+    _obscured = widget.obscureText;
     _focusNode = FocusNode()
       ..addListener(() => setState(() => _focused = _focusNode.hasFocus));
     widget.controller.addListener(_handleControllerChanged);
@@ -163,4 +200,3 @@ class _AppTextFieldState extends FormFieldState<String> {
     });
   }
 }
-

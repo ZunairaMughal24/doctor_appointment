@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../services/app_preferences.dart';
 
 import '../../features/appointments/data/datasources/appointment_remote_data_source.dart';
 import '../../features/appointments/data/repositories/appointment_repository_impl.dart';
@@ -45,10 +42,6 @@ import '../../features/doctors/presentation/bloc/doctor_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> initDependencies() async {
-  // --- Local preferences
-  final prefs = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => AppPreferences(prefs));
-
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
 

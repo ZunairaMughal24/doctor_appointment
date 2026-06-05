@@ -44,8 +44,8 @@ class _HomeView extends StatelessWidget {
             return ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                HomeHeader(username: username),
-                const SizedBox(height: 35),
+                HomeHeader(greeting: vm.greeting(), username: username),
+                const SizedBox(height: 8),
                 HealthTipCard(tip: vm.tipOfTheDay),
                 FeaturedDoctorsSection(
                   doctors: doctors,
