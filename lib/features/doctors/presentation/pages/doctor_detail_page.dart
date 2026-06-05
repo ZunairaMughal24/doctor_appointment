@@ -312,42 +312,36 @@ class _WeeklyScheduleTable extends StatelessWidget {
   }
 
   Widget _row(DayHours d) {
-    final abbr = d.day.substring(0, 3);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: 45,
-            child: Text(
-              abbr,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
+          Text(
+            d.day,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
             ),
           ),
-          Expanded(
-            child: d.isOpen
-                ? Text(
-                    '${WeeklyAvailability.to12h(d.open!)}  –  '
-                    '${WeeklyAvailability.to12h(d.close!)}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                : Text(
-                    'Closed',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.textHint.withValues(alpha: 0.8),
-                    ),
+          d.isOpen
+              ? Text(
+                  '${WeeklyAvailability.to12h(d.open!)} – ${WeeklyAvailability.to12h(d.close!)}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
                   ),
-          ),
+                )
+              : const Text(
+                  'Closed',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textHint,
+                  ),
+                ),
         ],
       ),
     );
