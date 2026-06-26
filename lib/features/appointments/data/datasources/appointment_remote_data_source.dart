@@ -17,6 +17,15 @@ abstract class AppointmentRemoteDataSource {
     required AppointmentStatus status,
     required bool actorIsDoctor,
   });
+
+  /// Writes the patient's rating to the appointment doc and recalculates the
+  /// doctor's average rating atomically in a single Firestore transaction.
+  Future<void> submitRating({
+    required String appointmentId,
+    required String doctorId,
+    required int rating,
+    required String comment,
+  });
 }
 
 class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
@@ -172,6 +181,46 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       }
 
       await batch.commit();
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> submitRating({
+    required String appointmentId,
+    required String doctorId,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      await firestore.runTransaction((txn) async {
+        final doctorRef = firestore.collection('doctors').doc(doctorId);
+        final doctorSnap = await txn.get(doctorRef);
+        final doctorData = doctorSnap.data() ?? {};
+
+        final currentCount = (doctorData['rating_count'] as int?) ?? 0;
+        final currentTotal =
+            (doctorData['rating_total'] as num?)?.toDouble() ?? 0.0;
+        final newCount = currentCount + 1;
+        final newTotal = currentTotal + rating;
+        final newAverage =
+            double.parse((newTotal / newCount).toStringAsFixed(1));
+
+        txn.update(_appointments.doc(appointmentId), {
+          'rating': rating,
+          'rating_comment': comment,
+          'rated_at': FieldValue.serverTimestamp(),
+        });
+
+        txn.update(doctorRef, {
+          'rating': newAverage,
+          'rating_count': newCount,
+          'rating_total': newTotal,
+        });
+      });
     } on ServerException {
       rethrow;
     } catch (e) {

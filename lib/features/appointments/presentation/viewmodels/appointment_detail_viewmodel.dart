@@ -4,6 +4,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/communication_launcher.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../domain/entities/appointment_entity.dart';
+import '../../domain/usecases/submit_rating_usecase.dart';
 import '../../domain/usecases/update_appointment_status_usecase.dart';
 
 /// Presentation logic + mutable state for the appointment detail screen, so the
@@ -22,10 +23,18 @@ class AppointmentDetailViewModel {
   AppointmentEntity _appt;
   bool _busy = false;
   bool _changed = false;
+  bool _ratingBusy = false;
+  bool _hasJustRated = false;
+  int _justRating = 0;
+  String _justComment = '';
 
   AppointmentEntity get appointment => _appt;
   bool get busy => _busy;
   bool get changed => _changed;
+  bool get ratingBusy => _ratingBusy;
+  bool get hasJustRated => _hasJustRated;
+  int get justRating => _justRating;
+  String get justComment => _justComment;
 
   bool get isDoctorViewer =>
       viewerUid.isNotEmpty && viewerUid == _appt.doctorId;
@@ -96,6 +105,36 @@ class AppointmentDetailViewModel {
       await updateStatus(context, AppointmentStatus.cancelled,
           asDoctor: asDoctor);
     }
+  }
+
+  Future<void> submitRating(
+    BuildContext context, {
+    required int rating,
+    required String comment,
+  }) async {
+    _set(() => _ratingBusy = true);
+    final result = await sl<SubmitRatingUseCase>()(SubmitRatingParams(
+      appointmentId: _appt.id,
+      doctorId: _appt.doctorId,
+      rating: rating,
+      comment: comment,
+    ));
+    result.fold(
+      (failure) {
+        _set(() => _ratingBusy = false);
+        if (context.mounted) {
+          AppFeedback.showError(context, failure.userMessage);
+        }
+      },
+      (_) {
+        _set(() {
+          _ratingBusy = false;
+          _hasJustRated = true;
+          _justRating = rating;
+          _justComment = comment;
+        });
+      },
+    );
   }
 
   Future<void> joinOnWhatsApp(BuildContext context) async {

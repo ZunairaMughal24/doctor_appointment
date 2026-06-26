@@ -62,6 +62,12 @@ class AppointmentEntity extends Equatable {
   /// When the booking was created (used for sorting). Null for legacy records.
   final DateTime? createdAt;
 
+  /// Star rating 1–5 submitted by the patient after the appointment ends.
+  final int? rating;
+
+  /// Optional comment submitted alongside the star rating.
+  final String ratingComment;
+
   const AppointmentEntity({
     required this.id,
     required this.patientId,
@@ -76,10 +82,13 @@ class AppointmentEntity extends Equatable {
     this.consultationType = ConsultationType.inPerson,
     this.status = AppointmentStatus.pending,
     this.createdAt,
+    this.rating,
+    this.ratingComment = '',
   });
 
   bool get isVideo => consultationType == ConsultationType.video;
   bool get isCancelled => status == AppointmentStatus.cancelled;
+  bool get hasRating => rating != null;
 
   /// A consultation session is assumed to run this long from its start time.
   static const Duration _sessionLength = Duration(minutes: 60);
@@ -137,7 +146,11 @@ class AppointmentEntity extends Equatable {
   bool get shouldAutoComplete =>
       status == AppointmentStatus.confirmed && hasEnded;
 
-  AppointmentEntity copyWith({AppointmentStatus? status}) {
+  AppointmentEntity copyWith({
+    AppointmentStatus? status,
+    int? rating,
+    String? ratingComment,
+  }) {
     return AppointmentEntity(
       id: id,
       patientId: patientId,
@@ -152,10 +165,11 @@ class AppointmentEntity extends Equatable {
       consultationType: consultationType,
       status: status ?? this.status,
       createdAt: createdAt,
+      rating: rating ?? this.rating,
+      ratingComment: ratingComment ?? this.ratingComment,
     );
   }
 
-  // status included so a confirm/cancel change is treated as a distinct state.
   @override
-  List<Object?> get props => [id, status];
+  List<Object?> get props => [id, status, rating];
 }

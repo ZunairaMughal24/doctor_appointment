@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 
+// ── Featured doctor card (horizontal carousel, gradient background) ───────────
+
 class DoctorCardFeatured extends StatelessWidget {
   final String name;
   final String speciality;
@@ -30,23 +32,27 @@ class DoctorCardFeatured extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                  fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold)),
+                  fontSize: 15,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold)),
           Text(speciality,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
-          Text(availability,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white70)),
+          const SizedBox(height: 4),
+          DoctorAvailabilityBadge(availability: availability, lightText: true),
           _StarRow(rating: rating, color: Colors.yellow, textColor: Colors.white70),
           const Row(children: [
             Icon(Icons.call, size: 15, color: Colors.white),
             SizedBox(width: 5),
             Text('Contact',
                 style: TextStyle(
-                    fontSize: 12, fontStyle: FontStyle.italic, color: Colors.white)),
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white)),
           ]),
           const SizedBox(height: 7),
           Container(
@@ -71,6 +77,8 @@ class DoctorCardFeatured extends StatelessWidget {
   }
 }
 
+// ── Available doctor card (horizontal carousel, white background) ─────────────
+
 class DoctorCardAvailable extends StatelessWidget {
   final String name;
   final String speciality;
@@ -90,47 +98,79 @@ class DoctorCardAvailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
-      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 15, color: AppColors.primary, fontWeight: FontWeight.bold)),
-          Text(speciality,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 13, color: AppColors.textRed)),
-          Text(availability,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary)),
-          _StarRow(rating: rating, color: AppColors.primaryDark, textColor: AppColors.primary),
-          Text(experience,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic,
-                  color: AppColors.primary)),
-          const SizedBox(height: 5),
-          Container(
-            height: 25,
-            width: 73,
-            decoration: BoxDecoration(
-              color: AppColors.primaryDark,
-              borderRadius: BorderRadius.circular(7),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold)),
+                Text(speciality,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textRed)),
+                const SizedBox(height: 3),
+                SizedBox(
+                  width: double.maxFinite,
+                  child: DoctorAvailabilityBadge(availability: availability),
+                ),
+                SizedBox(
+                  width: double.maxFinite,
+                  child: _StarRow(
+                      rating: rating,
+                      color: AppColors.primaryDark,
+                      textColor: AppColors.primary),
+                ),
+                SizedBox(
+                  width: double.maxFinite,
+                  child: Text(experience,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.primary)),
+                ),
+              ],
             ),
-            child: const Center(
-              child: Text('Book now',
-                  style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+          ),
+          const SizedBox(height: 3),
+          SizedBox(
+            height: 24,
+            width: 70,
+            child: Material(
+              color: AppColors.primaryDark,
+              borderRadius: BorderRadius.circular(5),
+              child: InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Center(
+                    child: Text('Book now',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -138,6 +178,8 @@ class DoctorCardAvailable extends StatelessWidget {
     );
   }
 }
+
+// ── Compact doctor card (vertical grid, recommended section) ──────────────────
 
 class DoctorCardCompact extends StatelessWidget {
   final String name;
@@ -161,43 +203,62 @@ class DoctorCardCompact extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-                fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.bold)),
+                fontSize: 13,
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold)),
         Text(speciality,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: AppColors.textRed, fontSize: 12)),
         const SizedBox(height: 3),
-        _StarRow(rating: rating, color: AppColors.primary, textColor: AppColors.primary),
-        if (availability.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          _AvailabilityChip(text: availability),
-        ],
+        _StarRow(
+            rating: rating,
+            color: AppColors.primary,
+            textColor: AppColors.primary),
+        const SizedBox(height: 4),
+        DoctorAvailabilityBadge(availability: availability),
       ],
     );
   }
 }
 
-class _AvailabilityChip extends StatelessWidget {
-  final String text;
-  const _AvailabilityChip({required this.text});
+// ── Shared doctor-availability badge ──────────────────────────────────────────
+
+/// Shows clock icon and general availability text.
+/// [lightText] = true for cards with a dark/gradient background.
+class DoctorAvailabilityBadge extends StatelessWidget {
+  final String availability;
+  final bool lightText;
+
+  const DoctorAvailabilityBadge({
+    super.key,
+    required this.availability,
+    this.lightText = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = lightText ? Colors.white70 : AppColors.primary;
+    final textColor = lightText ? Colors.white70 : AppColors.textSecondary;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.access_time_rounded,
-            size: 11, color: AppColors.primary),
-        const SizedBox(width: 3),
+        Icon(
+          Icons.access_time_rounded,
+          size: 13,
+          color: iconColor,
+        ),
+        const SizedBox(width: 4),
         Flexible(
           child: Text(
-            text,
+            availability.isNotEmpty ? availability : 'Not available',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
+            style: TextStyle(
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: textColor,
             ),
           ),
         ),
@@ -206,7 +267,8 @@ class _AvailabilityChip extends StatelessWidget {
   }
 }
 
-/// Search bar with built-in navigation to search results.
+// ── Search bar ────────────────────────────────────────────────────────────────
+
 class HomeSearchBar extends StatefulWidget {
   const HomeSearchBar({super.key});
 
@@ -234,9 +296,16 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.divider),
-        boxShadow: AppColors.softCardShadow(opacity: 0.06),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.04),
+            offset: const Offset(0, 2),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: TextField(
         controller: _controller,
@@ -255,7 +324,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
           filled: true,
           fillColor: Colors.transparent,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
           contentPadding:
@@ -263,21 +332,21 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
           prefixIcon: const Icon(
             Icons.search_rounded,
             color: AppColors.primary,
-            size: 22,
+            size: 28,
           ),
           suffixIcon: Material(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             child: InkWell(
               onTap: _submit,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               child: const SizedBox(
-                width: 40,
-                height: 40,
+                width: 45,
+                height: 45,
                 child: Icon(
-                  Icons.arrow_forward_rounded,
+                  Icons.send_rounded,
                   color: Colors.white,
-                  size: 20,
+                  size: 22,
                 ),
               ),
             ),
@@ -287,6 +356,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     );
   }
 }
+
+// ── Star row ──────────────────────────────────────────────────────────────────
 
 class _StarRow extends StatelessWidget {
   final double rating;

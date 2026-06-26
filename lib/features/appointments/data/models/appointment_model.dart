@@ -17,6 +17,8 @@ class AppointmentModel extends AppointmentEntity {
     super.consultationType,
     super.status,
     super.createdAt,
+    super.rating,
+    super.ratingComment,
   });
 
   factory AppointmentModel.fromFirestore(
@@ -41,6 +43,8 @@ class AppointmentModel extends AppointmentEntity {
           ? AppointmentStatusX.fromKey(data['status'] as String?)
           : AppointmentStatus.confirmed,
       createdAt: ts is Timestamp ? ts.toDate() : null,
+      rating: data['rating'] as int?,
+      ratingComment: data['rating_comment'] as String? ?? '',
     );
   }
 

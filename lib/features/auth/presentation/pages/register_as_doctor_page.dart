@@ -70,6 +70,12 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
           backgroundColor: AppColors.primary,
           iconTheme: const IconThemeData(color: Colors.white),
           titleSpacing: 4,
+          leading: context.canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () => context.pop(),
+                )
+              : null,
           title: const Text(
             'Register as Doctor',
             style: TextStyle(

@@ -60,8 +60,13 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: AppColors.primary,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text(
           'My Appointments',
           style: TextStyle(
@@ -125,8 +130,13 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: AppColors.primary,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text(
           'Appointments',
           style: TextStyle(

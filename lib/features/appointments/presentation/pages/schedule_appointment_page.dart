@@ -61,6 +61,12 @@ class _ScheduleViewState extends State<_ScheduleView> {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.primary,
         titleSpacing: 4,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: Text(
           widget.doctor.name,
           style: const TextStyle(

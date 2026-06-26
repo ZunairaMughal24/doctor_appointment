@@ -7,6 +7,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../viewmodels/appointment_detail_viewmodel.dart';
+import '../widgets/rating_bottom_sheet.dart';
 
 /// Clean, appointment detail view: Status changes are persisted immediately and the screen
 /// returns `true` on pop so the list can refresh.
@@ -33,6 +34,22 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       onChange: () {
         if (mounted) setState(() {});
       },
+    );
+  }
+
+  Future<void> _openRating() async {
+    final result = await showModalBottomSheet<({int rating, String comment})>(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => RatingBottomSheet(doctorName: _vm.appointment.doctorName),
+    );
+    if (result == null || !mounted) return;
+    await _vm.submitRating(
+      context,
+      rating: result.rating,
+      comment: result.comment,
     );
   }
 
@@ -214,6 +231,24 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     } else if (status == AppointmentStatus.completed) {
       if (widgets.isNotEmpty) widgets.add(const SizedBox(height: 12));
       widgets.add(const _SessionCompletedBanner());
+      if (_vm.isPatientViewer) {
+        widgets.add(const SizedBox(height: 12));
+        final alreadyRated = appt.hasRating || _vm.hasJustRated;
+        if (alreadyRated) {
+          final effectiveRating = appt.hasRating ? appt.rating! : _vm.justRating;
+          final effectiveComment =
+              appt.hasRating ? appt.ratingComment : _vm.justComment;
+          widgets.add(
+              _RatingDisplay(rating: effectiveRating, comment: effectiveComment));
+        } else {
+          widgets.add(AppButton(
+            label: 'Rate Your Experience',
+            icon: Icons.star_rounded,
+            loading: _vm.ratingBusy,
+            onPressed: _vm.ratingBusy ? null : _openRating,
+          ));
+        }
+      }
     } else if (appt.isVideo &&
         appt.status == AppointmentStatus.confirmed &&
         appt.startsAt != null) {
@@ -377,6 +412,54 @@ class _DetailRow extends StatelessWidget {
         ),
         if (!isLast) const Divider(height: 1, color: AppColors.divider),
       ],
+    );
+  }
+}
+
+class _RatingDisplay extends StatelessWidget {
+  final int rating;
+  final String comment;
+
+  const _RatingDisplay({required this.rating, required this.comment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                'Your rating: $rating / 5',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          if (comment.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            Text(
+              comment,
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

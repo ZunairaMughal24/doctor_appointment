@@ -13,4 +13,11 @@ abstract class AppointmentRepository {
     required AppointmentStatus status,
     required bool actorIsDoctor,
   });
+
+  Future<Either<Failure, void>> submitRating({
+    required String appointmentId,
+    required String doctorId,
+    required int rating,
+    required String comment,
+  });
 }

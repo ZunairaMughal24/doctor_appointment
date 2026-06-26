@@ -75,6 +75,12 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: AppColors.cardBg,
             appBar: AppBar(
               backgroundColor: AppColors.primary,
+              leading: context.canPop()
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                      onPressed: () => context.pop(),
+                    )
+                  : null,
               title: const Text(
                 'Profile',
                 style: TextStyle(

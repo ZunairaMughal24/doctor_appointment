@@ -76,4 +76,24 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> submitRating({
+    required String appointmentId,
+    required String doctorId,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      await remoteDataSource.submitRating(
+        appointmentId: appointmentId,
+        doctorId: doctorId,
+        rating: rating,
+        comment: comment,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

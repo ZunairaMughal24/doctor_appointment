@@ -33,6 +33,7 @@ class ImageUploadService {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => ModernBottomSheet(
         title: 'Add a photo',
