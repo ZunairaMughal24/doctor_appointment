@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -80,33 +81,31 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     required this.markRead,
     required this.markAllRead,
   }) : super(const NotificationInitial()) {
-    on<LoadNotifications>(_onLoad);
+    on<LoadNotifications>(_onLoad, transformer: restartable());
     on<MarkNotificationRead>(_onMarkRead);
     on<MarkAllNotificationsRead>(_onMarkAllRead);
   }
 
   Future<void> _onLoad(
       LoadNotifications event, Emitter<NotificationState> emit) async {
-    // Refresh silently if we already have data (keeps the badge from flickering).
     if (state is! NotificationLoaded) emit(const NotificationLoading());
-    final result = await getNotifications(event.userId);
-    result.fold(
-      (failure) {
-        if (state is! NotificationLoaded) emit(NotificationError(failure.message));
-      },
-      (items) => emit(NotificationLoaded(items)),
+    await emit.forEach(
+      getNotifications(event.userId),
+      onData: (items) => NotificationLoaded(items),
+      onError: (_, __) => state is NotificationLoaded
+          ? state
+          : const NotificationError('Failed to load notifications'),
     );
   }
 
   Future<void> _onMarkRead(
       MarkNotificationRead event, Emitter<NotificationState> emit) async {
+    // The Firestore write triggers the live stream, so no manual reload needed.
     await markRead(event.notificationId);
-    add(LoadNotifications(event.userId));
   }
 
   Future<void> _onMarkAllRead(
       MarkAllNotificationsRead event, Emitter<NotificationState> emit) async {
     await markAllRead(event.userId);
-    add(LoadNotifications(event.userId));
   }
 }

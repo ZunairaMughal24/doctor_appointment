@@ -84,43 +84,111 @@ class _SearchViewState extends State<_SearchView> {
           onChanged: (query) => _vm.onQueryChanged(context, query),
         ),
       ),
-      body: BlocBuilder<DoctorBloc, DoctorState>(
-        builder: (context, state) {
-          if (state is DoctorLoading) return const AppLoader();
-          if (state is DoctorsLoaded) {
-            if (state.doctors.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.search_off,
-                        size: 64, color: AppColors.textHint),
-                    SizedBox(height: 12),
-                    Text('No results found',
-                        style: TextStyle(color: AppColors.textSecondary)),
-                  ],
+      body: Column(
+        children: [
+          // ── Specialty filter chips ───────────────────────────────────────
+          SizedBox(
+            height: 52,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              children: [
+                _SpecialtyChip(
+                  label: 'All',
+                  selected: _vm.selectedSpecialty == null,
+                  onTap: () => setState(() =>
+                      _vm.onSpecialtySelected(context, null)),
                 ),
-              );
-            }
-            return ListView.builder(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              physics: const BouncingScrollPhysics(),
-              itemCount: state.doctors.length,
-              itemBuilder: (_, index) {
-                final doc = state.doctors[index];
-                return DoctorCard(
-                  doctor: doc,
-                  onTap: () => context.push(
-                    AppRoutes.doctorDetailPath(doc.id),
-                    extra: doc,
+                for (final s in SearchResultsViewModel.specialties)
+                  _SpecialtyChip(
+                    label: s,
+                    selected: _vm.selectedSpecialty == s,
+                    onTap: () => setState(() =>
+                        _vm.onSpecialtySelected(context, s)),
                   ),
-                );
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // ── Results ─────────────────────────────────────────────────────
+          Expanded(
+            child: BlocBuilder<DoctorBloc, DoctorState>(
+              builder: (context, state) {
+                if (state is DoctorLoading) return const AppLoader();
+                if (state is DoctorsLoaded) {
+                  if (state.doctors.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search_off,
+                              size: 64, color: AppColors.textHint),
+                          SizedBox(height: 12),
+                          Text('No results found',
+                              style:
+                                  TextStyle(color: AppColors.textSecondary)),
+                        ],
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: state.doctors.length,
+                    itemBuilder: (_, index) {
+                      final doc = state.doctors[index];
+                      return DoctorCard(
+                        doctor: doc,
+                        onTap: () => context.push(
+                          AppRoutes.doctorDetailPath(doc.id),
+                          extra: doc,
+                        ),
+                      );
+                    },
+                  );
+                }
+                return const SizedBox.shrink();
               },
-            );
-          }
-          return const SizedBox.shrink();
-        },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpecialtyChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _SpecialtyChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onTap(),
+        selectedColor: AppColors.primary,
+        checkmarkColor: Colors.white,
+        labelStyle: TextStyle(
+          color: selected ? Colors.white : AppColors.primary,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+        ),
+        backgroundColor: Colors.white,
+        side: BorderSide(
+          color: selected ? AppColors.primary : AppColors.inputBorder,
+        ),
+        showCheckmark: false,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
       ),
     );
   }
