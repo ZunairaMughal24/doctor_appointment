@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Category of an in-app notification — drives the icon/colour shown in the list.
-enum AppNotificationType { booked, confirmed, cancelled, reminder }
+enum AppNotificationType { booked, confirmed, cancelled, completed, reminder }
 
 extension AppNotificationTypeX on AppNotificationType {
   String get key => name;
@@ -10,6 +10,7 @@ extension AppNotificationTypeX on AppNotificationType {
         'booked' => AppNotificationType.booked,
         'confirmed' => AppNotificationType.confirmed,
         'cancelled' => AppNotificationType.cancelled,
+        'completed' => AppNotificationType.completed,
         _ => AppNotificationType.reminder,
       };
 }

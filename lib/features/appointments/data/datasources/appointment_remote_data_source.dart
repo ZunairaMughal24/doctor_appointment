@@ -184,6 +184,18 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
             appointmentId: appointmentId,
           ),
         );
+      } else if (status == AppointmentStatus.completed) {
+        batch.set(
+          _notifications.doc(),
+          NotificationModel.payload(
+            userId: patientId,
+            title: 'Appointment completed',
+            body: 'Your appointment with $doctorName on $date at '
+                '${_to12h(time)} is complete. How was your experience?',
+            type: AppNotificationType.completed,
+            appointmentId: appointmentId,
+          ),
+        );
       } else if (status == AppointmentStatus.cancelled) {
         final body = actorIsDoctor
             ? 'Your appointment with $doctorName on $date at ${_to12h(time)} was cancelled.'

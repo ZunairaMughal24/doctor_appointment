@@ -123,6 +123,10 @@ class _NotificationTile extends StatelessWidget {
           Icons.check_circle_rounded
         ),
       AppNotificationType.cancelled => (AppColors.error, Icons.cancel_rounded),
+      AppNotificationType.completed => (
+          AppColors.primary,
+          Icons.task_alt_rounded
+        ),
       AppNotificationType.reminder => (
           AppColors.warning,
           Icons.notifications_active_rounded
