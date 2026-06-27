@@ -6,14 +6,11 @@ import '../../../../core/constants/doctor_form_options.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
-import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/weekly_availability_field.dart';
-import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../bloc/auth_bloc.dart';
+import '../widgets/profile_widgets.dart';
 import '../bloc/auth_state.dart';
 import '../viewmodels/profile_viewmodel.dart';
 
@@ -182,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
-                          _LabeledField(
+                          ProfileLabeledField(
                             label: 'Full Name',
                             controller: _vm.nameController,
                             icon: Icons.person_outline,
@@ -191,7 +188,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             validator: (v) =>
                                 Validators.required(v, 'Name'),
                           ),
-                          _LabeledField(
+                          ProfileLabeledField(
                             label: 'Email',
                             controller: _vm.emailController,
                             icon: Icons.email_outlined,
@@ -204,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(height: 16),
                             _sectionHeader('Professional Details'),
                             const SizedBox(height: 12),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'Speciality',
                               controller: _vm.specialityController,
                               icon: Icons.medical_services_outlined,
@@ -213,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               validator: (v) =>
                                   Validators.required(v, 'Speciality'),
                             ),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'Experience',
                               controller: _vm.experienceController,
                               icon: Icons.workspace_premium_outlined,
@@ -222,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               validator: (v) =>
                                   Validators.required(v, 'Experience'),
                             ),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'Phone Number',
                               controller: _vm.phoneController,
                               icon: Icons.phone_outlined,
@@ -230,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               keyboardType: TextInputType.phone,
                               validator: Validators.phone,
                             ),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'Clinic / Hospital Location',
                               controller: _vm.locationController,
                               icon: Icons.location_on_outlined,
@@ -239,12 +236,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               validator: (v) =>
                                   Validators.required(v, 'Location'),
                             ),
-                            _AvailabilitySection(
+                            ProfileAvailabilitySection(
                               schedule: _vm.weeklySchedule,
                               enabled: _vm.editing,
                               onChanged: _vm.updateSchedule,
                             ),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'Services',
                               controller: _vm.servicesController,
                               icon: Icons.list_alt_outlined,
@@ -253,7 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               validator: (v) =>
                                   Validators.required(v, 'Services'),
                             ),
-                            _LabeledField(
+                            ProfileLabeledField(
                               label: 'About / Description',
                               controller: _vm.descriptionController,
                               icon: Icons.info_outline,
@@ -281,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 28),
                       _sectionHeader('My Ratings'),
                       const SizedBox(height: 12),
-                      _DoctorRatingsSection(
+                      ProfileDoctorRatingsSection(
                         reviews: _vm.reviews,
                         loading: _vm.reviewsLoading,
                         overallRating: _vm.doctorEntity?.rating ?? 0,
@@ -466,244 +463,3 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
-/// Weekly availability section — label row + the interactive schedule widget.
-class _AvailabilitySection extends StatelessWidget {
-  final WeeklyAvailability schedule;
-  final bool enabled;
-  final ValueChanged<WeeklyAvailability> onChanged;
-
-  const _AvailabilitySection({
-    required this.schedule,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 6),
-            child: Text(
-              'Weekly Availability',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-          WeeklyAvailabilityField(
-            value: schedule,
-            onChanged: onChanged,
-            enabled: enabled,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A labelled field used in the profile form so view vs. edit mode share the
-/// same widget (just toggling [enabled]). When [options] is supplied it renders
-/// a constrained [AppDropdownField]; otherwise a free-text [AppTextField].
-class _LabeledField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final IconData icon;
-  final bool enabled;
-  final int maxLines;
-  final int? maxLength;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-  final List<String>? options;
-
-  const _LabeledField({
-    required this.label,
-    required this.controller,
-    required this.icon,
-    required this.enabled,
-    this.maxLines = 1,
-    this.maxLength,
-    this.keyboardType,
-    this.validator,
-    this.options,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 6),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-          if (options != null)
-            AppDropdownField(
-              controller: controller,
-              hint: label,
-              prefixIcon: icon,
-              enabled: enabled,
-              options: options!,
-              validator: validator,
-            )
-          else
-            AppTextField(
-              controller: controller,
-              hint: label,
-              prefixIcon: icon,
-              enabled: enabled,
-              maxLines: maxLines,
-              maxLength: maxLength,
-              keyboardType: keyboardType,
-              validator: validator,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DoctorRatingsSection extends StatelessWidget {
-  final List<dynamic> reviews;
-  final bool loading;
-  final double overallRating;
-
-  const _DoctorRatingsSection({
-    required this.reviews,
-    required this.loading,
-    required this.overallRating,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (loading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (overallRating > 0)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-                const SizedBox(width: 6),
-                Text(
-                  '${overallRating.toStringAsFixed(1)} overall · ${reviews.length} recent review${reviews.length == 1 ? '' : 's'}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        if (reviews.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              'No reviews yet.',
-              style: TextStyle(fontSize: 13, color: AppColors.textHint),
-            ),
-          )
-        else
-          for (final r in reviews) _ReviewCard(review: r),
-      ],
-    );
-  }
-}
-
-class _ReviewCard extends StatelessWidget {
-  final dynamic review;
-  const _ReviewCard({required this.review});
-
-  @override
-  Widget build(BuildContext context) {
-    final stars = (review.rating as int?) ?? 0;
-    final comment = (review.ratingComment as String?) ?? '';
-    final patientName = (review.patientName as String?) ?? '';
-    final createdAt = review.createdAt as DateTime?;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLighter,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  patientName,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  5,
-                  (i) => Icon(
-                    Icons.star_rounded,
-                    size: 14,
-                    color: i < stars ? Colors.amber : AppColors.divider,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (comment.isNotEmpty) ...[
-            const SizedBox(height: 5),
-            Text(
-              comment,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.textSecondary),
-            ),
-          ],
-          if (createdAt != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              '${createdAt.day}/${createdAt.month}/${createdAt.year}',
-              style:
-                  const TextStyle(fontSize: 11, color: AppColors.textHint),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

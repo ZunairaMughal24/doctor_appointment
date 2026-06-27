@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
@@ -159,7 +160,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       try {
         await firestore.collection('users').doc(uid).set(model.toFirestore());
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Firestore user-doc write failed after auth creation: $e');
+      }
       return model;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Sign up failed.');

@@ -71,7 +71,9 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
             setState(() => _finishing = true);
             try {
               await _vm.uploadPhotoFor(state.user.uid);
-            } catch (_) {}
+            } catch (e) {
+              debugPrint('Photo upload failed after doctor sign-up: $e');
+            }
             if (!context.mounted) return;
             context.read<DoctorBloc>().add(const LoadAllDoctors());
             context.go(AppRoutes.appointments);

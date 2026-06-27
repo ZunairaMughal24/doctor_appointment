@@ -7,10 +7,9 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../viewmodels/appointment_detail_viewmodel.dart';
+import '../widgets/appointment_detail_widgets.dart';
 import '../widgets/rating_bottom_sheet.dart';
 
-/// Clean, appointment detail view: Status changes are persisted immediately and the screen
-/// returns `true` on pop so the list can refresh.
 class AppointmentDetailPage extends StatefulWidget {
   final AppointmentEntity appointment;
 
@@ -91,7 +90,6 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                 padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  // ── Summary header ──────────────────────────────────────
                   Center(
                     child: Column(
                       children: [
@@ -117,40 +115,39 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        _StatusBadge(status: _vm.appointment.effectiveStatus),
+                        AppointmentStatusBadge(status: _vm.appointment.effectiveStatus),
                       ],
                     ),
                   ),
                   const SizedBox(height: 28),
 
-                  // ── Detail rows ─────────────────────────────────────────
-                  _DetailRow(
+                  AppointmentDetailRow(
                     icon: Icons.medical_information_outlined,
                     label: 'Type',
                     value: _vm.appointment.consultationType.label,
                   ),
-                  _DetailRow(
+                  AppointmentDetailRow(
                     icon: Icons.event_rounded,
                     label: 'Day',
                     value: _vm.appointment.appointmentDay,
                   ),
-                  _DetailRow(
+                  AppointmentDetailRow(
                     icon: Icons.calendar_today_rounded,
                     label: 'Date',
                     value: _vm.appointment.appointmentDate,
                   ),
                   if (_vm.appointment.appointmentTime.isNotEmpty)
-                    _DetailRow(
+                    AppointmentDetailRow(
                       icon: Icons.access_time_rounded,
                       label: 'Time slot',
                       value: _vm.appointment.appointmentTime,
                     ),
-                  _DetailRow(
+                  AppointmentDetailRow(
                     icon: Icons.person_outline_rounded,
                     label: 'Full name',
                     value: _vm.appointment.patientName,
                   ),
-                  _DetailRow(
+                  AppointmentDetailRow(
                     icon: Icons.phone_outlined,
                     label: 'Contact number',
                     value: _vm.appointment.patientPhone,
@@ -168,7 +165,6 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     );
   }
 
-  /// Role- and status-aware action buttons.
   List<Widget> _actions() {
     final widgets = <Widget>[];
     if (_vm.isDoctorViewer) {
@@ -190,16 +186,14 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
-              : () => _vm.updateStatus(
-                  context, AppointmentStatus.confirmed, asDoctor: true),
+              : () => _vm.updateStatus(context, AppointmentStatus.confirmed, asDoctor: true),
         ),
         const SizedBox(height: 12),
         AppButton.outlined(
           label: 'Decline',
           icon: Icons.cancel_outlined,
           color: AppColors.error,
-          onPressed:
-              _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
+          onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
         ),
       ];
     }
@@ -212,16 +206,14 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
-              : () => _vm.updateStatus(
-                  context, AppointmentStatus.completed, asDoctor: true),
+              : () => _vm.updateStatus(context, AppointmentStatus.completed, asDoctor: true),
         ),
         const SizedBox(height: 12),
         AppButton.outlined(
           label: 'Cancel Appointment',
           icon: Icons.cancel_outlined,
           color: AppColors.error,
-          onPressed:
-              _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
+          onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
         ),
       ];
     }
@@ -239,9 +231,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         label: 'Cancel Appointment',
         icon: Icons.cancel_outlined,
         color: AppColors.error,
-        onPressed: _vm.busy
-            ? null
-            : () => _vm.confirmCancel(context, asDoctor: false),
+        onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: false),
       ),
     ];
   }
@@ -268,7 +258,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     if (appt.isVideo &&
         appt.status == AppointmentStatus.confirmed &&
         appt.startsAt != null) {
-      return [...gap, const _JoinHint()];
+      return [...gap, const AppointmentJoinHint()];
     }
     return [];
   }
@@ -276,11 +266,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   List<Widget> _completedWidgets(AppointmentEntity appt) {
     final alreadyRated = appt.hasRating || _vm.hasJustRated;
     return [
-      const _SessionCompletedBanner(),
+      const SessionCompletedBanner(),
       if (_vm.isPatientViewer) ...[
         const SizedBox(height: 12),
         if (alreadyRated)
-          _RatingDisplay(
+          AppointmentRatingDisplay(
             rating: appt.hasRating ? appt.rating! : _vm.justRating,
             comment: appt.hasRating ? appt.ratingComment : _vm.justComment,
           )
@@ -293,209 +283,5 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           ),
       ],
     ];
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final AppointmentStatus status;
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (Color color, IconData icon) = switch (status) {
-      AppointmentStatus.pending => (AppColors.warning, Icons.schedule_rounded),
-      AppointmentStatus.confirmed => (
-          AppColors.success,
-          Icons.check_circle_rounded
-        ),
-      AppointmentStatus.cancelled => (AppColors.error, Icons.cancel_rounded),
-      AppointmentStatus.completed => (
-          AppColors.primary,
-          Icons.task_alt_rounded
-        ),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: color),
-          const SizedBox(width: 6),
-          Text(
-            status.label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12.5,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Shown when a confirmed appointment's window has passed.
-class _SessionCompletedBanner extends StatelessWidget {
-  const _SessionCompletedBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLighter,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.task_alt_rounded, color: AppColors.primary),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Session completed — this appointment has ended.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Shown for a confirmed video appointment before its start time arrives.
-class _JoinHint extends StatelessWidget {
-  const _JoinHint();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLighter,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'The video join button will appear at your appointment time.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
-
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              const SizedBox(width: 14),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Expanded + wrap so long values (names, locations) never overflow.
-              Expanded(
-                child: Text(
-                  value.isEmpty ? '—' : value,
-                  textAlign: TextAlign.right,
-                  softWrap: true,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!isLast) const Divider(height: 1, color: AppColors.divider),
-      ],
-    );
-  }
-}
-
-class _RatingDisplay extends StatelessWidget {
-  final int rating;
-  final String comment;
-
-  const _RatingDisplay({required this.rating, required this.comment});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                'Your rating: $rating / 5',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          if (comment.isNotEmpty) ...[
-            const SizedBox(height: 5),
-            Text(
-              comment,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary),
-            ),
-          ],
-        ],
-      ),
-    );
   }
 }
