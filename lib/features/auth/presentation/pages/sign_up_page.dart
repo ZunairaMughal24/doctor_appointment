@@ -167,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => context.push(AppRoutes.doctorSignUp),
+                  onPressed: () => context.push(AppRoutes.signIn),
                   child: const Text("Already have an account?",
                       style: TextStyle(
                           fontSize: 16.0,

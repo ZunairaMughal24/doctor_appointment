@@ -51,11 +51,6 @@ dependencies:
   # Functional Programming
   dartz: ^0.10.1
 
-  # Local Cache
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  path_provider: ^2.1.4
-
   # UI
   flutter_rating_bar: ^4.0.1
   cached_network_image: ^3.3.1
