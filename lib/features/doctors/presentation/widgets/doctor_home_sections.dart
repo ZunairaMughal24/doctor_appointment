@@ -1,0 +1,390 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../appointments/domain/entities/appointment_entity.dart';
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+class DoctorHomeHeader extends StatelessWidget {
+  final String name;
+  const DoctorHomeHeader({super.key, required this.name});
+
+  String _greeting() {
+    final h = TimeOfDay.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final weekday = [
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+      'Friday', 'Saturday', 'Sunday',
+    ][now.weekday - 1];
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primaryDark],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${_greeting()},',
+            style: const TextStyle(color: Colors.white70, fontSize: 15),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            name.isNotEmpty ? 'Dr. ${name.split(' ').first}' : 'Doctor',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$weekday, ${now.day} ${months[now.month - 1]} ${now.year}',
+            style: const TextStyle(color: Colors.white60, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Stats strip ───────────────────────────────────────────────────────────────
+
+class DoctorStatsStrip extends StatelessWidget {
+  final int pending;
+  final int upcoming;
+  final double rating;
+
+  const DoctorStatsStrip({
+    super.key,
+    required this.pending,
+    required this.upcoming,
+    required this.rating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      transform: Matrix4.translationValues(0, -20, 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.10),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _StatCell(
+            value: '$pending',
+            label: 'Pending',
+            color: AppColors.warning,
+            icon: Icons.schedule_rounded,
+          ),
+          const _VerticalDivider(),
+          _StatCell(
+            value: '$upcoming',
+            label: 'Upcoming',
+            color: AppColors.success,
+            icon: Icons.event_available_rounded,
+          ),
+          const _VerticalDivider(),
+          _StatCell(
+            value: rating > 0 ? rating.toStringAsFixed(1) : '—',
+            label: 'Rating',
+            color: Colors.amber,
+            icon: Icons.star_rounded,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCell extends StatelessWidget {
+  final String value;
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  const _StatCell({
+    required this.value,
+    required this.label,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11.5,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VerticalDivider extends StatelessWidget {
+  const _VerticalDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 1, height: 48, color: AppColors.divider);
+  }
+}
+
+// ── Dashboard section ─────────────────────────────────────────────────────────
+
+class DoctorDashboardSection extends StatelessWidget {
+  final String title;
+  final int count;
+  final String emptyMessage;
+  final IconData emptyIcon;
+  final List<AppointmentEntity> appointments;
+
+  const DoctorDashboardSection({
+    super.key,
+    required this.title,
+    required this.count,
+    required this.emptyMessage,
+    required this.emptyIcon,
+    required this.appointments,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              if (count > 0) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLighter,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              if (count > 0)
+                TextButton(
+                  onPressed: () => context.push(AppRoutes.appointments),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    textStyle: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('See all'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (appointments.isEmpty)
+            _EmptyCard(message: emptyMessage, icon: emptyIcon)
+          else
+            ...appointments.map((a) => DoctorDashboardAppointmentCard(appointment: a)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Appointment card ──────────────────────────────────────────────────────────
+
+class DoctorDashboardAppointmentCard extends StatelessWidget {
+  final AppointmentEntity appointment;
+
+  const DoctorDashboardAppointmentCard({super.key, required this.appointment});
+
+  @override
+  Widget build(BuildContext context) {
+    final status = appointment.effectiveStatus;
+    final (Color color, IconData icon) = switch (status) {
+      AppointmentStatus.pending =>
+        (AppColors.warning, Icons.schedule_rounded),
+      AppointmentStatus.confirmed =>
+        (AppColors.success, Icons.check_circle_rounded),
+      AppointmentStatus.completed =>
+        (AppColors.primary, Icons.task_alt_rounded),
+      AppointmentStatus.cancelled =>
+        (AppColors.error, Icons.cancel_rounded),
+    };
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => context.push(
+          AppRoutes.appointmentDetail,
+          extra: appointment,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: color.withValues(alpha: 0.12),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      appointment.patientName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      [
+                        appointment.appointmentDay,
+                        appointment.appointmentDate,
+                        if (appointment.appointmentTime.isNotEmpty)
+                          appointment.appointmentTime,
+                      ].join('  ·  '),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  status.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+class _EmptyCard extends StatelessWidget {
+  final String message;
+  final IconData icon;
+
+  const _EmptyCard({required this.message, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 36, color: AppColors.primaryLight),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: const TextStyle(
+                fontSize: 13, color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}

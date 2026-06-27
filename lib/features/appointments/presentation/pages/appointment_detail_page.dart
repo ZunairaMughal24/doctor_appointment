@@ -171,31 +171,41 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   /// Role- and status-aware action buttons.
   List<Widget> _actions() {
     final widgets = <Widget>[];
-    final appt = _vm.appointment;
-    final status = appt.effectiveStatus;
-
     if (_vm.isDoctorViewer) {
-      if (status == AppointmentStatus.pending) {
-        widgets.add(AppButton(
+      widgets.addAll(_doctorActions());
+    } else if (_vm.isPatientViewer) {
+      widgets.addAll(_patientActions());
+    }
+    widgets.addAll(_videoAndCompletionSection(widgets.isNotEmpty));
+    return widgets;
+  }
+
+  List<Widget> _doctorActions() {
+    final status = _vm.appointment.effectiveStatus;
+    if (status == AppointmentStatus.pending) {
+      return [
+        AppButton(
           label: 'Confirm Appointment',
           icon: Icons.check_circle_outline_rounded,
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
-              : () => _vm.updateStatus(context, AppointmentStatus.confirmed,
-                  asDoctor: true),
-        ));
-        widgets.add(const SizedBox(height: 12));
-        widgets.add(AppButton.outlined(
+              : () => _vm.updateStatus(
+                  context, AppointmentStatus.confirmed, asDoctor: true),
+        ),
+        const SizedBox(height: 12),
+        AppButton.outlined(
           label: 'Decline',
           icon: Icons.cancel_outlined,
           color: AppColors.error,
-          onPressed: _vm.busy
-              ? null
-              : () => _vm.confirmCancel(context, asDoctor: true),
-        ));
-      } else if (status == AppointmentStatus.confirmed) {
-        widgets.add(AppButton(
+          onPressed:
+              _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
+        ),
+      ];
+    }
+    if (status == AppointmentStatus.confirmed) {
+      return [
+        AppButton(
           label: 'Mark as Completed',
           icon: Icons.task_alt_rounded,
           color: AppColors.success,
@@ -203,74 +213,86 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           onPressed: _vm.busy
               ? null
               : () => _vm.updateStatus(
-                    context,
-                    AppointmentStatus.completed,
-                    asDoctor: true,
-                  ),
-        ));
-        widgets.add(const SizedBox(height: 12));
-        widgets.add(AppButton.outlined(
+                  context, AppointmentStatus.completed, asDoctor: true),
+        ),
+        const SizedBox(height: 12),
+        AppButton.outlined(
           label: 'Cancel Appointment',
           icon: Icons.cancel_outlined,
           color: AppColors.error,
-          onPressed: _vm.busy
-              ? null
-              : () => _vm.confirmCancel(context, asDoctor: true),
-        ));
-      }
-    } else if (_vm.isPatientViewer &&
-        status != AppointmentStatus.cancelled &&
-        status != AppointmentStatus.completed) {
-      widgets.add(AppButton.outlined(
+          onPressed:
+              _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
+        ),
+      ];
+    }
+    return [];
+  }
+
+  List<Widget> _patientActions() {
+    final status = _vm.appointment.effectiveStatus;
+    if (status == AppointmentStatus.cancelled ||
+        status == AppointmentStatus.completed) {
+      return [];
+    }
+    return [
+      AppButton.outlined(
         label: 'Cancel Appointment',
         icon: Icons.cancel_outlined,
         color: AppColors.error,
-        onPressed:
-            _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: false),
-      ));
-    }
+        onPressed: _vm.busy
+            ? null
+            : () => _vm.confirmCancel(context, asDoctor: false),
+      ),
+    ];
+  }
 
-    // Join (WhatsApp video) — only for a confirmed video appointment whose
-    // start time has arrived and whose window hasn't ended. Otherwise surface
-    // the completed state or a "not yet" hint. No direct contact is offered
-    // outside this confirmed, active window.
+  List<Widget> _videoAndCompletionSection(bool hasPreceding) {
+    final appt = _vm.appointment;
+    final status = appt.effectiveStatus;
+    final gap = hasPreceding ? [const SizedBox(height: 12)] : <Widget>[];
+
     if (appt.isJoinable) {
-      if (widgets.isNotEmpty) widgets.add(const SizedBox(height: 12));
-      widgets.add(AppButton(
-        label: 'Join on WhatsApp',
-        icon: Icons.videocam_rounded,
-        color: AppColors.success,
-        onPressed: () => _vm.joinOnWhatsApp(context),
-      ));
-    } else if (status == AppointmentStatus.completed) {
-      if (widgets.isNotEmpty) widgets.add(const SizedBox(height: 12));
-      widgets.add(const _SessionCompletedBanner());
-      if (_vm.isPatientViewer) {
-        widgets.add(const SizedBox(height: 12));
-        final alreadyRated = appt.hasRating || _vm.hasJustRated;
-        if (alreadyRated) {
-          final effectiveRating = appt.hasRating ? appt.rating! : _vm.justRating;
-          final effectiveComment =
-              appt.hasRating ? appt.ratingComment : _vm.justComment;
-          widgets.add(
-              _RatingDisplay(rating: effectiveRating, comment: effectiveComment));
-        } else {
-          widgets.add(AppButton(
+      return [
+        ...gap,
+        AppButton(
+          label: 'Join on WhatsApp',
+          icon: Icons.videocam_rounded,
+          color: AppColors.success,
+          onPressed: () => _vm.joinOnWhatsApp(context),
+        ),
+      ];
+    }
+    if (status == AppointmentStatus.completed) {
+      return [...gap, ..._completedWidgets(appt)];
+    }
+    if (appt.isVideo &&
+        appt.status == AppointmentStatus.confirmed &&
+        appt.startsAt != null) {
+      return [...gap, const _JoinHint()];
+    }
+    return [];
+  }
+
+  List<Widget> _completedWidgets(AppointmentEntity appt) {
+    final alreadyRated = appt.hasRating || _vm.hasJustRated;
+    return [
+      const _SessionCompletedBanner(),
+      if (_vm.isPatientViewer) ...[
+        const SizedBox(height: 12),
+        if (alreadyRated)
+          _RatingDisplay(
+            rating: appt.hasRating ? appt.rating! : _vm.justRating,
+            comment: appt.hasRating ? appt.ratingComment : _vm.justComment,
+          )
+        else
+          AppButton(
             label: 'Rate Your Experience',
             icon: Icons.star_rounded,
             loading: _vm.ratingBusy,
             onPressed: _vm.ratingBusy ? null : _openRating,
-          ));
-        }
-      }
-    } else if (appt.isVideo &&
-        appt.status == AppointmentStatus.confirmed &&
-        appt.startsAt != null) {
-      if (widgets.isNotEmpty) widgets.add(const SizedBox(height: 12));
-      widgets.add(const _JoinHint());
-    }
-
-    return widgets;
+          ),
+      ],
+    ];
   }
 }
 

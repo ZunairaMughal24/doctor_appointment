@@ -56,9 +56,6 @@ class _ProfilePageState extends State<ProfilePage> {
       listener: (context, state) => _vm.handleAuthState(context, state),
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          if (state is AuthAuthenticated) {
-            _vm.cachedUser = state.user;
-          }
           if (_vm.cachedUser == null) {
             return const Scaffold(
               backgroundColor: AppColors.cardBg,

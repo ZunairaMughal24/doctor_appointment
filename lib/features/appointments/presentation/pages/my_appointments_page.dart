@@ -23,7 +23,7 @@ class MyAppointmentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.read<AuthBloc>().state;
+    final authState = context.watch<AuthBloc>().state;
     final isDoctor = authState is AuthAuthenticated &&
         authState.user.role == UserRole.doctor;
 
