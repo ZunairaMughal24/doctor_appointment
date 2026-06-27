@@ -6,15 +6,19 @@ import '../../../../core/services/communication_launcher.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 import '../../../appointments/domain/usecases/get_doctor_reviews_usecase.dart';
+import '../../domain/entities/doctor_entity.dart';
+import '../../domain/usecases/get_doctor_by_id_usecase.dart';
 
 class DoctorDetailViewModel {
   DoctorDetailViewModel({required this.onChange});
 
   final VoidCallback onChange;
 
+  DoctorEntity? _freshDoctor;
   List<AppointmentEntity> _reviews = const [];
   bool _reviewsLoading = false;
 
+  DoctorEntity? get freshDoctor => _freshDoctor;
   List<AppointmentEntity> get reviews => _reviews;
   bool get reviewsLoading => _reviewsLoading;
 
@@ -23,6 +27,11 @@ class DoctorDetailViewModel {
   void _set(VoidCallback fn) {
     fn();
     onChange();
+  }
+
+  Future<void> loadDoctor(String doctorId) async {
+    final result = await sl<GetDoctorByIdUseCase>()(doctorId);
+    result.fold((_) {}, (doctor) => _set(() => _freshDoctor = doctor));
   }
 
   Future<void> loadReviews(String doctorId) async {

@@ -34,6 +34,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
     _vm = DoctorDetailViewModel(onChange: () {
       if (mounted) setState(() {});
     });
+    _vm.loadDoctor(widget.docId);
     _vm.loadReviews(widget.docId);
   }
 
@@ -55,7 +56,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
       );
     }
 
-    final data = widget.doctor!;
+    final data = _vm.freshDoctor ?? widget.doctor!;
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
