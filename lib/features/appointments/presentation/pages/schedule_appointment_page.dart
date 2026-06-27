@@ -138,7 +138,10 @@ class _ScheduleViewState extends State<_ScheduleView> {
           child: BlocBuilder<AppointmentBloc, AppointmentState>(
             builder: (context, state) => ScheduleSubmitButton(
               loading: state is AppointmentLoading,
-              onTap: () => _vm.submit(context),
+              onTap: () {
+                final error = _vm.submit(context);
+                if (error != null) AppFeedback.showError(context, error);
+              },
             ),
           ),
         ),

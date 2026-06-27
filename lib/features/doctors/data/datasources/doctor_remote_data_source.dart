@@ -47,8 +47,8 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
                 .collection('doctors')
                 .doc(seed.id)
                 .set(seed.toFirestore(), SetOptions(merge: true));
-          } catch (_) {
-            // Permission/network issue on a single seed — skip and continue.
+          } catch (e) {
+            debugPrint('Seed update skipped for ${seed.id}: $e');
           }
         }
         // Re-fetch so the returned list includes the repaired/seeded docs.

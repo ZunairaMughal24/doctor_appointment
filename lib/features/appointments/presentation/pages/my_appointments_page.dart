@@ -46,16 +46,14 @@ class _PatientAppointments extends StatefulWidget {
 class _PatientAppointmentsState extends State<_PatientAppointments>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  String get _uid {
-    final s = context.read<AuthBloc>().state;
-    return s is AuthAuthenticated ? s.user.uid : '';
-  }
+  late final String _uid;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    final s = context.read<AuthBloc>().state;
+    _uid = s is AuthAuthenticated ? s.user.uid : '';
     context.read<AppointmentBloc>().add(LoadUserAppointments(_uid));
   }
 
@@ -180,16 +178,14 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
   late TabController _tabController;
   late final AppointmentBloc _patientsBloc;
   late final AppointmentBloc _visitsBloc;
-
-  String get _uid {
-    final s = context.read<AuthBloc>().state;
-    return s is AuthAuthenticated ? s.user.uid : '';
-  }
+  late final String _uid;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    final s = context.read<AuthBloc>().state;
+    _uid = s is AuthAuthenticated ? s.user.uid : '';
     _patientsBloc = sl<AppointmentBloc>()..add(LoadDoctorAppointments(_uid));
     _visitsBloc = sl<AppointmentBloc>()..add(LoadUserAppointments(_uid));
   }

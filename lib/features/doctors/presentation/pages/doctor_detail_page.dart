@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
 import 'package:go_router/go_router.dart';
@@ -179,7 +180,12 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                               borderRadius: BorderRadius.circular(12),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
-                                onTap: () => _vm.callAssistant(context),
+                                onTap: () async {
+                                  final ok = await _vm.callAssistant();
+                                  if (!ok && context.mounted) {
+                                    AppFeedback.showError(context, 'Could not open the dialer on this device.');
+                                  }
+                                },
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),

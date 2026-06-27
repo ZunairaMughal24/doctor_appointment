@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fyp/core/utils/app_feedback.dart';
 import 'package:fyp/core/utils/app_pickers.dart';
 import 'package:fyp/core/utils/validators.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
@@ -112,23 +111,16 @@ class ScheduleAppointmentViewModel {
 
   /// Validates the form and dispatches the booking. Shows inline errors for the
   /// missing pieces.
-  void submit(BuildContext context) {
-    if (_uid(context).isEmpty) {
-      AppFeedback.showError(context, 'Please sign in to book an appointment.');
-      return;
-    }
-    if (!validateFields()) return;
-    if (!hasDate) {
-      AppFeedback.showError(context, 'Please select an appointment date.');
-      return;
-    }
-    if (!hasTime) {
-      AppFeedback.showError(context, 'Please select an available time slot.');
-      return;
-    }
+  /// Returns an error message if validation fails, null if the booking was dispatched.
+  String? submit(BuildContext context) {
+    if (_uid(context).isEmpty) return 'Please sign in to book an appointment.';
+    if (!validateFields()) return null;
+    if (!hasDate) return 'Please select an appointment date.';
+    if (!hasTime) return 'Please select an available time slot.';
     context
         .read<AppointmentBloc>()
         .add(BookAppointment(buildAppointment(patientId: _uid(context))));
+    return null;
   }
 
   void dispose() {

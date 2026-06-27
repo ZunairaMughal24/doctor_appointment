@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/communication_launcher.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 import '../../../appointments/domain/usecases/get_doctor_reviews_usecase.dart';
 import '../../domain/entities/doctor_entity.dart';
@@ -46,10 +45,7 @@ class DoctorDetailViewModel {
     );
   }
 
-  Future<void> callAssistant(BuildContext context) async {
-    final ok = await CommunicationLauncher.call(assistantPhone);
-    if (!ok && context.mounted) {
-      AppFeedback.showError(context, 'Could not open the dialer on this device.');
-    }
+  Future<bool> callAssistant() async {
+    return CommunicationLauncher.call(assistantPhone);
   }
 }

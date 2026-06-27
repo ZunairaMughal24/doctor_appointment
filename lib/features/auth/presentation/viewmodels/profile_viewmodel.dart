@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/services/image_upload_service.dart';
 import '../../../../core/services/image_validation_service.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/connectivity.dart';
 import '../../../doctors/domain/entities/doctor_entity.dart';
 import '../../../doctors/domain/entities/weekly_availability.dart';
@@ -20,8 +17,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-/// All non-UI state and logic for the profile screen, so the page is pure UI.
-/// [onChange] is called whenever state changes so the host can rebuild.
 class ProfileViewModel {
   ProfileViewModel({required this.onChange});
   final VoidCallback onChange;
@@ -36,7 +31,6 @@ class ProfileViewModel {
   final servicesController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  // Weekly schedule — replaces the availability string field.
   WeeklyAvailability _weeklySchedule = WeeklyAvailability.standard;
   WeeklyAvailability get weeklySchedule => _weeklySchedule;
   void updateSchedule(WeeklyAvailability s) => _set(() => _weeklySchedule = s);
@@ -57,7 +51,6 @@ class ProfileViewModel {
     onChange();
   }
 
-  /// Seeds the form from the current auth state and loads the doctor record.
   void init(BuildContext context) {
     final state = context.read<AuthBloc>().state;
     if (state is! AuthAuthenticated) {
@@ -72,24 +65,19 @@ class ProfileViewModel {
 
   void setEditing(bool value) => _set(() => editing = value);
 
-  /// Re-syncs state after an [AuthAuthenticated] emission.
   void onAuthenticated(BuildContext context, UserEntity user) {
     cachedUser = user;
     nameController.text = user.name;
     emailController.text = user.email;
-    // If the user is no longer a doctor (profile deleted) but we still hold
-    // stale doctor data, purge it so the "Register as Doctor" card appears.
     if (!user.isDoctor && (doctorLoaded || doctorEntity != null)) {
       doctorLoaded = false;
       doctorEntity = null;
       _weeklySchedule = WeeklyAvailability.standard;
     }
     if (user.isDoctor && !doctorLoaded) loadDoctorProfile(user.uid);
-    // Refresh the global list of doctors so edits propagate to the home screen.
     context.read<DoctorBloc>().add(const LoadAllDoctors());
   }
 
-  /// Pulls the doctor's stored professional details to pre-fill the form.
   Future<void> loadDoctorProfile(String uid) async {
     final result = await sl<GetDoctorByIdUseCase>()(uid);
     result.fold((_) {}, (doctor) {
@@ -120,22 +108,21 @@ class ProfileViewModel {
     );
   }
 
-  Future<void> pickAndUploadImage(BuildContext context) async {
+  /// Picks and uploads a profile photo.
+  /// Returns null if the user cancelled. Otherwise returns (ok, message) where
+  /// ok=true is success and ok=false means an error — the page shows the message.
+  Future<({bool ok, String message})?> pickAndUploadImage(BuildContext context) async {
     final user = cachedUser;
-    if (user == null) return;
+    if (user == null) return null;
 
     final file = await ImageUploadService.pickWithChooser(context);
-    if (file == null) return;
+    if (file == null) return null;
 
-    // Doctor photos must pass the professional-criteria check before upload.
     if (user.isDoctor) {
       _set(() => uploadingImage = true);
       final result = await ImageValidationService.validateDoctorPhoto(file);
       _set(() => uploadingImage = false);
-      if (!result.ok) {
-        if (context.mounted) AppFeedback.showError(context, result.message);
-        return;
-      }
+      if (!result.ok) return (ok: false, message: result.message);
     }
 
     _set(() => uploadingImage = true);
@@ -149,23 +136,15 @@ class ProfileViewModel {
           context.read<AuthBloc>().add(const AuthCheckRequested());
         }
       }
-      if (context.mounted) {
-        AppFeedback.showSuccess(
-            context, 'Profile picture updated successfully!');
-      }
+      return (ok: true, message: 'Profile picture updated successfully!');
     } catch (e) {
-      if (context.mounted) {
-        AppFeedback.showError(
-            context, 'Failed to upload image: ${e.toString()}');
-      }
+      return (ok: false, message: 'Failed to upload image: ${e.toString()}');
     } finally {
       _set(() => uploadingImage = false);
     }
   }
 
   void saveProfile(BuildContext context, UserEntity user) {
-    // validate() marks fields with inline errors; force a parent rebuild so
-    // every error is visible before the user scrolls down to find them.
     if (!(formKey.currentState?.validate() ?? false)) {
       onChange();
       return;
@@ -174,7 +153,6 @@ class ProfileViewModel {
           uid: user.uid,
           name: nameController.text.trim(),
           email: emailController.text.trim(),
-          // Only doctors persist the professional fields.
           speciality: user.isDoctor ? specialityController.text.trim() : null,
           experience: user.isDoctor ? experienceController.text.trim() : null,
           phoneNumber: user.isDoctor ? phoneController.text.trim() : null,
@@ -200,82 +178,35 @@ class ProfileViewModel {
     context.read<AuthBloc>().add(AuthSwitchRoleRequested(newRole));
   }
 
-  Future<void> signOut(BuildContext context) async {
-    final confirmed = await AppFeedback.showConfirmation(
-      context,
-      title: 'Sign Out',
-      message: 'Are you sure you want to sign out of your account?',
-      confirmLabel: 'Sign Out',
-      cancelLabel: 'Cancel',
-      isDanger: true,
-    );
-    if (!confirmed || !context.mounted) return;
-
+  /// Checks internet then dispatches sign-out.
+  /// Returns an error message if offline, null on success.
+  Future<String?> signOut(BuildContext context) async {
     final online = await Connectivity.hasInternet();
-    if (!context.mounted) return;
+    if (!context.mounted) return null;
     if (!online) {
-      AppFeedback.showError(
-        context,
-        'No internet connection. Connect to the internet to sign out.',
-      );
-      return;
+      return 'No internet connection. Connect to the internet to sign out.';
     }
     context.read<AuthBloc>().add(const AuthSignOutRequested());
+    return null;
   }
 
-  Future<void> deleteAccount(BuildContext context) async {
+  void dispatchDeleteDoctorProfile(BuildContext context) {
     final user = cachedUser;
     if (user == null) return;
+    context.read<AuthBloc>().add(AuthDeleteDoctorProfileRequested(
+          uid: user.uid,
+          name: user.name,
+          email: user.email,
+        ));
+    context.read<DoctorBloc>().add(const LoadAllDoctors());
+  }
 
-    if (user.isDoctor) {
-      final confirmed = await AppFeedback.showConfirmation(
-        context,
-        title: 'Delete Doctor Profile',
-        message:
-            'This removes your doctor profile and professional data. Your '
-            'account will continue as a patient.',
-        confirmLabel: 'Continue as Patient',
-        cancelLabel: 'Cancel',
-        isDanger: true,
-      );
-      if (!confirmed || !context.mounted) return;
-
-      context.read<AuthBloc>().add(AuthDeleteDoctorProfileRequested(
-            uid: user.uid,
-            name: user.name,
-            email: user.email,
-          ));
-      context.read<DoctorBloc>().add(const LoadAllDoctors());
-      return;
-    }
-
-    final confirmed = await AppFeedback.showConfirmation(
-      context,
-      title: 'Delete Account',
-      message:
-          'This permanently deletes your account and all your data (profile, '
-          'appointments and notifications). This cannot be undone.',
-      confirmLabel: 'Delete',
-      cancelLabel: 'Cancel',
-      isDanger: true,
-    );
-    if (!confirmed || !context.mounted) return;
-
+  void dispatchDeleteAccount(BuildContext context) {
+    final user = cachedUser;
+    if (user == null) return;
     context.read<AuthBloc>().add(AuthDeleteAccountRequested(user.uid));
   }
 
-  /// Single entry point for the page's auth listener, so the page stays pure UI.
-  void handleAuthState(BuildContext context, AuthState state) {
-    if (state is AuthUnauthenticated) {
-      context.go(AppRoutes.signIn);
-    } else if (state is AuthFailureState) {
-      AppFeedback.showError(context, state.message);
-    } else if (state is AuthAuthenticated) {
-      onAuthenticated(context, state.user);
-    }
-  }
-
-  /// Auto-generate a concise display string from the weekly schedule.
   String _buildAvailabilityString() {
     final open = _weeklySchedule.days.where((d) => d.isOpen).toList();
     if (open.isEmpty) return 'Not available';

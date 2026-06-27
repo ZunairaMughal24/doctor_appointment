@@ -125,8 +125,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             hasDoctorProfile: hasDoctorProfile,
           );
         }
-      } catch (_) {
-        // Firestore permission error — auth succeeded, default to patient
+      } catch (e) {
+        debugPrint('Firestore role-fetch after sign-in failed, defaulting to patient: $e');
       }
 
       return UserModel(
