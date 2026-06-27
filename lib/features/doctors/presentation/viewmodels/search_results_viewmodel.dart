@@ -41,5 +41,16 @@ class SearchResultsViewModel {
     }
   }
 
+  void refresh(BuildContext context) {
+    final bloc = context.read<DoctorBloc>();
+    if (selectedSpecialty != null) {
+      bloc.add(LoadDoctorsBySpeciality(selectedSpecialty!));
+    } else if (controller.text.isNotEmpty) {
+      bloc.add(SearchDoctors(controller.text));
+    } else {
+      bloc.add(const LoadAllDoctors());
+    }
+  }
+
   void dispose() => controller.dispose();
 }

@@ -131,21 +131,24 @@ class _SearchViewState extends State<_SearchView> {
                       ),
                     );
                   }
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: state.doctors.length,
-                    itemBuilder: (_, index) {
-                      final doc = state.doctors[index];
-                      return DoctorCard(
-                        doctor: doc,
-                        onTap: () => context.push(
-                          AppRoutes.doctorDetailPath(doc.id),
-                          extra: doc,
-                        ),
-                      );
-                    },
+                  return RefreshIndicator(
+                    onRefresh: () async => _vm.refresh(context),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: state.doctors.length,
+                      itemBuilder: (_, index) {
+                        final doc = state.doctors[index];
+                        return DoctorCard(
+                          doctor: doc,
+                          onTap: () => context.push(
+                            AppRoutes.doctorDetailPath(doc.id),
+                            extra: doc,
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }
                 return const SizedBox.shrink();

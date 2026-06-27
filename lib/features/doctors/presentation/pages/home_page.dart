@@ -6,6 +6,7 @@ import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
+import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_state.dart';
 import 'package:fyp/features/doctors/presentation/viewmodels/home_view_model.dart';
 import 'package:fyp/features/doctors/presentation/widgets/health_tip_card.dart';
@@ -41,7 +42,10 @@ class _HomeView extends StatelessWidget {
             final doctors =
                 state is DoctorsLoaded ? state.doctors : <DoctorEntity>[];
 
-            return ListView(
+            return RefreshIndicator(
+              onRefresh: () async =>
+                  context.read<DoctorBloc>().add(const LoadAllDoctors()),
+              child: ListView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.zero,
               children: [
@@ -75,7 +79,8 @@ class _HomeView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
               ],
-            );
+            ),
+          );
           },
         ),
       ),

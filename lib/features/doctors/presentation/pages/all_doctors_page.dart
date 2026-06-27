@@ -56,21 +56,25 @@ class AllDoctorsPage extends StatelessWidget {
               return const Center(child: Text('No doctors found'));
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(14.0),
-              physics: const BouncingScrollPhysics(),
-              itemCount: doctors.length,
-              itemBuilder: (context, index) {
-                final doctor = doctors[index];
-                return DoctorListTile(
-                  doctor: doctor,
-                  tileColor: AppColors
-                      .doctorTileColors[index % AppColors.doctorTileColors.length],
-                  image: AppAssets
-                      .doctorAvatars[index % AppAssets.doctorAvatars.length],
-                  onTap: () => vm.openDoctor(context, doctor),
-                );
-              },
+            return RefreshIndicator(
+              onRefresh: () async =>
+                  context.read<DoctorBloc>().add(const LoadAllDoctors()),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(14.0),
+                physics: const BouncingScrollPhysics(),
+                itemCount: doctors.length,
+                itemBuilder: (context, index) {
+                  final doctor = doctors[index];
+                  return DoctorListTile(
+                    doctor: doctor,
+                    tileColor: AppColors
+                        .doctorTileColors[index % AppColors.doctorTileColors.length],
+                    image: AppAssets
+                        .doctorAvatars[index % AppAssets.doctorAvatars.length],
+                    onTap: () => vm.openDoctor(context, doctor),
+                  );
+                },
+              ),
             );
           }
 
