@@ -280,6 +280,17 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ],
 
+                    if (user.isDoctor && !_vm.editing) ...[
+                      const SizedBox(height: 28),
+                      _sectionHeader('My Ratings'),
+                      const SizedBox(height: 12),
+                      _DoctorRatingsSection(
+                        reviews: _vm.reviews,
+                        loading: _vm.reviewsLoading,
+                        overallRating: _vm.doctorEntity?.rating ?? 0,
+                      ),
+                    ],
+
                     const SizedBox(height: 28),
 
                       // ── Role Switching ───────────────────────────────
@@ -563,6 +574,137 @@ class _LabeledField extends StatelessWidget {
               keyboardType: keyboardType,
               validator: validator,
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DoctorRatingsSection extends StatelessWidget {
+  final List<dynamic> reviews;
+  final bool loading;
+  final double overallRating;
+
+  const _DoctorRatingsSection({
+    required this.reviews,
+    required this.loading,
+    required this.overallRating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (overallRating > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  '${overallRating.toStringAsFixed(1)} overall · ${reviews.length} recent review${reviews.length == 1 ? '' : 's'}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (reviews.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              'No reviews yet.',
+              style: TextStyle(fontSize: 13, color: AppColors.textHint),
+            ),
+          )
+        else
+          for (final r in reviews) _ReviewCard(review: r),
+      ],
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final dynamic review;
+  const _ReviewCard({required this.review});
+
+  @override
+  Widget build(BuildContext context) {
+    final stars = (review.rating as int?) ?? 0;
+    final comment = (review.ratingComment as String?) ?? '';
+    final patientName = (review.patientName as String?) ?? '';
+    final createdAt = review.createdAt as DateTime?;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLighter,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  patientName,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  5,
+                  (i) => Icon(
+                    Icons.star_rounded,
+                    size: 14,
+                    color: i < stars ? Colors.amber : AppColors.divider,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (comment.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            Text(
+              comment,
+              style: const TextStyle(
+                  fontSize: 13, color: AppColors.textSecondary),
+            ),
+          ],
+          if (createdAt != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              '${createdAt.day}/${createdAt.month}/${createdAt.year}',
+              style:
+                  const TextStyle(fontSize: 11, color: AppColors.textHint),
+            ),
+          ],
         ],
       ),
     );

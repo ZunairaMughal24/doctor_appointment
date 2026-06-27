@@ -10,6 +10,8 @@ import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/connectivity.dart';
 import '../../../doctors/domain/entities/doctor_entity.dart';
 import '../../../doctors/domain/entities/weekly_availability.dart';
+import '../../../appointments/domain/entities/appointment_entity.dart';
+import '../../../appointments/domain/usecases/get_doctor_reviews_usecase.dart';
 import '../../../doctors/domain/usecases/get_doctor_by_id_usecase.dart';
 import '../../../doctors/presentation/bloc/doctor_bloc.dart';
 import '../../../doctors/presentation/bloc/doctor_event.dart';
@@ -44,6 +46,11 @@ class ProfileViewModel {
   bool uploadingImage = false;
   UserEntity? cachedUser;
   DoctorEntity? doctorEntity;
+
+  List<AppointmentEntity> _reviews = const [];
+  bool _reviewsLoading = false;
+  List<AppointmentEntity> get reviews => _reviews;
+  bool get reviewsLoading => _reviewsLoading;
 
   void _set(VoidCallback fn) {
     fn();
@@ -97,7 +104,20 @@ class ProfileViewModel {
         _weeklySchedule = doctor.schedule;
         doctorLoaded = true;
       });
+      loadReviews(uid);
     });
+  }
+
+  Future<void> loadReviews(String doctorId) async {
+    _set(() => _reviewsLoading = true);
+    final result = await sl<GetDoctorReviewsUseCase>()(doctorId);
+    result.fold(
+      (_) => _set(() => _reviewsLoading = false),
+      (reviews) => _set(() {
+        _reviews = reviews;
+        _reviewsLoading = false;
+      }),
+    );
   }
 
   Future<void> pickAndUploadImage(BuildContext context) async {
