@@ -1,4 +1,6 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../domain/usecases/book_appointment_usecase.dart';
 import '../../domain/usecases/get_doctor_appointments_usecase.dart';
 import '../../domain/usecases/get_user_appointments_usecase.dart';
@@ -15,33 +17,32 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     required this.getUserAppointments,
     required this.getDoctorAppointments,
   }) : super(const AppointmentInitial()) {
-    on<LoadUserAppointments>(_onLoadUser);
-    on<LoadDoctorAppointments>(_onLoadDoctor);
+    on<LoadUserAppointments>(_onLoadUser, transformer: restartable());
+    on<LoadDoctorAppointments>(_onLoadDoctor, transformer: restartable());
     on<BookAppointment>(_onBook);
   }
 
   Future<void> _onLoadUser(
       LoadUserAppointments event, Emitter<AppointmentState> emit) async {
-    final hadData = state is AppointmentsLoaded;
-    // Only show a spinner on the very first load — subsequent calls refresh silently.
-    if (!hadData) emit(const AppointmentLoading());
-
-    final result = await getUserAppointments(event.patientId);
-    result.fold(
-      (failure) { if (!hadData) emit(AppointmentError(failure.message)); },
-      (appointments) => emit(AppointmentsLoaded(appointments)),
+    if (state is! AppointmentsLoaded) emit(const AppointmentLoading());
+    await emit.forEach(
+      getUserAppointments(event.patientId),
+      onData: (appointments) => AppointmentsLoaded(appointments),
+      onError: (_, __) => state is AppointmentsLoaded
+          ? state
+          : const AppointmentError('Failed to load appointments'),
     );
   }
 
   Future<void> _onLoadDoctor(
       LoadDoctorAppointments event, Emitter<AppointmentState> emit) async {
-    final hadData = state is AppointmentsLoaded;
-    if (!hadData) emit(const AppointmentLoading());
-
-    final result = await getDoctorAppointments(event.doctorId);
-    result.fold(
-      (failure) { if (!hadData) emit(AppointmentError(failure.message)); },
-      (appointments) => emit(AppointmentsLoaded(appointments)),
+    if (state is! AppointmentsLoaded) emit(const AppointmentLoading());
+    await emit.forEach(
+      getDoctorAppointments(event.doctorId),
+      onData: (appointments) => AppointmentsLoaded(appointments),
+      onError: (_, __) => state is AppointmentsLoaded
+          ? state
+          : const AppointmentError('Failed to load appointments'),
     );
   }
 

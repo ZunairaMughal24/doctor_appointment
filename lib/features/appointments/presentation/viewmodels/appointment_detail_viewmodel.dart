@@ -80,9 +80,11 @@ class AppointmentDetailViewModel {
         if (context.mounted) {
           AppFeedback.showSuccess(
             context,
-            status == AppointmentStatus.confirmed
-                ? 'Appointment confirmed.'
-                : 'Appointment cancelled.',
+            switch (status) {
+              AppointmentStatus.confirmed => 'Appointment confirmed.',
+              AppointmentStatus.completed => 'Appointment marked as completed.',
+              _ => 'Appointment cancelled.',
+            },
           );
         }
       },

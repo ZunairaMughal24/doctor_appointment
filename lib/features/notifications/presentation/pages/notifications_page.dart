@@ -72,30 +72,31 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   onMarkAll: () => _vm.markAllRead(context),
                 ),
                 Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                    itemCount: state.items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, i) {
-                      final n = state.items[i];
-                      // Swipe an unread item to mark it read (snaps back, stays
-                      // in the list). Tapping also marks read.
-                      return Dismissible(
-                        key: ValueKey(n.id),
-                        direction: n.read
-                            ? DismissDirection.none
-                            : DismissDirection.startToEnd,
-                        background: const _SwipeReadBackground(),
-                        confirmDismiss: (_) async {
-                          _vm.markRead(context, n);
-                          return false; // mark read but keep the tile
-                        },
-                        child: _NotificationTile(
-                          notification: n,
-                          onTap: () => _vm.markRead(context, n),
-                        ),
-                      );
-                    },
+                  child: RefreshIndicator(
+                    onRefresh: () async => _vm.open(context),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: state.items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, i) {
+                        final n = state.items[i];
+                        return Dismissible(
+                          key: ValueKey(n.id),
+                          direction: n.read
+                              ? DismissDirection.none
+                              : DismissDirection.startToEnd,
+                          background: const _SwipeReadBackground(),
+                          confirmDismiss: (_) async {
+                            _vm.markRead(context, n);
+                            return false;
+                          },
+                          child: _NotificationTile(
+                            notification: n,
+                            onTap: () => _vm.markRead(context, n),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],

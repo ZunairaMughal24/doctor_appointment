@@ -12,15 +12,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
   const NotificationRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<NotificationEntity>>> getNotifications(
-      String userId) async {
-    try {
-      final items = await remoteDataSource.getNotifications(userId);
-      return Right(items);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    }
-  }
+  Stream<List<NotificationEntity>> getNotifications(String userId) =>
+      remoteDataSource.getNotifications(userId).map(List<NotificationEntity>.from);
 
   @override
   Future<Either<Failure, void>> markAsRead(String notificationId) async {

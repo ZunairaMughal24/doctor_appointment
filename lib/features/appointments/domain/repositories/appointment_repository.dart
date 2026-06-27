@@ -4,10 +4,8 @@ import '../entities/appointment_entity.dart';
 
 abstract class AppointmentRepository {
   Future<Either<Failure, void>> bookAppointment(AppointmentEntity appointment);
-  Future<Either<Failure, List<AppointmentEntity>>> getUserAppointments(
-      String patientId);
-  Future<Either<Failure, List<AppointmentEntity>>> getDoctorAppointments(
-      String doctorId);
+  Stream<List<AppointmentEntity>> getUserAppointments(String patientId);
+  Stream<List<AppointmentEntity>> getDoctorAppointments(String doctorId);
   Future<Either<Failure, void>> updateAppointmentStatus({
     required String appointmentId,
     required AppointmentStatus status,
@@ -20,4 +18,7 @@ abstract class AppointmentRepository {
     required int rating,
     required String comment,
   });
+
+  Future<Either<Failure, List<AppointmentEntity>>> getDoctorReviews(
+      String doctorId);
 }

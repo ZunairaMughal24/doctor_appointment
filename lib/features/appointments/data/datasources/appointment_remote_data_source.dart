@@ -7,8 +7,11 @@ import '../models/appointment_model.dart';
 
 abstract class AppointmentRemoteDataSource {
   Future<void> bookAppointment(AppointmentModel appointment);
-  Future<List<AppointmentModel>> getUserAppointments(String patientId);
-  Future<List<AppointmentModel>> getDoctorAppointments(String doctorId);
+  Stream<List<AppointmentModel>> getUserAppointments(String patientId);
+  Stream<List<AppointmentModel>> getDoctorAppointments(String doctorId);
+
+  /// Returns up to 5 rated appointments for this doctor, newest first.
+  Future<List<AppointmentModel>> getDoctorReviews(String doctorId);
 
   /// Updates an appointment's [status] and fires the matching notification.
   /// [actorIsDoctor] decides who is notified on a cancellation.
@@ -95,20 +98,22 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
   }
 
   @override
-  Future<List<AppointmentModel>> getUserAppointments(String patientId) =>
-      _query('appointment_by_id', patientId);
+  Stream<List<AppointmentModel>> getUserAppointments(String patientId) =>
+      _watch('appointment_by_id', patientId);
 
   @override
-  Future<List<AppointmentModel>> getDoctorAppointments(String doctorId) =>
-      _query('appointment_with_id', doctorId);
+  Stream<List<AppointmentModel>> getDoctorAppointments(String doctorId) =>
+      _watch('appointment_with_id', doctorId);
 
-  /// Shared query + newest-first client-side sort (avoids a composite index
-  /// that a server-side `orderBy` on top of the `where` would require).
-  Future<List<AppointmentModel>> _query(String field, String value) async {
+  @override
+  Future<List<AppointmentModel>> getDoctorReviews(String doctorId) async {
     try {
-      final snapshot = await _appointments.where(field, isEqualTo: value).get();
-      final items = snapshot.docs
+      final snapshot = await _appointments
+          .where('appointment_with_id', isEqualTo: doctorId)
+          .get();
+      final rated = snapshot.docs
           .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
+          .where((a) => a.rating != null)
           .toList()
         ..sort((a, b) {
           final at = a.createdAt, bt = b.createdAt;
@@ -117,11 +122,26 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
           if (bt == null) return -1;
           return bt.compareTo(at);
         });
-      return items;
+      return rated.take(5).toList();
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
+
+  Stream<List<AppointmentModel>> _watch(String field, String value) =>
+      _appointments.where(field, isEqualTo: value).snapshots().map((snap) {
+        final items = snap.docs
+            .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
+            .toList()
+          ..sort((a, b) {
+            final at = a.createdAt, bt = b.createdAt;
+            if (at == null && bt == null) return 0;
+            if (at == null) return 1;
+            if (bt == null) return -1;
+            return bt.compareTo(at);
+          });
+        return items;
+      });
 
   @override
   Future<void> updateAppointmentStatus({

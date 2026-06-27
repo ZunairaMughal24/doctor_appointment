@@ -4,9 +4,8 @@ import '../../../../core/errors/failures.dart';
 import '../entities/notification_entity.dart';
 
 abstract class NotificationRepository {
-  /// All notifications addressed to [userId], newest first.
-  Future<Either<Failure, List<NotificationEntity>>> getNotifications(
-      String userId);
+  /// All notifications addressed to [userId], newest first — live stream.
+  Stream<List<NotificationEntity>> getNotifications(String userId);
 
   Future<Either<Failure, void>> markAsRead(String notificationId);
 

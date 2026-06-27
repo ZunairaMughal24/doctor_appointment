@@ -43,7 +43,10 @@ class _PatientAppointments extends StatefulWidget {
   State<_PatientAppointments> createState() => _PatientAppointmentsState();
 }
 
-class _PatientAppointmentsState extends State<_PatientAppointments> {
+class _PatientAppointmentsState extends State<_PatientAppointments>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   String get _uid {
     final s = context.read<AuthBloc>().state;
     return s is AuthAuthenticated ? s.user.uid : '';
@@ -52,18 +55,40 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     context.read<AppointmentBloc>().add(LoadUserAppointments(_uid));
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  AppointmentState _filtered(AppointmentState state, {required bool active}) {
+    if (state is! AppointmentsLoaded) return state;
+    final filtered = state.appointments.where((a) {
+      final s = a.effectiveStatus;
+      return active
+          ? (s == AppointmentStatus.pending ||
+              s == AppointmentStatus.confirmed)
+          : (s == AppointmentStatus.completed ||
+              s == AppointmentStatus.cancelled);
+    }).toList();
+    return AppointmentsLoaded(filtered);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final uid = _uid;
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         leading: context.canPop()
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white),
                 onPressed: () => context.pop(),
               )
             : null,
@@ -73,16 +98,68 @@ class _PatientAppointmentsState extends State<_PatientAppointments> {
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
-      body: BlocBuilder<AppointmentBloc, AppointmentState>(
-        builder: (context, state) => _AppointmentListBody(
-          state: state,
-          titleOf: (a) => a.doctorName,
-          currentUserId: _uid,
-          emptyMessage: 'No appointments yet',
-          emptyIcon: Icons.calendar_today_outlined,
-          onRetry: () =>
-              context.read<AppointmentBloc>().add(LoadUserAppointments(_uid)),
-        ),
+      body: Column(
+        children: [
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLighter,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                dividerColor: Colors.transparent,
+                indicator: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: Colors.white,
+                unselectedLabelColor: AppColors.primary,
+                labelStyle: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600),
+                unselectedLabelStyle: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w500),
+                tabs: const [
+                  Tab(text: 'Active'),
+                  Tab(text: 'History'),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder<AppointmentBloc, AppointmentState>(
+              builder: (context, state) => TabBarView(
+                controller: _tabController,
+                children: [
+                  _AppointmentListBody(
+                    state: _filtered(state, active: true),
+                    titleOf: (a) => a.doctorName,
+                    currentUserId: uid,
+                    emptyMessage: 'No active appointments',
+                    emptyIcon: Icons.event_available_outlined,
+                    onRetry: () => context
+                        .read<AppointmentBloc>()
+                        .add(LoadUserAppointments(uid)),
+                  ),
+                  _AppointmentListBody(
+                    state: _filtered(state, active: false),
+                    titleOf: (a) => a.doctorName,
+                    currentUserId: uid,
+                    emptyMessage: 'No past appointments',
+                    emptyIcon: Icons.history_rounded,
+                    onRetry: () => context
+                        .read<AppointmentBloc>()
+                        .add(LoadUserAppointments(uid)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -263,24 +340,27 @@ class _AppointmentListBody extends StatelessWidget {
       // persist completion for any whose session window has ended.
       AppointmentReminders.fireDayOf(state.appointments, currentUserId, titleOf);
       AppointmentAutoComplete.run(state.appointments);
-      return ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: state.appointments.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final appt = state.appointments[index];
-          return AppointmentTile(
-            title: titleOf(appt),
-            subtitle: appt.appointmentDay,
-            isPatient: isPatient,
-            status: appt.effectiveStatus,
-            onTap: () async {
-              final changed =
-                  await context.push(AppRoutes.appointmentDetail, extra: appt);
-              if (changed == true) onRetry(); // refresh after confirm/cancel
-            },
-          );
-        },
+      return RefreshIndicator(
+        onRefresh: () async => onRetry(),
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: state.appointments.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, index) {
+            final appt = state.appointments[index];
+            return AppointmentTile(
+              title: titleOf(appt),
+              subtitle: appt.appointmentDay,
+              isPatient: isPatient,
+              status: appt.effectiveStatus,
+              onTap: () async {
+                final changed =
+                    await context.push(AppRoutes.appointmentDetail, extra: appt);
+                if (changed == true) onRetry();
+              },
+            );
+          },
+        ),
       );
     }
 

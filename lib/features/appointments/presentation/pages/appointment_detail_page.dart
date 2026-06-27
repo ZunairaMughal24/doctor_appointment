@@ -195,6 +195,20 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
               : () => _vm.confirmCancel(context, asDoctor: true),
         ));
       } else if (status == AppointmentStatus.confirmed) {
+        widgets.add(AppButton(
+          label: 'Mark as Completed',
+          icon: Icons.task_alt_rounded,
+          color: AppColors.success,
+          loading: _vm.busy,
+          onPressed: _vm.busy
+              ? null
+              : () => _vm.updateStatus(
+                    context,
+                    AppointmentStatus.completed,
+                    asDoctor: true,
+                  ),
+        ));
+        widgets.add(const SizedBox(height: 12));
         widgets.add(AppButton.outlined(
           label: 'Cancel Appointment',
           icon: Icons.cancel_outlined,

@@ -5,7 +5,7 @@ import '../../domain/entities/notification_entity.dart';
 import '../models/notification_model.dart';
 
 abstract class NotificationRemoteDataSource {
-  Future<List<NotificationModel>> getNotifications(String userId);
+  Stream<List<NotificationModel>> getNotifications(String userId);
   Future<void> markAsRead(String notificationId);
   Future<void> markAllRead(String userId);
   Future<void> createReminder({
@@ -25,27 +25,20 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       firestore.collection('notifications');
 
   @override
-  Future<List<NotificationModel>> getNotifications(String userId) async {
-    try {
-      // Filter by recipient only (single-field index) and sort client-side to
-      // avoid requiring a composite Firestore index.
-      final snapshot =
-          await _col.where('user_id', isEqualTo: userId).get();
-      final items = snapshot.docs
-          .map((doc) => NotificationModel.fromFirestore(doc.data(), doc.id))
-          .toList()
-        ..sort((a, b) {
-          final at = a.createdAt, bt = b.createdAt;
-          if (at == null && bt == null) return 0;
-          if (at == null) return 1; // nulls last
-          if (bt == null) return -1;
-          return bt.compareTo(at); // newest first
-        });
-      return items;
-    } catch (e) {
-      throw ServerException(e.toString());
-    }
-  }
+  Stream<List<NotificationModel>> getNotifications(String userId) =>
+      _col.where('user_id', isEqualTo: userId).snapshots().map((snap) {
+        final items = snap.docs
+            .map((doc) => NotificationModel.fromFirestore(doc.data(), doc.id))
+            .toList()
+          ..sort((a, b) {
+            final at = a.createdAt, bt = b.createdAt;
+            if (at == null && bt == null) return 0;
+            if (at == null) return 1;
+            if (bt == null) return -1;
+            return bt.compareTo(at);
+          });
+        return items;
+      });
 
   @override
   Future<void> markAsRead(String notificationId) async {

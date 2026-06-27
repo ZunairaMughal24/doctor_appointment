@@ -8,6 +8,7 @@ import '../../features/appointments/domain/repositories/appointment_repository.d
 import '../../features/appointments/domain/usecases/book_appointment_usecase.dart';
 import '../../features/appointments/domain/usecases/get_doctor_appointments_usecase.dart';
 import '../../features/appointments/domain/usecases/get_user_appointments_usecase.dart';
+import '../../features/appointments/domain/usecases/get_doctor_reviews_usecase.dart';
 import '../../features/appointments/domain/usecases/submit_rating_usecase.dart';
 import '../../features/appointments/domain/usecases/update_appointment_status_usecase.dart';
 import '../../features/appointments/presentation/bloc/appointment_bloc.dart';
@@ -115,6 +116,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetDoctorAppointmentsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateAppointmentStatusUseCase(sl()));
   sl.registerLazySingleton(() => SubmitRatingUseCase(sl()));
+  sl.registerLazySingleton(() => GetDoctorReviewsUseCase(sl()));
   sl.registerFactory(
     () => AppointmentBloc(
       bookAppointment: sl(),

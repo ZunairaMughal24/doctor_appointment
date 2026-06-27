@@ -36,28 +36,16 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   }
 
   @override
-  Future<Either<Failure, List<AppointmentEntity>>> getUserAppointments(
-      String patientId) async {
-    try {
-      final appointments =
-          await remoteDataSource.getUserAppointments(patientId);
-      return Right(appointments);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    }
-  }
+  Stream<List<AppointmentEntity>> getUserAppointments(String patientId) =>
+      remoteDataSource
+          .getUserAppointments(patientId)
+          .map(List<AppointmentEntity>.from);
 
   @override
-  Future<Either<Failure, List<AppointmentEntity>>> getDoctorAppointments(
-      String doctorId) async {
-    try {
-      final appointments =
-          await remoteDataSource.getDoctorAppointments(doctorId);
-      return Right(appointments);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    }
-  }
+  Stream<List<AppointmentEntity>> getDoctorAppointments(String doctorId) =>
+      remoteDataSource
+          .getDoctorAppointments(doctorId)
+          .map(List<AppointmentEntity>.from);
 
   @override
   Future<Either<Failure, void>> updateAppointmentStatus({
@@ -92,6 +80,17 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         comment: comment,
       );
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AppointmentEntity>>> getDoctorReviews(
+      String doctorId) async {
+    try {
+      final reviews = await remoteDataSource.getDoctorReviews(doctorId);
+      return Right(reviews);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

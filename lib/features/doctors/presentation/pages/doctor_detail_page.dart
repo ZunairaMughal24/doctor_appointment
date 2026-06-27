@@ -6,11 +6,12 @@ import '../../../../core/widgets/app_container.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../appointments/domain/entities/appointment_entity.dart';
 import '../../domain/entities/doctor_entity.dart';
 import '../../domain/entities/weekly_availability.dart';
 import '../viewmodels/doctor_detail_viewmodel.dart';
 
-class DoctorDetailPage extends StatelessWidget {
+class DoctorDetailPage extends StatefulWidget {
   final String docId;
   final DoctorEntity? doctor;
 
@@ -21,14 +22,31 @@ class DoctorDetailPage extends StatelessWidget {
   });
 
   @override
+  State<DoctorDetailPage> createState() => _DoctorDetailPageState();
+}
+
+class _DoctorDetailPageState extends State<DoctorDetailPage> {
+  late final DoctorDetailViewModel _vm;
+
+  @override
+  void initState() {
+    super.initState();
+    _vm = DoctorDetailViewModel(onChange: () {
+      if (mounted) setState(() {});
+    });
+    _vm.loadReviews(widget.docId);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (doctor == null) {
+    if (widget.doctor == null) {
       return Scaffold(
         appBar: AppBar(
           title: const Text("Detail"),
           leading: context.canPop()
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white),
                   onPressed: () => context.pop(),
                 )
               : null,
@@ -37,7 +55,7 @@ class DoctorDetailPage extends StatelessWidget {
       );
     }
 
-    final data = doctor!;
+    final data = widget.doctor!;
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
@@ -47,7 +65,8 @@ class DoctorDetailPage extends StatelessWidget {
         titleSpacing: 4,
         leading: context.canPop()
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white),
                 onPressed: () => context.pop(),
               )
             : null,
@@ -154,15 +173,12 @@ class DoctorDetailPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            // Original-position call button — dials the clinic
-                            // assistant, never the doctor's personal number.
                             Material(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(12),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
-                                onTap: () => const DoctorDetailViewModel()
-                                    .callAssistant(context),
+                                onTap: () => _vm.callAssistant(context),
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
@@ -270,6 +286,12 @@ class DoctorDetailPage extends StatelessWidget {
                           ),
                         ),
 
+                        const SizedBox(height: 16),
+                        _ReviewsSection(
+                          reviews: _vm.reviews,
+                          loading: _vm.reviewsLoading,
+                          rating: data.rating,
+                        ),
                       ],
                     ),
                   ),
@@ -295,6 +317,142 @@ class DoctorDetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ReviewsSection extends StatelessWidget {
+  final List<AppointmentEntity> reviews;
+  final bool loading;
+  final double rating;
+
+  const _ReviewsSection({
+    required this.reviews,
+    required this.loading,
+    required this.rating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              'Patient Reviews',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (rating > 0) ...[
+              const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+              const SizedBox(width: 2),
+              Text(
+                rating.toStringAsFixed(1),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (loading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else if (reviews.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'No reviews yet.',
+              style: TextStyle(fontSize: 13, color: AppColors.textHint),
+            ),
+          )
+        else
+          ...reviews.map((r) => _ReviewCard(review: r)),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final AppointmentEntity review;
+  const _ReviewCard({required this.review});
+
+  @override
+  Widget build(BuildContext context) {
+    final stars = review.rating ?? 0;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLighter,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  review.patientName,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  5,
+                  (i) => Icon(
+                    Icons.star_rounded,
+                    size: 14,
+                    color: i < stars ? Colors.amber : AppColors.divider,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (review.ratingComment.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            Text(
+              review.ratingComment,
+              style: const TextStyle(
+                  fontSize: 13, color: AppColors.textSecondary),
+            ),
+          ],
+          if (review.createdAt != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _formatDate(review.createdAt!),
+              style: const TextStyle(fontSize: 11, color: AppColors.textHint),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  static String _formatDate(DateTime d) =>
+      '${d.day}/${d.month}/${d.year}';
 }
 
 class _WeeklyScheduleTable extends StatelessWidget {
@@ -347,4 +505,3 @@ class _WeeklyScheduleTable extends StatelessWidget {
     );
   }
 }
-
