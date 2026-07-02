@@ -132,8 +132,8 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 0,
                   currentIndex: currentIndex,
-                  icon: Icons.space_dashboard_outlined,
-                  activeIcon: Icons.space_dashboard_rounded,
+                  icon: Icons.cottage_outlined,
+                  activeIcon: Icons.cottage_rounded,
                   label: 'Home',
                   onTap: onTap,
                 ),

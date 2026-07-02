@@ -33,6 +33,7 @@ class AppRoutes {
   static const profile = '/profile';
   static const registerAsDoctor = '/register-as-doctor';
   static const allDoctors = '/doctors';
+  static const specialists = '/specialists';
   static const doctorDetail = '/doctor/:id';
   static const allDiseases = '/diseases';
   static const search = '/search';
@@ -125,6 +126,13 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.allDiseases,
         builder: (_, __) => const AllDiseasesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.specialists,
+        builder: (context, state) {
+          final speciality = state.uri.queryParameters['speciality'];
+          return AllDoctorsPage(speciality: speciality);
+        },
       ),
       GoRoute(
         path: AppRoutes.search,

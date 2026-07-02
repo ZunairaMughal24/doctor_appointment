@@ -82,13 +82,12 @@ class _PatientHomeView extends StatelessWidget {
                     doctors: doctors,
                     onTap: (d) => vm.openDoctor(context, d),
                   ),
-                  const SizedBox(height: 5),
                   const CategoriesSection(),
                   AvailableDoctorsSection(
                     doctors: doctors,
                     onTap: (d) => vm.openDoctor(context, d),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
                   const HomeSectionTitle(
                     title: 'Wellness Insight',
                     subtitle: 'Daily health tips for a better lifestyle',
@@ -146,9 +145,9 @@ class _DoctorHomeViewState extends State<_DoctorHomeView> {
 
     final doctorState = context.watch<DoctorBloc>().state;
     final myDoctor = doctorState is DoctorsLoaded
-        ? doctorState.doctors.cast<DoctorEntity?>().firstWhere(
-            (d) => d?.id == user?.uid,
-            orElse: () => null)
+        ? doctorState.doctors
+            .cast<DoctorEntity?>()
+            .firstWhere((d) => d?.id == user?.uid, orElse: () => null)
         : null;
 
     return BlocProvider.value(

@@ -442,7 +442,7 @@ class CategoriesSection extends StatelessWidget {
           onSeeAll: () => context.push(AppRoutes.allDiseases),
         ),
         SizedBox(
-          height: 110,
+          height: 90,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -452,7 +452,7 @@ class CategoriesSection extends StatelessWidget {
               return _CategoryTile(
                 icon: AppAssets.diseaseIcons[index],
                 label: _diseaseNames[index],
-                onTap: () => context.push(AppRoutes.allDoctors),
+                onTap: () => context.go(AppRoutes.allDoctors),
               );
             },
           ),
@@ -542,15 +542,14 @@ class AvailableDoctorsSection extends StatelessWidget {
         _SectionHeader(
           title: 'Available Now',
           subtitle: 'Ready to consult today',
-          onSeeAll: () => context.push(AppRoutes.allDoctors),
+          onSeeAll: () => context.go(AppRoutes.allDoctors),
         ),
-        const SizedBox(height: 8),
         SizedBox(
-          height: 140,
+          height: 160,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
-                horizontal: kHomeHorizontalPadding, vertical: 4),
+                horizontal: kHomeHorizontalPadding, vertical: 10),
             itemCount: doctors.length.clamp(0, 4),
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
@@ -567,12 +566,17 @@ class AvailableDoctorsSection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.inputBorder),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.05),
-                          offset: const Offset(0, 2),
-                          blurRadius: 6,
+                          color: AppColors.primary.withValues(alpha: 0.07),
+                          offset: const Offset(0, 4),
+                          blurRadius: 16,
+                          spreadRadius: -2,
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          offset: const Offset(0, 1),
+                          blurRadius: 4,
                           spreadRadius: 0,
                         ),
                       ],
@@ -632,20 +636,20 @@ class RecommendedDoctorsSection extends StatelessWidget {
         _SectionHeader(
           title: 'Recommended For You',
           subtitle: 'Personalised picks based on your needs',
-          onSeeAll: () => context.push(AppRoutes.allDoctors),
+          onSeeAll: () => context.go(AppRoutes.allDoctors),
         ),
         SizedBox(
-          height: 190,
+          height: 206,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: kHomeHorizontalPadding),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kHomeHorizontalPadding, vertical: 8),
             itemCount: doctors.length.clamp(0, 4),
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final doctor = doctors[index];
               return Padding(
-                padding: const EdgeInsets.only(top: 2, bottom: 4),
+                padding: const EdgeInsets.only(top: 4, bottom: 4),
                 child: Material(
                   color: AppColors.cardBg,
                   borderRadius: BorderRadius.circular(14),

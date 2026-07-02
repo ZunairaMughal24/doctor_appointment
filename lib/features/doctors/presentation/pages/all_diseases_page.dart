@@ -76,18 +76,18 @@ class AllDiseasesPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final entry = _specialties[index];
             return Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.only(bottom: 10),
               child: AppContainer(
                 onTap: () => context.push(
-                  '${AppRoutes.allDoctors}?speciality=${entry.specialty}',
+                  '${AppRoutes.specialists}?speciality=${entry.specialty}',
                 ),
                 borderRadius: 14,
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
                     CircleAvatar(
                       backgroundImage: AssetImage(entry.image),
-                      radius: 30,
+                      radius: 25,
                       backgroundColor: AppColors.primaryLighter,
                     ),
                     const SizedBox(width: 14),
@@ -98,25 +98,37 @@ class AllDiseasesPage extends StatelessWidget {
                           Text(
                             entry.name,
                             style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              fontSize: 16, // Industry-level size
+                              fontWeight: FontWeight.w600, // Bold font weight
+                              color: AppColors.textRed, // Text color red
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             entry.subtitle,
                             style: const TextStyle(
-                                fontSize: 13, color: AppColors.textMuted),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textMuted,
+                              height: 1.3,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 18,
-                      color: AppColors.textRed,
+                    // Industry-level chevron indicator with a round background
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLighter,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 13,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ],
                 ),
