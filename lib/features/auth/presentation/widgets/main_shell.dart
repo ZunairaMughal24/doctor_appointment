@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +33,8 @@ class MainShell extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _ShellScaffold extends StatelessWidget {
   final Widget child;
   final bool isDoctor;
@@ -41,68 +44,210 @@ class _ShellScaffold extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/appointments')) return 1;
-    if (location.startsWith('/profile')) return 2;
+    if (location.startsWith('/doctors')) return 2;
+    if (location.startsWith('/profile')) return 3;
     return 0;
+  }
+
+  void _onTap(BuildContext context, int i) {
+    HapticFeedback.lightImpact();
+    switch (i) {
+      case 0:
+        context.go(AppRoutes.home);
+      case 1:
+        context.go(AppRoutes.appointments);
+      case 2:
+        context.go(AppRoutes.allDoctors);
+      case 3:
+        context.go(AppRoutes.profile);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
+    final apptLabel = isDoctor ? 'Schedule' : 'My Visits';
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: _PremiumNavBar(
         currentIndex: index,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.navUnselected,
-        backgroundColor: Colors.white,
-        elevation: 12,
-        type: BottomNavigationBarType.fixed,
-        onTap: (i) {
-          switch (i) {
-            case 0:
-              context.go(AppRoutes.home);
-            case 1:
-              context.go(AppRoutes.appointments);
-            case 2:
-              context.go(AppRoutes.profile);
-          }
-        },
-        items: isDoctor
-            ? const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
+        onTap: (i) => _onTap(context, i),
+        apptLabel: apptLabel,
+      ),
+    );
+  }
+}
+
+// ── Premium 4-tab bottom nav bar ──────────────────────────────────────────────
+
+class _PremiumNavBar extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final String apptLabel;
+
+  const _PremiumNavBar({
+    required this.currentIndex,
+    required this.onTap,
+    required this.apptLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.13),
+            blurRadius: 28,
+            offset: const Offset(0, -8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      // ClipRRect clips the white container to the rounded corners
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        // Padding absorbs the system bottom inset (home indicator / gesture bar)
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewPadding.bottom,
+          ),
+          child: SizedBox(
+            height: 68,
+            child: Row(
+              children: [
+                _NavTab(
+                  index: 0,
+                  currentIndex: currentIndex,
+                  icon: Icons.space_dashboard_outlined,
+                  activeIcon: Icons.space_dashboard_rounded,
                   label: 'Home',
+                  onTap: onTap,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today_outlined),
-                  activeIcon: Icon(Icons.calendar_today),
-                  label: 'Appointments',
+                _NavTab(
+                  index: 1,
+                  currentIndex: currentIndex,
+                  icon: Icons.calendar_month_outlined,
+                  activeIcon: Icons.calendar_month_rounded,
+                  label: apptLabel,
+                  onTap: onTap,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: Icon(Icons.person),
+                _NavTab(
+                  index: 2,
+                  currentIndex: currentIndex,
+                  icon: Icons.medical_services_outlined,
+                  activeIcon: Icons.medical_services_rounded,
+                  label: 'Doctors',
+                  onTap: onTap,
+                ),
+                _NavTab(
+                  index: 3,
+                  currentIndex: currentIndex,
+                  icon: Icons.manage_accounts_outlined,
+                  activeIcon: Icons.manage_accounts_rounded,
                   label: 'Profile',
-                ),
-              ]
-            : const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today_outlined),
-                  activeIcon: Icon(Icons.calendar_today),
-                  label: 'My Visits',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: Icon(Icons.person),
-                  label: 'Profile',
+                  onTap: onTap,
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Individual tab ─────────────────────────────────────────────────────────────
+
+class _NavTab extends StatelessWidget {
+  final int index;
+  final int currentIndex;
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final ValueChanged<int> onTap;
+
+  const _NavTab({
+    required this.index,
+    required this.currentIndex,
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = index == currentIndex;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Pill indicator wrapping the icon
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.symmetric(
+                horizontal: isSelected ? 18 : 10,
+                vertical: 5,
+              ),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.11)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, anim) => ScaleTransition(
+                  scale: Tween<double>(begin: 0.78, end: 1.0).animate(
+                    CurvedAnimation(parent: anim, curve: Curves.easeOut),
+                  ),
+                  child: FadeTransition(opacity: anim, child: child),
+                ),
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  key: ValueKey('${index}_$isSelected'),
+                  size: 22,
+                  color:
+                      isSelected ? AppColors.primary : AppColors.navUnselected,
+                ),
+              ),
+            ),
+            const SizedBox(height: 3),
+            // Label — always visible
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w500,
+                color:
+                    isSelected ? AppColors.primary : AppColors.navUnselected,
+                letterSpacing: 0.1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

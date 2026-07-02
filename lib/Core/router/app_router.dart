@@ -100,6 +100,13 @@ class AppRouter {
             },
           ),
           GoRoute(
+            path: AppRoutes.allDoctors,
+            builder: (context, state) {
+              final speciality = state.uri.queryParameters['speciality'];
+              return AllDoctorsPage(speciality: speciality);
+            },
+          ),
+          GoRoute(
             path: AppRoutes.profile,
             builder: (_, __) => const ProfilePage(),
           ),
@@ -107,13 +114,6 @@ class AppRouter {
       ),
 
       // ── Detail screens (push on top, no shell)
-      GoRoute(
-        path: AppRoutes.allDoctors,
-        builder: (context, state) {
-          final speciality = state.uri.queryParameters['speciality'];
-          return AllDoctorsPage(speciality: speciality);
-        },
-      ),
       GoRoute(
         path: AppRoutes.doctorDetail,
         builder: (context, state) {

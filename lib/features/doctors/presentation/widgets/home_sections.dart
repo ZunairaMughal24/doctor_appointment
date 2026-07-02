@@ -423,12 +423,12 @@ class CategoriesSection extends StatelessWidget {
   const CategoriesSection({super.key});
 
   static const _diseaseNames = [
-    'Dengue fever',
+    'Dengue',
     'Gastritis',
-    'Kidney stone',
+    'Kidney ',
     'Piles',
-    'Lungs cancer',
-    'Typhoid fever',
+    'Lungs ',
+    'Typhoid ',
   ];
 
   @override
@@ -489,14 +489,14 @@ class _CategoryTile extends StatelessWidget {
               onTap: onTap,
               customBorder: const CircleBorder(),
               child: Container(
-                height: 58,
-                width: 58,
+                height: 50,
+                width: 50,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(9),
+                  padding: const EdgeInsets.all(7),
                   child: Image.asset(icon, fit: BoxFit.contain),
                 ),
               ),
@@ -511,9 +511,9 @@ class _CategoryTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: AppColors.textRed,
               ),
             ),
           ),
