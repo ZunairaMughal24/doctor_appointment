@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -399,7 +400,20 @@ class _FeaturedDoctorCard extends StatelessWidget {
                         height: 165,
                         child: (doctor.imageUrl != null &&
                                 doctor.imageUrl!.isNotEmpty)
-                            ? Image.network(doctor.imageUrl!, fit: BoxFit.cover)
+                            ? CachedNetworkImage(
+                                imageUrl: doctor.imageUrl!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Image.asset(
+                                  AppAssets.avatarForDoctor(doctor.id),
+                                  fit: BoxFit.cover,
+                                ),
+                              )
                             : Image.asset(
                                 AppAssets.avatarForDoctor(doctor.id),
                                 fit: BoxFit.cover,
@@ -422,13 +436,24 @@ class _FeaturedDoctorCard extends StatelessWidget {
 class CategoriesSection extends StatelessWidget {
   const CategoriesSection({super.key});
 
+  // Keep in sync with AppAssets.diseaseIcons order
   static const _diseaseNames = [
     'Dengue',
     'Gastritis',
-    'Kidney ',
+    'Kidney',
     'Piles',
-    'Lungs ',
-    'Typhoid ',
+    'Lungs',
+    'Typhoid',
+  ];
+
+  // Maps each disease label to the speciality filter used in AllDoctorsPage
+  static const _specialties = [
+    'Pediatrician',    // Dengue
+    'Gastroenterologist', // Gastritis
+    'Nephrologist',    // Kidney
+    'Gastroenterologist', // Piles
+    'Pulmonologist',   // Lungs
+    'Infectious Disease', // Typhoid
   ];
 
   @override
@@ -449,10 +474,13 @@ class CategoriesSection extends StatelessWidget {
                 horizontal: kHomeHorizontalPadding, vertical: 4),
             itemCount: AppAssets.diseaseIcons.length,
             itemBuilder: (context, index) {
+              final specialty = _specialties[index];
               return _CategoryTile(
                 icon: AppAssets.diseaseIcons[index],
                 label: _diseaseNames[index],
-                onTap: () => context.go(AppRoutes.allDoctors),
+                onTap: () => context.push(
+                  '${AppRoutes.specialists}?speciality=$specialty',
+                ),
               );
             },
           ),
@@ -588,8 +616,19 @@ class AvailableDoctorsSection extends StatelessWidget {
                           width: 90,
                           child: (doctor.imageUrl != null &&
                                   doctor.imageUrl!.isNotEmpty)
-                              ? Image.network(doctor.imageUrl!,
-                                  fit: BoxFit.cover)
+                              ? CachedNetworkImage(
+                                  imageUrl: doctor.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Image.asset(
+                                    AppAssets.avatarForDoctor(doctor.id),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
                               : Image.asset(
                                   AppAssets.avatarForDoctor(doctor.id),
                                   fit: BoxFit.cover,
@@ -679,11 +718,22 @@ class RecommendedDoctorsSection extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               child: (doctor.imageUrl != null &&
                                       doctor.imageUrl!.isNotEmpty)
-                                  ? Image.network(
-                                      doctor.imageUrl!,
+                                  ? CachedNetworkImage(
+                                      imageUrl: doctor.imageUrl!,
                                       height: 78,
                                       width: 78,
                                       fit: BoxFit.cover,
+                                      placeholder: (context, url) => const Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => Image.asset(
+                                        AppAssets.avatarForDoctor(doctor.id),
+                                        height: 78,
+                                        width: 78,
+                                        fit: BoxFit.cover,
+                                      ),
                                     )
                                   : Image.asset(
                                       AppAssets.avatarForDoctor(doctor.id),

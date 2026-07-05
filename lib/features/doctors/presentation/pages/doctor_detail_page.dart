@@ -13,6 +13,7 @@ import '../viewmodels/doctor_detail_viewmodel.dart';
 import '../widgets/doctor_reviews.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'doctor_reviews_page.dart';
 
 class DoctorDetailPage extends StatefulWidget {
   final String docId;
@@ -76,14 +77,34 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          radius: 42,
-                          backgroundColor: AppColors.primaryLight,
-                          backgroundImage: (data.imageUrl != null &&
-                                  data.imageUrl!.isNotEmpty)
-                              ? CachedNetworkImageProvider(data.imageUrl!, errorListener: (err) => debugPrint('Image load error: $err'))
-                              : AssetImage(AppAssets.avatarForDoctor(data.id))
-                                  as ImageProvider,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(42),
+                          child: Container(
+                            width: 84,
+                            height: 84,
+                            color: AppColors.primaryLight,
+                            child: (data.imageUrl != null &&
+                                    data.imageUrl!.isNotEmpty)
+                                ? CachedNetworkImage(
+                                    imageUrl: data.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                      AppAssets.avatarForDoctor(data.id),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    AppAssets.avatarForDoctor(data.id),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -128,7 +149,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                 Expanded(
                   child: AppContainer(
                     borderRadius: 19,
-                    padding: const EdgeInsets.all(9.0),
+                    padding: const EdgeInsets.all(14.0),
                     child: ListView(
                       physics: const BouncingScrollPhysics(),
                       children: [
@@ -163,7 +184,8 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                                 onTap: () async {
                                   final ok = await _vm.callAssistant();
                                   if (!ok && context.mounted) {
-                                    AppFeedback.showError(context, 'Could not open the dialer on this device.');
+                                    AppFeedback.showError(context,
+                                        'Could not open the dialer on this device.');
                                   }
                                 },
                                 child: const Padding(
@@ -190,9 +212,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 2),
-
                         const Text(
                           'Description',
                           style: TextStyle(
@@ -210,7 +230,6 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             color: AppColors.textSecondary,
                           ),
                         ),
-
                         const SizedBox(height: 2),
                         const IconButton(
                           alignment: Alignment.centerLeft,
@@ -227,7 +246,6 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             color: AppColors.textRed,
                           ),
                         ),
-
                         const SizedBox(height: 8),
                         const Text(
                           'Availability',
@@ -255,7 +273,6 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                         ),
                         const SizedBox(height: 6),
                         _WeeklyScheduleTable(schedule: data.schedule),
-
                         const SizedBox(height: 12),
                         const Text(
                           'Services',
@@ -272,12 +289,21 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             color: AppColors.textSecondary,
                           ),
                         ),
-
                         const SizedBox(height: 16),
                         DoctorReviewsSection(
                           reviews: _vm.reviews,
                           loading: _vm.reviewsLoading,
                           rating: data.rating,
+                          limit: 3,
+                          onSeeAll: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => DoctorReviewsPage(
+                                doctorName: data.name,
+                                reviews: _vm.reviews,
+                                rating: data.rating,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -290,7 +316,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
       ),
       bottomNavigationBar: Container(
         color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: SafeArea(
           child: AppButton(
             icon: Icons.event_available_rounded,

@@ -31,8 +31,8 @@ class AppButton extends StatelessWidget {
     this.icon,
     this.color = AppColors.primary,
     this.foreground = Colors.white,
-    this.height = 52,
-    this.borderRadius = 16,
+    this.height = 45,
+    this.borderRadius = 12,
     this.expand = true,
   });
 
@@ -44,11 +44,11 @@ class AppButton extends StatelessWidget {
     this.loading = false,
     this.icon,
     this.color = AppColors.primary,
-    this.height = 52,
-    this.borderRadius = 16,
+    this.height = 45,
+    this.borderRadius = 12,
     this.expand = true,
   })  : filled = false,
-        foreground = color;
+      foreground = color;
 
   @override
   Widget build(BuildContext context) {

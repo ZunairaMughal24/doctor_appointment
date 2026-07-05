@@ -7,16 +7,23 @@ class DoctorReviewsSection extends StatelessWidget {
   final List<AppointmentEntity> reviews;
   final bool loading;
   final double rating;
+  final int limit;
+  final VoidCallback? onSeeAll;
 
   const DoctorReviewsSection({
     super.key,
     required this.reviews,
     required this.loading,
     required this.rating,
+    this.limit = 3,
+    this.onSeeAll,
   });
 
   @override
   Widget build(BuildContext context) {
+    final shown = reviews.take(limit).toList();
+    final hasMore = reviews.length > limit;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -66,8 +73,41 @@ class DoctorReviewsSection extends StatelessWidget {
             ),
           )
         else
-          ...reviews.map((r) => DoctorReviewCard(review: r)),
-        const SizedBox(height: 8),
+          ...shown.map((r) => DoctorReviewCard(review: r)),
+
+        // ── See All Reviews button ───────────────────────────────────
+        if (onSeeAll != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2, bottom: 8),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onSeeAll,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 1.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                icon: const Icon(Icons.reviews_rounded, size: 16),
+                label: Text(
+                  reviews.isEmpty
+                      ? 'View Reviews'
+                      : hasMore
+                          ? 'See All ${reviews.length} Reviews'
+                          : 'See All Reviews',
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+        const SizedBox(height: 4),
       ],
     );
   }

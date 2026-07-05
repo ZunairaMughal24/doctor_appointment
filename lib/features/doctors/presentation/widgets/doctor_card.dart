@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
@@ -116,12 +117,17 @@ class DoctorCard extends StatelessWidget {
     if (doctor.imageUrl != null && doctor.imageUrl!.isNotEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(size / 4),
-        child: Image.network(
-          doctor.imageUrl!,
+        child: CachedNetworkImage(
+          imageUrl: doctor.imageUrl!,
           width: size,
           height: size,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _initialsAvatar(size: size),
+          placeholder: (context, url) => const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          ),
+          errorWidget: (context, url, error) => _initialsAvatar(size: size),
         ),
       );
     }

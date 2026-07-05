@@ -109,13 +109,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                   if (hasPhoto)
                                     Positioned.fill(
-                                      child: Image(
-                                        image: CachedNetworkImageProvider(
-                                          photoUrl,
-                                          errorListener: (err) => debugPrint(
-                                              'Image load error: $err'),
-                                        ),
+                                      child: CachedNetworkImage(
+                                        imageUrl: photoUrl,
                                         fit: BoxFit.cover,
+                                        placeholder: (context, url) => const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Icon(
+                                            Icons.person,
+                                            size: 88,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   // Person silhouette: head+shoulders fill the

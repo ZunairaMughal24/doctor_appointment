@@ -119,7 +119,7 @@ class _ScheduleViewState extends State<_ScheduleView> {
       ),
       bottomNavigationBar: Container(
         color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: SafeArea(
           child: BlocBuilder<AppointmentBloc, AppointmentState>(
             builder: (context, state) => ScheduleSubmitButton(
