@@ -9,11 +9,31 @@ import '../../domain/entities/doctor_entity.dart';
 class AllDoctorsViewModel {
   const AllDoctorsViewModel();
 
-  /// Returns [doctors] optionally narrowed to a [speciality] (case-insensitive).
-  List<DoctorEntity> filter(List<DoctorEntity> doctors, String? speciality) {
-    if (speciality == null || speciality.trim().isEmpty) return doctors;
-    final s = speciality.toLowerCase();
-    return doctors.where((d) => d.speciality.toLowerCase() == s).toList();
+  /// Returns [doctors] narrowed to a [speciality] (optionally) and further filtered
+  /// by a search [query] (matching name or speciality).
+  List<DoctorEntity> filter({
+    required List<DoctorEntity> doctors,
+    String? speciality,
+    String query = '',
+  }) {
+    // 1. First filter by speciality if provided
+    var list = doctors;
+    if (speciality != null && speciality.trim().isNotEmpty) {
+      final s = speciality.toLowerCase();
+      list = list.where((d) => d.speciality.toLowerCase() == s).toList();
+    }
+
+    // 2. Then filter by query if provided
+    if (query.trim().isNotEmpty) {
+      final q = query.toLowerCase();
+      list = list
+          .where((d) =>
+              d.name.toLowerCase().contains(q) ||
+              d.speciality.toLowerCase().contains(q))
+          .toList();
+    }
+
+    return list;
   }
 
   void openDoctor(BuildContext context, DoctorEntity doctor) =>
