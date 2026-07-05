@@ -409,7 +409,8 @@ class _FeaturedDoctorCard extends StatelessWidget {
                                     color: Colors.white,
                                   ),
                                 ),
-                                errorWidget: (context, url, error) => Image.asset(
+                                errorWidget: (context, url, error) =>
+                                    Image.asset(
                                   AppAssets.avatarForDoctor(doctor.id),
                                   fit: BoxFit.cover,
                                 ),
@@ -448,11 +449,11 @@ class CategoriesSection extends StatelessWidget {
 
   // Maps each disease label to the speciality filter used in AllDoctorsPage
   static const _specialties = [
-    'Pediatrician',    // Dengue
+    'Pediatrician', // Dengue
     'Gastroenterologist', // Gastritis
-    'Nephrologist',    // Kidney
+    'Nephrologist', // Kidney
     'Gastroenterologist', // Piles
-    'Pulmonologist',   // Lungs
+    'Pulmonologist', // Lungs
     'Infectious Disease', // Typhoid
   ];
 
@@ -624,7 +625,8 @@ class AvailableDoctorsSection extends StatelessWidget {
                                       strokeWidth: 2,
                                     ),
                                   ),
-                                  errorWidget: (context, url, error) => Image.asset(
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
                                     AppAssets.avatarForDoctor(doctor.id),
                                     fit: BoxFit.cover,
                                   ),
@@ -723,12 +725,14 @@ class RecommendedDoctorsSection extends StatelessWidget {
                                       height: 78,
                                       width: 78,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) => const Center(
+                                      placeholder: (context, url) =>
+                                          const Center(
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                         ),
                                       ),
-                                      errorWidget: (context, url, error) => Image.asset(
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
                                         AppAssets.avatarForDoctor(doctor.id),
                                         height: 78,
                                         width: 78,

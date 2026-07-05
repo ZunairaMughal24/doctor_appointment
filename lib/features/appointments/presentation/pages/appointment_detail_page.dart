@@ -65,7 +65,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       child: Scaffold(
         backgroundColor: AppColors.cardBg,
         appBar: CustomAppBar(
-          title: 'Appointment',
+          title: 'Appointment Detail',
           onBackPressed: () => Navigator.of(context).pop(_vm.changed),
         ),
         body: SafeArea(
@@ -107,6 +107,12 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                   ),
                   const SizedBox(height: 28),
 
+                  if (_vm.appointment.doctorSpeciality.isNotEmpty)
+                    AppointmentDetailRow(
+                      icon: Icons.local_hospital_outlined,
+                      label: 'Speciality',
+                      value: _vm.appointment.doctorSpeciality,
+                    ),
                   AppointmentDetailRow(
                     icon: Icons.medical_information_outlined,
                     label: 'Type',

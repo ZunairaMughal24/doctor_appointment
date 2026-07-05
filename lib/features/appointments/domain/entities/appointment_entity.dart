@@ -45,6 +45,9 @@ class AppointmentEntity extends Equatable {
   final String doctorId;
   final String doctorName;
 
+  /// Doctor's speciality/type (e.g. Cardiologist).
+  final String doctorSpeciality;
+
   /// Doctor's phone — stored so a patient can reach them (e.g. WhatsApp).
   final String doctorPhone;
 
@@ -78,6 +81,7 @@ class AppointmentEntity extends Equatable {
     required this.appointmentDay,
     required this.appointmentDate,
     this.doctorPhone = '',
+    this.doctorSpeciality = '',
     this.appointmentTime = '',
     this.consultationType = ConsultationType.inPerson,
     this.status = AppointmentStatus.pending,
@@ -159,6 +163,7 @@ class AppointmentEntity extends Equatable {
       doctorId: doctorId,
       doctorName: doctorName,
       doctorPhone: doctorPhone,
+      doctorSpeciality: doctorSpeciality,
       appointmentDay: appointmentDay,
       appointmentDate: appointmentDate,
       appointmentTime: appointmentTime,

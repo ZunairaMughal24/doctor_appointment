@@ -73,6 +73,7 @@ class ScheduleAppointmentViewModel {
       doctorId: doctor.id,
       doctorName: doctor.name,
       doctorPhone: doctor.phoneNumber,
+      doctorSpeciality: doctor.speciality,
       appointmentDay: selectedDay,
       appointmentDate: formattedDate,
       appointmentTime: selectedTime ?? '',

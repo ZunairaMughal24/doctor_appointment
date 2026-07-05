@@ -8,6 +8,7 @@ import '../../domain/entities/appointment_entity.dart';
 class AppointmentTile extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String speciality;
   final bool isPatient;
   final AppointmentStatus status;
   final VoidCallback onTap;
@@ -16,7 +17,8 @@ class AppointmentTile extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    this.isPatient = false,
+    this.speciality = '',
+    this.isPatient = true,
     this.status = AppointmentStatus.pending,
     required this.onTap,
   });
@@ -33,7 +35,7 @@ class AppointmentTile extends StatelessWidget {
             radius: 24,
             backgroundColor: AppColors.primaryLight,
             child: Icon(
-              isPatient ? Icons.person : Icons.medical_services_outlined,
+              isPatient ? Icons.medical_services_outlined : Icons.person,
               color: AppColors.primary,
             ),
           ),
@@ -50,6 +52,22 @@ class AppointmentTile extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (speciality.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      const SizedBox(width: 3),
+                      Text(
+                        speciality,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textRed,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -124,7 +142,8 @@ class AppointmentEmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style:
+                const TextStyle(fontSize: 16, color: AppColors.textSecondary),
           ),
         ],
       ),

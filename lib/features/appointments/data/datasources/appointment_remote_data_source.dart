@@ -128,20 +128,70 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
     }
   }
 
-  Stream<List<AppointmentModel>> _watch(String field, String value) =>
-      _appointments.where(field, isEqualTo: value).snapshots().map((snap) {
-        final items = snap.docs
-            .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
-            .toList()
-          ..sort((a, b) {
-            final at = a.createdAt, bt = b.createdAt;
-            if (at == null && bt == null) return 0;
-            if (at == null) return 1;
-            if (bt == null) return -1;
-            return bt.compareTo(at);
-          });
-        return items;
-      });
+  Stream<List<AppointmentModel>> _watch(String field, String value) {
+    return _appointments
+        .where(field, isEqualTo: value)
+        .snapshots()
+        .asyncMap((snap) async {
+      // Parse all appointment docs.
+      final items = snap.docs
+          .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
+          .toList()
+        ..sort((a, b) {
+          final at = a.createdAt, bt = b.createdAt;
+          if (at == null && bt == null) return 0;
+          if (at == null) return 1;
+          if (bt == null) return -1;
+          return bt.compareTo(at);
+        });
+
+      // Collect doctor IDs whose speciality is missing (legacy appointments).
+      final missingIds = items
+          .where((a) => a.doctorSpeciality.isEmpty && a.doctorId.isNotEmpty)
+          .map((a) => a.doctorId)
+          .toSet();
+
+      // Batch-fetch doctor docs for any missing specialities.
+      final specialityCache = <String, String>{};
+      for (final doctorId in missingIds) {
+        try {
+          final doc =
+              await firestore.collection('doctors').doc(doctorId).get();
+          final sp = (doc.data()?['speciality'] as String?) ?? '';
+          specialityCache[doctorId] = sp;
+        } catch (_) {
+          specialityCache[doctorId] = '';
+        }
+      }
+
+      // Rebuild any models that need the speciality injected.
+      if (specialityCache.isEmpty) return items;
+
+      return items.map((a) {
+        if (a.doctorSpeciality.isNotEmpty) return a;
+        final sp = specialityCache[a.doctorId] ?? '';
+        if (sp.isEmpty) return a;
+        return AppointmentModel(
+          id: a.id,
+          patientId: a.patientId,
+          patientName: a.patientName,
+          patientPhone: a.patientPhone,
+          doctorId: a.doctorId,
+          doctorName: a.doctorName,
+          doctorPhone: a.doctorPhone,
+          doctorSpeciality: sp,
+          appointmentDay: a.appointmentDay,
+          appointmentDate: a.appointmentDate,
+          appointmentTime: a.appointmentTime,
+          consultationType: a.consultationType,
+          status: a.status,
+          createdAt: a.createdAt,
+          rating: a.rating,
+          ratingComment: a.ratingComment,
+        );
+      }).toList();
+    });
+  }
 
   @override
   Future<void> updateAppointmentStatus({

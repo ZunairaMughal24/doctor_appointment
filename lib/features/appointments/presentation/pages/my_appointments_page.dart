@@ -127,6 +127,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
                   _AppointmentListBody(
                     state: _filtered(state, active: true),
                     titleOf: (a) => a.doctorName,
+                    isPatient: true,
                     currentUserId: uid,
                     emptyMessage: 'No active appointments',
                     emptyIcon: Icons.event_available_outlined,
@@ -137,6 +138,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
                   _AppointmentListBody(
                     state: _filtered(state, active: false),
                     titleOf: (a) => a.doctorName,
+                    isPatient: true,
                     currentUserId: uid,
                     emptyMessage: 'No past appointments',
                     emptyIcon: Icons.history_rounded,
@@ -331,6 +333,7 @@ class _AppointmentListBody extends StatelessWidget {
             return AppointmentTile(
               title: titleOf(appt),
               subtitle: appt.appointmentDay,
+              speciality: isPatient ? appt.doctorSpeciality : '',
               isPatient: isPatient,
               status: appt.effectiveStatus,
               onTap: () async {
