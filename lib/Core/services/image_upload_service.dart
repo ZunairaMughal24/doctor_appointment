@@ -9,25 +9,70 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../constants/app_colors.dart';
 import '../widgets/modern_bottom_sheet.dart';
+import '../errors/exceptions.dart';
 
-/// Centralises picking (camera or gallery) and uploading doctor profile photos
-/// to Supabase Storage, and persisting the public URL on the doctor record in
-/// Firestore. Shared by the doctor sign-up flow and the profile screen.
+/// Centralises picking (camera or gallery) and uploading profile photos
+/// to Supabase Storage, and persisting the public URL in Firestore.
+/// Shared by the doctor sign-up flow and the profile screen.
 class ImageUploadService {
   ImageUploadService._();
 
   static final ImagePicker _picker = ImagePicker();
 
   /// Guards against a second pick being launched while one is still active.
-  /// A rapid double-tap (or re-opening the chooser before the OS picker
-  /// returns) otherwise throws `PlatformException(already_active)` — the most
-  /// common image_picker crash, and the one that halts the debugger on tap.
   static bool _picking = false;
 
+  // ── Error mapping (belongs here, not in ViewModel) ────────────────────────
+
+  /// Converts any exception into an [ImageUploadException] with a
+  /// human-readable message. This is the single place where raw errors
+  /// are translated to user-facing copy.
+  static ImageUploadException _mapException(Object e, String tag) {
+    final raw = e.toString().toLowerCase();
+    debugPrint('[$tag] _mapException — raw error: $e');
+
+    if (raw.contains('socket') ||
+        raw.contains('network') ||
+        raw.contains('host lookup') ||
+        raw.contains('failed host') ||
+        raw.contains('connection refused') ||
+        raw.contains('clientexception')) {
+      return const ImageUploadException(
+          'Could not connect to the image storage server. Please verify your internet connection, or make sure the storage URL in the configuration (.env) is active and correct.');
+    }
+    if (raw.contains('permission') ||
+        raw.contains('denied') ||
+        raw.contains('forbidden') ||
+        raw.contains('row-level security') ||
+        raw.contains('violates') ||
+        raw.contains('403')) {
+      return const ImageUploadException(
+          'Upload permission denied. Please contact support if this persists.');
+    }
+    if (raw.contains('bucket not found') ||
+        raw.contains('404') ||
+        raw.contains('not found')) {
+      return const ImageUploadException(
+          'Storage bucket not found. Please contact support.');
+    }
+    if (raw.contains('too large') ||
+        raw.contains('payload') ||
+        raw.contains('413')) {
+      return const ImageUploadException(
+          'This photo is too large. Please pick an image under 5 MB.');
+    }
+    if (raw.contains('not configured') || raw.contains('placeholder')) {
+      return const ImageUploadException(
+          'Cloud storage is not set up yet. Please contact support.');
+    }
+    return const ImageUploadException(
+        'Something went wrong while uploading your photo. Please try again.');
+  }
+
+  // ── Picker ────────────────────────────────────────────────────────────────
+
   /// Shows a camera/gallery chooser sheet, then returns the picked file — or
-  /// null if the user cancels (either the chooser or the picker) or an error
-  /// occurs. Never throws: any picker error is logged in detail and surfaced as
-  /// a null result so the caller can simply ignore it.
+  /// null if the user cancels or a picker error occurs. Never throws.
   static Future<File?> pickWithChooser(BuildContext context) async {
     debugPrint('[ImagePicker] pickWithChooser() — showing chooser sheet');
     final source = await showModalBottomSheet<ImageSource>(
@@ -97,11 +142,6 @@ class ImageUploadService {
       }
       return file;
     } on PlatformException catch (e, st) {
-      // The actual platform error — code is the useful part:
-      //   already_active        → a pick was already running (now guarded)
-      //   photo_access_denied   → gallery permission denied
-      //   camera_access_denied  → camera permission denied
-      //   no_available_camera   → device/emulator has no camera
       debugPrint('[ImagePicker] PlatformException: code="${e.code}" '
           'message="${e.message}" details="${e.details}"');
       debugPrint('$st');
@@ -116,18 +156,18 @@ class ImageUploadService {
     }
   }
 
+  // ── Upload core ───────────────────────────────────────────────────────────
+
   /// Uploads [file] to the Supabase storage bucket at `{uid}.jpg` (overwriting
-  /// any previous photo) and returns its public URL. A cache-buster query param
-  /// is appended so a re-uploaded photo refreshes immediately. Logs every step
-  /// so the exact failure is visible in the console.
+  /// any previous photo) and returns its public URL with a cache-buster.
+  /// Throws [ImageUploadException] with a user-friendly message on failure.
   static Future<String> uploadDoctorPhoto(String uid, File file) async {
     debugPrint('[PhotoUpload] start — uid=$uid file="${file.path}"');
 
     if (!SupabaseConfig.isConfigured) {
-      debugPrint('[PhotoUpload] ABORT — Supabase not configured '
-          '(url/anonKey still placeholders in supabase_config.dart)');
-      throw StateError(
-          'Supabase is not configured — set SUPABASE_URL / SUPABASE_ANON_KEY in .env');
+      debugPrint('[PhotoUpload] ABORT — Supabase not configured');
+      throw const ImageUploadException(
+          'Cloud storage is not set up yet. Please contact support.');
     }
 
     final String path = '$uid.jpg';
@@ -146,47 +186,69 @@ class ImageUploadService {
       );
 
       final url = bucket.getPublicUrl(path);
-      debugPrint('[PhotoUpload] success — publicUrl=$url');
-      return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
-    } on StorageException catch (e) {
-      // The Supabase-side error — the most useful part of the log:
-      //   statusCode 404 → bucket "${SupabaseConfig.photoBucket}" doesn't exist
-      //   statusCode 403 / "row-level security" → missing insert/update policy
-      //   "Bucket not found" → name mismatch (check it matches the dashboard)
-      debugPrint('[PhotoUpload] StorageException — statusCode=${e.statusCode} '
-          'error="${e.error}" message="${e.message}"');
-      throw Exception('Image upload failed: ${e.message}');
+      final publicUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
+      debugPrint('[PhotoUpload] success — publicUrl=$publicUrl');
+      return publicUrl;
+    } on StorageException catch (e, st) {
+      debugPrint('[PhotoUpload] StorageException — '
+          'statusCode=${e.statusCode} error="${e.error}" message="${e.message}"');
+      debugPrint('$st');
+      throw _mapException(e, 'PhotoUpload');
     } catch (e, st) {
       debugPrint('[PhotoUpload] unexpected error: $e');
       debugPrint('$st');
-      rethrow;
+      throw _mapException(e, 'PhotoUpload');
     }
   }
 
-  /// Uploads [file] and merges the resulting URL onto the doctor's Firestore
-  /// record (`doctors/{uid}.imageUrl`). Returns the stored URL.
+  // ── Firestore persistence ─────────────────────────────────────────────────
+
+  /// Uploads [file] and writes the URL to `doctors/{uid}.imageUrl`.
   static Future<String> setDoctorPhoto(String uid, File file) async {
+    debugPrint('[DoctorPhoto] setDoctorPhoto — uid=$uid');
     final url = await uploadDoctorPhoto(uid, file);
-    debugPrint('[PhotoUpload] writing imageUrl to doctors/$uid');
-    await FirebaseFirestore.instance
-        .collection('doctors')
-        .doc(uid)
-        .set({'imageUrl': url}, SetOptions(merge: true));
-    debugPrint('[PhotoUpload] doctors/$uid.imageUrl saved');
+    debugPrint('[DoctorPhoto] writing imageUrl to Firestore: doctors/$uid');
+    try {
+      await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(uid)
+          .set({'imageUrl': url}, SetOptions(merge: true));
+      debugPrint('[DoctorPhoto] doctors/$uid.imageUrl saved ✓');
+    } catch (e, st) {
+      debugPrint('[DoctorPhoto] Firestore write failed: $e');
+      debugPrint('$st');
+      throw _mapException(e, 'DoctorPhoto');
+    }
     return url;
   }
 
-  /// Uploads [file] and merges the URL onto the patient's user record
-  /// (`users/{uid}.imageUrl`). Used for non-doctor profile photos, which stay
-  /// on the profile screen only. Returns the stored URL.
+  /// Uploads [file] and writes the URL to `users/{uid}.imageUrl`.
+  /// Used for patient profile photos.
   static Future<String> setUserPhoto(String uid, File file) async {
+    debugPrint('[PatientPhoto] setUserPhoto — uid=$uid');
+    final int bytes = await file.length();
+    debugPrint('[PatientPhoto] file: path="${file.path}" size=$bytes bytes');
+
+    if (!SupabaseConfig.isConfigured) {
+      debugPrint('[PatientPhoto] ABORT — Supabase not configured');
+      throw const ImageUploadException(
+          'Cloud storage is not set up yet. Please contact support.');
+    }
+
     final url = await uploadDoctorPhoto(uid, file);
-    debugPrint('[PhotoUpload] writing imageUrl to users/$uid');
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .set({'imageUrl': url}, SetOptions(merge: true));
-    debugPrint('[PhotoUpload] users/$uid.imageUrl saved');
+    debugPrint('[PatientPhoto] upload success — url=$url');
+    debugPrint('[PatientPhoto] writing imageUrl to Firestore: users/$uid');
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({'imageUrl': url}, SetOptions(merge: true));
+      debugPrint('[PatientPhoto] users/$uid.imageUrl saved ✓');
+    } catch (e, st) {
+      debugPrint('[PatientPhoto] Firestore write failed: $e');
+      debugPrint('$st');
+      throw _mapException(e, 'PatientPhoto');
+    }
     return url;
   }
 }

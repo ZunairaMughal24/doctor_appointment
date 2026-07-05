@@ -13,6 +13,7 @@ abstract class Failure extends Equatable {
     if (this is NetworkFailure) return 'No internet connection. Please check your network and try again.';
     if (this is NotFoundFailure) return 'The requested item could not be found.';
     if (this is ServerFailure) return 'Something went wrong on our end. Please try again.';
+    if (this is ImageUploadFailure) return message;
     return 'An unexpected error occurred. Please try again.';
   }
 }
@@ -35,6 +36,10 @@ class CacheFailure extends Failure {
 
 class NotFoundFailure extends Failure {
   const NotFoundFailure([super.message = 'Resource not found.']);
+}
+
+class ImageUploadFailure extends Failure {
+  const ImageUploadFailure(super.message);
 }
 
 // Maps Firebase Auth error codes / message fragments to clean UI copy.

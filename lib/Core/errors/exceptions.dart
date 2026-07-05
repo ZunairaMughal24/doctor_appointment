@@ -17,3 +17,10 @@ class NotFoundException implements Exception {
   final String message;
   const NotFoundException([this.message = 'Not found.']);
 }
+
+class ImageUploadException implements Exception {
+  final String message;
+  const ImageUploadException(this.message);
+  @override
+  String toString() => message;
+}

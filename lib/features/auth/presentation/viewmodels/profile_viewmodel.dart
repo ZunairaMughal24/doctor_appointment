@@ -16,6 +16,7 @@ import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../../../../core/errors/exceptions.dart';
 
 class ProfileViewModel {
   ProfileViewModel({required this.onChange});
@@ -137,8 +138,13 @@ class ProfileViewModel {
         }
       }
       return (ok: true, message: 'Profile picture updated successfully!');
-    } catch (e) {
-      return (ok: false, message: 'Failed to upload image: ${e.toString()}');
+    } on ImageUploadException catch (e) {
+      debugPrint('[ProfileVM] ImageUploadException caught: ${e.message}');
+      return (ok: false, message: e.message);
+    } catch (e, st) {
+      debugPrint('[ProfileVM] Unexpected upload error: $e');
+      debugPrint('$st');
+      return (ok: false, message: 'Something went wrong while uploading your photo. Please try again.');
     } finally {
       _set(() => uploadingImage = false);
     }
