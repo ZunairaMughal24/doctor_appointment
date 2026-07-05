@@ -44,7 +44,8 @@ class DoctorCardFeatured extends StatelessWidget {
                   color: Colors.white70)),
           const SizedBox(height: 4),
           DoctorAvailabilityBadge(availability: availability, lightText: true),
-          _StarRow(rating: rating, color: Colors.yellow, textColor: Colors.white70),
+          _StarRow(
+              rating: rating, color: Colors.yellow, textColor: Colors.white70),
           const Row(children: [
             Icon(Icons.call, size: 15, color: Colors.white),
             SizedBox(width: 5),
@@ -119,7 +120,8 @@ class DoctorCardAvailable extends StatelessWidget {
                 Text(speciality,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textRed)),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textRed)),
                 const SizedBox(height: 3),
                 SizedBox(
                   width: double.maxFinite,
@@ -334,19 +336,22 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
             color: AppColors.primary,
             size: 28,
           ),
-          suffixIcon: Material(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(10),
-            child: InkWell(
-              onTap: _submit,
-              borderRadius: BorderRadius.circular(10),
-              child: const SizedBox(
-                width: 45,
-                height: 45,
-                child: Icon(
-                  Icons.send_rounded,
-                  color: Colors.white,
-                  size: 22,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Material(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(8),
+              child: InkWell(
+                onTap: _submit,
+                borderRadius: BorderRadius.circular(8),
+                child: const SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
               ),
             ),

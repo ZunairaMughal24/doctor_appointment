@@ -29,71 +29,79 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.cardBg,
-      appBar: CustomAppBar(
-        title: 'Notifications',
-        onBackPressed: () => context.pop(),
-      ),
-      body: BlocBuilder<NotificationBloc, NotificationState>(
-        builder: (context, state) {
-          if (state is NotificationLoading || state is NotificationInitial) {
-            return const AppLoader();
-          }
-          if (state is NotificationError) {
-            return _Centered(
-              icon: Icons.error_outline,
-              message: state.message,
-            );
-          }
-          if (state is NotificationLoaded) {
-            if (state.items.isEmpty) {
-              return const _Centered(
-                icon: Icons.notifications_none_rounded,
-                message: 'No notifications yet',
+    return BlocBuilder<NotificationBloc, NotificationState>(
+      builder: (context, state) {
+        final unreadCount = state is NotificationLoaded ? state.unreadCount : 0;
+        final hasUnread = unreadCount > 0;
+
+        return Scaffold(
+          backgroundColor: AppColors.cardBg,
+          appBar: CustomAppBar(
+            title: 'Notifications',
+            onBackPressed: () => context.pop(),
+            actions: [
+              if (state is NotificationLoaded && state.items.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.done_all_rounded, color: Colors.white),
+                  tooltip: 'Mark all as read',
+                  onPressed: hasUnread ? () => _vm.markAllRead(context) : null,
+                ),
+            ],
+          ),
+          body: () {
+            if (state is NotificationLoading || state is NotificationInitial) {
+              return const AppLoader();
+            }
+            if (state is NotificationError) {
+              return _Centered(
+                icon: Icons.error_outline,
+                message: state.message,
               );
             }
-            return Column(
-              children: [
-                // Persistent header — always visible, never auto-hides.
-                _MarkAllBar(
-                  unread: state.unreadCount,
-                  onMarkAll: () => _vm.markAllRead(context),
-                ),
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () async => _vm.open(context),
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      itemCount: state.items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (context, i) {
-                        final n = state.items[i];
-                        return Dismissible(
-                          key: ValueKey(n.id),
-                          direction: n.read
-                              ? DismissDirection.none
-                              : DismissDirection.startToEnd,
-                          background: const _SwipeReadBackground(),
-                          confirmDismiss: (_) async {
-                            _vm.markRead(context, n);
-                            return false;
-                          },
-                          child: _NotificationTile(
-                            notification: n,
-                            onTap: () => _vm.markRead(context, n),
-                          ),
-                        );
-                      },
+            if (state is NotificationLoaded) {
+              if (state.items.isEmpty) {
+                return const _Centered(
+                  icon: Icons.notifications_none_rounded,
+                  message: 'No notifications yet',
+                );
+              }
+              return Column(
+                children: [
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async => _vm.open(context),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: state.items.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, i) {
+                          final n = state.items[i];
+                          return Dismissible(
+                            key: ValueKey(n.id),
+                            direction: n.read
+                                ? DismissDirection.none
+                                : DismissDirection.startToEnd,
+                            background: const _SwipeReadBackground(),
+                            confirmDismiss: (_) async {
+                              _vm.markRead(context, n);
+                              return false;
+                            },
+                            child: _NotificationTile(
+                              notification: n,
+                              onTap: () => _vm.markRead(context, n),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }
-          return const SizedBox.shrink();
-        },
-      ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          }(),
+        );
+      },
     );
   }
 }
@@ -208,47 +216,6 @@ class _NotificationTile extends StatelessWidget {
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${t.day}/${t.month}/${t.year}';
-  }
-}
-
-/// Fixed header with the unread count and a persistent "Mark all as read"
-/// button. The button is always present; it's just disabled when nothing's unread.
-class _MarkAllBar extends StatelessWidget {
-  final int unread;
-  final VoidCallback onMarkAll;
-  const _MarkAllBar({required this.unread, required this.onMarkAll});
-
-  @override
-  Widget build(BuildContext context) {
-    final hasUnread = unread > 0;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 6, 12, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              hasUnread ? '$unread unread' : 'All caught up',
-              style: const TextStyle(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          TextButton.icon(
-            onPressed: hasUnread ? onMarkAll : null,
-            icon: const Icon(Icons.done_all_rounded, size: 18),
-            label: const Text('Mark all as read'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              disabledForegroundColor: AppColors.textHint,
-              textStyle:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
