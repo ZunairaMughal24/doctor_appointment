@@ -390,35 +390,38 @@ class _FeaturedDoctorCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(14),
-                        bottomRight: Radius.circular(14),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        right: 8,
+                        top: 8,
                       ),
-                      child: SizedBox(
-                        width: 110,
-                        height: 165,
-                        child: (doctor.imageUrl != null &&
-                                doctor.imageUrl!.isNotEmpty)
-                            ? CachedNetworkImage(
-                                imageUrl: doctor.imageUrl!,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                          width: 110,
+                          height: 165,
+                          child: (doctor.imageUrl != null &&
+                                  doctor.imageUrl!.isNotEmpty)
+                              ? CachedNetworkImage(
+                                  imageUrl: doctor.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    Image.asset(
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                    AppAssets.avatarForDoctor(doctor.id),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Image.asset(
                                   AppAssets.avatarForDoctor(doctor.id),
                                   fit: BoxFit.cover,
                                 ),
-                              )
-                            : Image.asset(
-                                AppAssets.avatarForDoctor(doctor.id),
-                                fit: BoxFit.cover,
-                              ),
+                        ),
                       ),
                     ),
                   ],
@@ -612,29 +615,39 @@ class AvailableDoctorsSection extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        SizedBox(
-                          height: 150,
-                          width: 90,
-                          child: (doctor.imageUrl != null &&
-                                  doctor.imageUrl!.isNotEmpty)
-                              ? CachedNetworkImage(
-                                  imageUrl: doctor.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 4,
+                            top: 8,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: SizedBox(
+                              height: 150,
+                              width: 90,
+                              child: (doctor.imageUrl != null &&
+                                      doctor.imageUrl!.isNotEmpty)
+                                  ? CachedNetworkImage(
+                                      imageUrl: doctor.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                        AppAssets.avatarForDoctor(doctor.id),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      AppAssets.avatarForDoctor(doctor.id),
+                                      fit: BoxFit.cover,
                                     ),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      Image.asset(
-                                    AppAssets.avatarForDoctor(doctor.id),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : Image.asset(
-                                  AppAssets.avatarForDoctor(doctor.id),
-                                  fit: BoxFit.cover,
-                                ),
+                            ),
+                          ),
                         ),
                         Expanded(
                           child: DoctorCardAvailable(

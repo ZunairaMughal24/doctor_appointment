@@ -114,7 +114,10 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (Color color, IconData icon) = switch (notification.type) {
-      AppNotificationType.booked => (AppColors.primary, Icons.event_note_rounded),
+      AppNotificationType.booked => (
+          AppColors.primary,
+          Icons.event_note_rounded
+        ),
       AppNotificationType.confirmed => (
           AppColors.success,
           Icons.check_circle_rounded
@@ -266,7 +269,8 @@ class _Centered extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style:
+                const TextStyle(fontSize: 16, color: AppColors.textSecondary),
           ),
         ],
       ),
