@@ -729,36 +729,43 @@ class RecommendedDoctorsSection extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: (doctor.imageUrl != null &&
-                                      doctor.imageUrl!.isNotEmpty)
-                                  ? CachedNetworkImage(
-                                      imageUrl: doctor.imageUrl!,
-                                      height: 78,
-                                      width: 78,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          Image.asset(
-                                        AppAssets.avatarForDoctor(doctor.id),
-                                        height: 78,
-                                        width: 78,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : Image.asset(
-                                      AppAssets.avatarForDoctor(doctor.id),
-                                      height: 78,
-                                      width: 78,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
+                             Container(
+                               height: 78,
+                               width: 78,
+                               decoration: BoxDecoration(
+                                 shape: BoxShape.circle,
+                                 color: AppColors.primary.withValues(alpha: 0.05),
+                                 border: Border.all(
+                                   color: AppColors.primary.withValues(alpha: 0.08),
+                                   width: 1.5,
+                                 ),
+                               ),
+                               child: ClipOval(
+                                 child: (doctor.imageUrl != null &&
+                                         doctor.imageUrl!.isNotEmpty)
+                                     ? CachedNetworkImage(
+                                         imageUrl: doctor.imageUrl!,
+                                         fit: BoxFit.cover,
+                                         placeholder: (context, url) =>
+                                             const Center(
+                                           child: CircularProgressIndicator(
+                                             strokeWidth: 2,
+                                           ),
+                                         ),
+                                         errorWidget: (context, url, error) =>
+                                             Image.asset(
+                                           AppAssets.avatarForDoctor(doctor.id),
+                                           fit: BoxFit.cover,
+                                           alignment: const Alignment(0, -0.25),
+                                         ),
+                                       )
+                                     : Image.asset(
+                                         AppAssets.avatarForDoctor(doctor.id),
+                                         fit: BoxFit.cover,
+                                         alignment: const Alignment(0, -0.25),
+                                       ),
+                               ),
+                             ),
                             const SizedBox(height: 6),
                             DoctorCardCompact(
                               name: doctor.name,
