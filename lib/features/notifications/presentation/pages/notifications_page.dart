@@ -64,7 +64,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   child: RefreshIndicator(
                     onRefresh: () async => _vm.open(context),
                     child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       itemCount: state.items.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
@@ -222,7 +222,7 @@ class _MarkAllBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasUnread = unread > 0;
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
+      padding: const EdgeInsets.fromLTRB(16, 6, 12, 0),
       child: Row(
         children: [
           Expanded(

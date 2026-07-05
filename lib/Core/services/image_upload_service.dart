@@ -251,6 +251,52 @@ class ImageUploadService {
     }
     return url;
   }
+
+  /// Deletes the photo from Supabase Storage and clears the imageUrl in doctors/{uid}.
+  static Future<void> deleteDoctorPhoto(String uid) async {
+    debugPrint('[DoctorPhoto] deleteDoctorPhoto — uid=$uid');
+    try {
+      if (SupabaseConfig.isConfigured) {
+        final bucket = Supabase.instance.client.storage.from(
+          SupabaseConfig.photoBucket,
+        );
+        await bucket.remove(['$uid.jpg']);
+        debugPrint('[DoctorPhoto] removed photo from Supabase Storage');
+      }
+      await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(uid)
+          .set({'imageUrl': ''}, SetOptions(merge: true));
+      debugPrint('[DoctorPhoto] doctors/$uid.imageUrl cleared in Firestore');
+    } catch (e, st) {
+      debugPrint('[DoctorPhoto] deletion failed: $e');
+      debugPrint('$st');
+      throw _mapException(e, 'DoctorPhoto');
+    }
+  }
+
+  /// Deletes the photo from Supabase Storage and clears the imageUrl in users/{uid}.
+  static Future<void> deleteUserPhoto(String uid) async {
+    debugPrint('[PatientPhoto] deleteUserPhoto — uid=$uid');
+    try {
+      if (SupabaseConfig.isConfigured) {
+        final bucket = Supabase.instance.client.storage.from(
+          SupabaseConfig.photoBucket,
+        );
+        await bucket.remove(['$uid.jpg']);
+        debugPrint('[PatientPhoto] removed photo from Supabase Storage');
+      }
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({'imageUrl': ''}, SetOptions(merge: true));
+      debugPrint('[PatientPhoto] users/$uid.imageUrl cleared in Firestore');
+    } catch (e, st) {
+      debugPrint('[PatientPhoto] deletion failed: $e');
+      debugPrint('$st');
+      throw _mapException(e, 'PatientPhoto');
+    }
+  }
 }
 
 /// A tappable source card (Camera / Gallery) used in the photo chooser sheet.

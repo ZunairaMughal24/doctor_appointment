@@ -150,6 +150,35 @@ class ProfileViewModel {
     }
   }
 
+  /// Removes the current profile photo and clears it in databases.
+  Future<({bool ok, String message})> removeProfilePhoto(BuildContext context) async {
+    final user = cachedUser;
+    if (user == null) return (ok: false, message: 'User not signed in.');
+
+    _set(() => uploadingImage = true);
+    try {
+      if (user.isDoctor) {
+        await ImageUploadService.deleteDoctorPhoto(user.uid);
+        await loadDoctorProfile(user.uid);
+      } else {
+        await ImageUploadService.deleteUserPhoto(user.uid);
+        if (context.mounted) {
+          context.read<AuthBloc>().add(const AuthCheckRequested());
+        }
+      }
+      return (ok: true, message: 'Profile picture removed successfully!');
+    } on ImageUploadException catch (e) {
+      debugPrint('[ProfileVM] ImageUploadException during deletion: ${e.message}');
+      return (ok: false, message: e.message);
+    } catch (e, st) {
+      debugPrint('[ProfileVM] Unexpected deletion error: $e');
+      debugPrint('$st');
+      return (ok: false, message: 'Something went wrong while removing your photo.');
+    } finally {
+      _set(() => uploadingImage = false);
+    }
+  }
+
   void saveProfile(BuildContext context, UserEntity user) {
     if (!(formKey.currentState?.validate() ?? false)) {
       onChange();

@@ -304,12 +304,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await batch.commit();
 
       final hasDoctorProfile = doctorDoc.exists;
+      String? imageUrl;
+      if (hasDoctorProfile) {
+        imageUrl = doctorDoc.data()?['imageUrl'] as String?;
+      } else {
+        final userDoc = await userRef.get();
+        imageUrl = userDoc.data()?['imageUrl'] as String?;
+      }
+
       return UserModel(
         uid: uid,
         name: name,
         email: email,
         role: hasDoctorProfile ? UserRole.doctor : UserRole.patient,
         hasDoctorProfile: hasDoctorProfile,
+        imageUrl: imageUrl,
       );
     } catch (e) {
       throw AuthException('Failed to update profile: ${e.toString()}');

@@ -14,6 +14,7 @@ import '../bloc/auth_state.dart';
 import '../viewmodels/profile_viewmodel.dart';
 import '../widgets/profile_widgets.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/modern_bottom_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -112,20 +113,30 @@ class _ProfilePageState extends State<ProfilePage> {
                                       child: CachedNetworkImage(
                                         imageUrl: photoUrl,
                                         fit: BoxFit.cover,
-                                        placeholder: (context, url) => const Center(
+                                        placeholder: (context, url) =>
+                                            const Center(
                                           child: CircularProgressIndicator(
                                             color: Colors.white,
                                             strokeWidth: 2,
                                           ),
                                         ),
                                         errorWidget: (context, url, error) =>
-                                            const Align(
+                                            Stack(
                                           alignment: Alignment.bottomCenter,
-                                          child: Icon(
-                                            Icons.person,
-                                            size: 88,
-                                            color: Colors.white,
-                                          ),
+                                          children: [
+                                            Container(color: AppColors.primary),
+                                            Positioned(
+                                              bottom: -6,
+                                              left: 0,
+                                              right: 0,
+                                              child: Icon(
+                                                Icons.person,
+                                                size: 74,
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.9),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -133,12 +144,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   // circle; legs are clipped below the edge.
                                   if (!hasPhoto && !_vm.uploadingImage)
                                     Positioned(
-                                      top: 10,
-                                      left: -4,
-                                      right: -4,
+                                      bottom: -14,
+                                      left: 0,
+                                      right: 0,
                                       child: Icon(
                                         Icons.person,
-                                        size: 96,
+                                        size: 74,
                                         color:
                                             Colors.white.withValues(alpha: 0.9),
                                       ),
@@ -160,15 +171,90 @@ class _ProfilePageState extends State<ProfilePage> {
                               right: 0,
                               child: InkWell(
                                 onTap: () async {
-                                  final result =
-                                      await _vm.pickAndUploadImage(context);
-                                  if (result != null && context.mounted) {
-                                    if (result.ok) {
-                                      AppFeedback.showSuccess(
-                                          context, result.message);
-                                    } else {
-                                      AppFeedback.showError(
-                                          context, result.message);
+                                  if (hasPhoto) {
+                                    final action =
+                                        await showModalBottomSheet<String>(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (ctx) => ModernBottomSheet(
+                                        title: 'Profile Photo',
+                                        subtitle: 'Manage your profile picture',
+                                        icon: Icons.face_rounded,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ListTile(
+                                              leading: const Icon(
+                                                  Icons.photo_library_rounded,
+                                                  color: AppColors.primary),
+                                              title: const Text('Change Photo',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          AppColors.primary)),
+                                              onTap: () =>
+                                                  Navigator.pop(ctx, 'change'),
+                                            ),
+                                            const Divider(
+                                                height: 1,
+                                                color: AppColors.divider),
+                                            ListTile(
+                                              leading: const Icon(
+                                                  Icons.delete_outline_rounded,
+                                                  color: AppColors.error),
+                                              title: const Text('Remove Photo',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: AppColors.error)),
+                                              onTap: () =>
+                                                  Navigator.pop(ctx, 'remove'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+
+                                    if (action == 'change' && context.mounted) {
+                                      final result =
+                                          await _vm.pickAndUploadImage(context);
+                                      if (result != null && context.mounted) {
+                                        if (result.ok) {
+                                          AppFeedback.showSuccess(
+                                              context, result.message);
+                                        } else {
+                                          AppFeedback.showError(
+                                              context, result.message);
+                                        }
+                                      }
+                                    } else if (action == 'remove' &&
+                                        context.mounted) {
+                                      final result =
+                                          await _vm.removeProfilePhoto(context);
+                                      if (context.mounted) {
+                                        if (result.ok) {
+                                          AppFeedback.showSuccess(
+                                              context, result.message);
+                                        } else {
+                                          AppFeedback.showError(
+                                              context, result.message);
+                                        }
+                                      }
+                                    }
+                                  } else {
+                                    final result =
+                                        await _vm.pickAndUploadImage(context);
+                                    if (result != null && context.mounted) {
+                                      if (result.ok) {
+                                        AppFeedback.showSuccess(
+                                            context, result.message);
+                                      } else {
+                                        AppFeedback.showError(
+                                            context, result.message);
+                                      }
                                     }
                                   }
                                 },
