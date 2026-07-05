@@ -13,6 +13,8 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import '../viewmodels/profile_viewmodel.dart';
 import '../widgets/profile_widgets.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -65,22 +67,10 @@ class _ProfilePageState extends State<ProfilePage> {
           final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
           return Scaffold(
             backgroundColor: AppColors.cardBg,
-            appBar: AppBar(
-              backgroundColor: AppColors.primary,
-              leading: context.canPop()
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white),
-                      onPressed: () => context.pop(),
-                    )
-                  : null,
-              title: const Text(
-                'Profile',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold),
-              ),
+            appBar: CustomAppBar(
+              title: 'Profile',
+              forceShowBack: true,
+              onBackPressed: () => context.go(AppRoutes.home),
               actions: [
                 if (!_vm.editing)
                   IconButton(
@@ -103,26 +93,56 @@ class _ProfilePageState extends State<ProfilePage> {
                     Center(
                       child: Stack(
                         children: [
-                          CircleAvatar(
-                            radius: 44,
-                            backgroundColor: AppColors.primary,
-                            backgroundImage:
-                                hasPhoto ? NetworkImage(photoUrl) : null,
-                            child: _vm.uploadingImage
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : (!hasPhoto)
-                                    ? Text(
-                                        user.name.isNotEmpty
-                                            ? user.name[0].toUpperCase()
-                                            : '?',
-                                        style: const TextStyle(
-                                            fontSize: 34,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      )
-                                    : null,
+                          // ── Circle avatar ──────────────────────────
+                          SizedBox(
+                            width: 88,
+                            height: 88,
+                            child: ClipOval(
+                              child: Stack(
+                                children: [
+                                  // Background colour
+                                  Container(
+                                    color: AppColors.primary,
+                                    width: 88,
+                                    height: 88,
+                                  ),
+
+                                  if (hasPhoto)
+                                    Positioned.fill(
+                                      child: Image(
+                                        image: CachedNetworkImageProvider(
+                                          photoUrl,
+                                          errorListener: (err) => debugPrint(
+                                              'Image load error: $err'),
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  // Person silhouette: head+shoulders fill the
+                                  // circle; legs are clipped below the edge.
+                                  if (!hasPhoto && !_vm.uploadingImage)
+                                    Positioned(
+                                      top: 10,
+                                      left: -4,
+                                      right: -4,
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 96,
+                                        color:
+                                            Colors.white.withValues(alpha: 0.9),
+                                      ),
+                                    ),
+                                  // Upload progress overlay
+                                  if (_vm.uploadingImage)
+                                    const Center(
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white),
+                                    ),
+                                ],
+                              ),
+                            ),
                           ),
+                          // ── Camera edit button ──────────────────────
                           if (_vm.editing)
                             Positioned(
                               bottom: 0,
@@ -467,7 +487,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             if (!deleteAccount || !context.mounted) return;
                             _vm.dispatchDeleteAccount(context);
                           } else {
-                            final confirmed = await AppFeedback.showConfirmation(
+                            final confirmed =
+                                await AppFeedback.showConfirmation(
                               context,
                               title: 'Delete Account',
                               message:

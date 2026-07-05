@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,12 +19,10 @@ import 'package:fyp/features/notifications/presentation/bloc/notification_bloc.d
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load runtime config from the gitignored .env (no-op if the file is absent).
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {}
 
-  // Initialize Firebase
   await Firebase.initializeApp(
       options: const FirebaseOptions(
           appId: '1:201017378885:android:91bb9b88ca8b98e9f47b2c',
@@ -31,8 +30,7 @@ void main() async {
           messagingSenderId: '201017378885',
           projectId: 'final-project-e6c97'));
 
-  // Initialize Supabase (used only for profile-photo storage). Skipped until
-  // real credentials are pasted into supabase_config.dart so the app still runs.
+  // Initialize Supabase (used only for profile-photo storage).
   if (SupabaseConfig.isConfigured) {
     await Supabase.initialize(
       url: SupabaseConfig.url,
@@ -41,8 +39,18 @@ void main() async {
     );
   }
 
-  // Initialize Dependency Injection
+  // Initalize Dependency Injectioni
   await di.initDependencies();
+
+  // Make the status bar transparent with white icons so it blends
+  // naturally
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
 
   runApp(const MyApp());
 }
@@ -56,7 +64,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => di.sl<AuthBloc>()),
         // Load doctors once at app start — HomePage reads this without re-fetching.
-        BlocProvider(create: (context) => di.sl<DoctorBloc>()..add(const LoadAllDoctors())),
+        BlocProvider(
+            create: (context) =>
+                di.sl<DoctorBloc>()..add(const LoadAllDoctors())),
         BlocProvider(create: (context) => di.sl<AppointmentBloc>()),
         BlocProvider(create: (context) => di.sl<NotificationBloc>()),
       ],
@@ -68,6 +78,11 @@ class MyApp extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(color: Colors.white),
             backgroundColor: AppColors.primary,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
+            ),
           ),
         ),
         routerConfig: AppRouter.router,
@@ -75,4 +90,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

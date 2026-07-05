@@ -16,6 +16,7 @@ import 'package:fyp/features/appointments/presentation/widgets/appointment_list_
 import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/appointment_auto_complete.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/appointment_reminders.dart';
+import 'package:fyp/core/widgets/custom_app_bar.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
   final bool isUser;
@@ -68,8 +69,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
     final filtered = state.appointments.where((a) {
       final s = a.effectiveStatus;
       return active
-          ? (s == AppointmentStatus.pending ||
-              s == AppointmentStatus.confirmed)
+          ? (s == AppointmentStatus.pending || s == AppointmentStatus.confirmed)
           : (s == AppointmentStatus.completed ||
               s == AppointmentStatus.cancelled);
     }).toList();
@@ -81,46 +81,37 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
     final uid = _uid;
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          'My Appointments',
-          style: TextStyle(
-              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      appBar: CustomAppBar(
+        title: 'My Appointments',
+        forceShowBack: true,
+        onBackPressed: () => context.go(AppRoutes.home),
       ),
       body: Column(
         children: [
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Container(
+              height: 48,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: AppColors.primaryLighter,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: TabBar(
                 controller: _tabController,
                 dividerColor: Colors.transparent,
                 indicator: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: Colors.white,
                 unselectedLabelColor: AppColors.primary,
-                labelStyle: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600),
-                unselectedLabelStyle: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w500),
+                labelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                unselectedLabelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'Active'),
                   Tab(text: 'History'),
@@ -202,46 +193,38 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          'Appointments',
-          style: TextStyle(
-              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      appBar: CustomAppBar(
+        title: 'Appointments',
+        forceShowBack: true,
+        onBackPressed: () => context.go(AppRoutes.home),
       ),
       body: Column(
         children: [
           // ── Modern pill-style tab bar ───────────────────────────────
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Container(
+              height: 48,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: AppColors.primaryLighter,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(26),
               ),
               child: TabBar(
                 controller: _tabController,
                 dividerColor: Colors.transparent,
                 indicator: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: Colors.white,
                 unselectedLabelColor: AppColors.primary,
-                labelStyle: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600),
-                unselectedLabelStyle: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w500),
+                labelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                unselectedLabelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'My Patients'),
                   Tab(text: 'My Visits'),
@@ -334,7 +317,8 @@ class _AppointmentListBody extends StatelessWidget {
       }
       // Fire idempotent in-app reminders for any of today's appointments, and
       // persist completion for any whose session window has ended.
-      AppointmentReminders.fireDayOf(state.appointments, currentUserId, titleOf);
+      AppointmentReminders.fireDayOf(
+          state.appointments, currentUserId, titleOf);
       AppointmentAutoComplete.run(state.appointments);
       return RefreshIndicator(
         onRefresh: () async => onRetry(),
@@ -350,8 +334,8 @@ class _AppointmentListBody extends StatelessWidget {
               isPatient: isPatient,
               status: appt.effectiveStatus,
               onTap: () async {
-                final changed =
-                    await context.push(AppRoutes.appointmentDetail, extra: appt);
+                final changed = await context.push(AppRoutes.appointmentDetail,
+                    extra: appt);
                 if (changed == true) onRetry();
               },
             );

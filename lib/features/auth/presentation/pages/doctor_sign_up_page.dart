@@ -13,6 +13,7 @@ import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import '../viewmodels/doctor_sign_up_viewmodel.dart';
+import 'package:fyp/core/widgets/custom_app_bar.dart';
 
 class DoctorSignUpPage extends StatefulWidget {
   const DoctorSignUpPage({super.key});
@@ -41,23 +42,9 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.primary,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          "Sign Up as Doctor",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: "Sign Up as Doctor",
+        onBackPressed: () => context.pop(),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) async {

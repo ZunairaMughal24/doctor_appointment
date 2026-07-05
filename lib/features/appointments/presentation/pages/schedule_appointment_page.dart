@@ -13,6 +13,7 @@ import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
 import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
 import 'package:fyp/features/appointments/presentation/widgets/schedule_widgets.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
+import 'package:fyp/core/widgets/custom_app_bar.dart';
 
 class ScheduleAppointmentPage extends StatelessWidget {
   final DoctorEntity doctor;
@@ -54,24 +55,9 @@ class _ScheduleViewState extends State<_ScheduleView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.primary,
-        titleSpacing: 4,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: Text(
-          widget.doctor.name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: widget.doctor.name,
+        onBackPressed: () => context.pop(),
       ),
       body: BlocListener<AppointmentBloc, AppointmentState>(
         listener: (context, state) {

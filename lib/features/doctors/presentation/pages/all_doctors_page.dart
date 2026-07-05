@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../bloc/doctor_bloc.dart';
 import '../bloc/doctor_event.dart';
 import '../bloc/doctor_state.dart';
 import '../viewmodels/all_doctors_view_model.dart';
 import '../widgets/doctor_list_tile.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class AllDoctorsPage extends StatefulWidget {
   final String? speciality;
@@ -33,22 +35,10 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleSpacing: 4,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: Text(
-          widget.speciality ?? 'All Specialists',
-          style: const TextStyle(
-              color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-        ),
+      appBar: CustomAppBar(
+        title: widget.speciality ?? 'All Specialists',
+        forceShowBack: true,
+        onBackPressed: () => context.go(AppRoutes.home),
       ),
       body: BlocBuilder<DoctorBloc, DoctorState>(
         builder: (context, state) {

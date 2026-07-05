@@ -9,6 +9,7 @@ import '../../domain/entities/appointment_entity.dart';
 import '../viewmodels/appointment_detail_viewmodel.dart';
 import '../widgets/appointment_detail_widgets.dart';
 import '../widgets/rating_bottom_sheet.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class AppointmentDetailPage extends StatefulWidget {
   final AppointmentEntity appointment;
@@ -63,24 +64,9 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.cardBg,
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          backgroundColor: AppColors.primary,
-          titleSpacing: 4,
-          leading: Navigator.of(context).canPop()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(_vm.changed),
-                )
-              : null,
-          title: const Text(
-            'Appointment',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        appBar: CustomAppBar(
+          title: 'Appointment',
+          onBackPressed: () => Navigator.of(context).pop(_vm.changed),
         ),
         body: SafeArea(
           child: Center(

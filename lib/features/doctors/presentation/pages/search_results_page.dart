@@ -11,6 +11,7 @@ import '../bloc/doctor_event.dart';
 import '../bloc/doctor_state.dart';
 import '../viewmodels/search_results_viewmodel.dart';
 import '../widgets/doctor_card.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class SearchResultsPage extends StatelessWidget {
   final String initialQuery;
@@ -61,16 +62,9 @@ class _SearchViewState extends State<_SearchView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: TextField(
+      appBar: CustomAppBar(
+        onBackPressed: () => context.pop(),
+        titleWidget: TextField(
           controller: _vm.controller,
           autofocus: true,
           style: const TextStyle(color: Colors.white),

@@ -11,6 +11,8 @@ import '../../domain/entities/doctor_entity.dart';
 import '../../domain/entities/weekly_availability.dart';
 import '../viewmodels/doctor_detail_viewmodel.dart';
 import '../widgets/doctor_reviews.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DoctorDetailPage extends StatefulWidget {
   final String docId;
@@ -43,15 +45,9 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
   Widget build(BuildContext context) {
     if (widget.doctor == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text("Detail"),
-          leading: context.canPop()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white),
-                  onPressed: () => context.pop(),
-                )
-              : null,
+        appBar: CustomAppBar(
+          title: "Detail",
+          onBackPressed: () => context.pop(),
         ),
         body: const Center(child: Text("Doctor details not found")),
       );
@@ -61,25 +57,9 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.primary,
-        titleSpacing: 4,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          'Doctor Details',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: 'Doctor Details',
+        onBackPressed: () => context.pop(),
       ),
       body: Center(
         child: Padding(
@@ -101,7 +81,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                           backgroundColor: AppColors.primaryLight,
                           backgroundImage: (data.imageUrl != null &&
                                   data.imageUrl!.isNotEmpty)
-                              ? NetworkImage(data.imageUrl!)
+                              ? CachedNetworkImageProvider(data.imageUrl!, errorListener: (err) => debugPrint('Image load error: $err'))
                               : AssetImage(AppAssets.avatarForDoctor(data.id))
                                   as ImageProvider,
                         ),

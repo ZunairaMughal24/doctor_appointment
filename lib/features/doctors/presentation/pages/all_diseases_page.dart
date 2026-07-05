@@ -5,6 +5,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_container.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class AllDiseasesPage extends StatelessWidget {
   const AllDiseasesPage({super.key});
@@ -52,22 +53,9 @@ class AllDiseasesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.primary,
-        titleSpacing: 4,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          'Browse by Specialty',
-          style: TextStyle(
-              color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
-        ),
+      appBar: CustomAppBar(
+        title: 'Browse by Specialty',
+        onBackPressed: () => context.pop(),
       ),
       body: Padding(
         padding: const EdgeInsets.all(14),

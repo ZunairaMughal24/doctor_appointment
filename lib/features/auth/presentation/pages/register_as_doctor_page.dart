@@ -15,6 +15,7 @@ import '../../../doctors/presentation/bloc/doctor_event.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import '../viewmodels/register_as_doctor_viewmodel.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class RegisterAsDoctorPage extends StatefulWidget {
   final String uid;
@@ -66,24 +67,9 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.cardBg,
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          iconTheme: const IconThemeData(color: Colors.white),
-          titleSpacing: 4,
-          leading: context.canPop()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                  onPressed: () => context.pop(),
-                )
-              : null,
-          title: const Text(
-            'Register as Doctor',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        appBar: CustomAppBar(
+          title: 'Register as Doctor',
+          onBackPressed: () => context.pop(),
         ),
         body: Form(
           key: _vm.formKey,

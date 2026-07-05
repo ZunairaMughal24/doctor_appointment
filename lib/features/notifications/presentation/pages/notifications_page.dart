@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_loader.dart';
 import '../../domain/entities/notification_entity.dart';
 import '../bloc/notification_bloc.dart';
 import '../viewmodels/notifications_viewmodel.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 
 /// In-app notification centre. Reads from the shared [NotificationBloc] and
 /// lets the user tap a notification to mark it read (or mark all at once).
@@ -30,21 +31,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.primary,
-        titleSpacing: 4,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
-              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      appBar: CustomAppBar(
+        title: 'Notifications',
+        onBackPressed: () => context.pop(),
       ),
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
