@@ -448,11 +448,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ],
                               ),
                             ),
-                            Switch(
-                              value: user.isDoctor,
-                              activeThumbColor: AppColors.primary,
-                              onChanged: (_) => _vm.switchRole(context, user),
-                            ),
+                            Transform.scale(
+                              scale:
+                                  0.8, // Adjust this value (e.g., 0.7 to 0.9) to change the size
+                              child: Switch(
+                                value: user.isDoctor,
+                                activeColor: AppColors.primary,
+                                activeTrackColor:
+                                    AppColors.primary.withOpacity(0.5),
+                                inactiveThumbColor: AppColors.primary,
+                                inactiveTrackColor:
+                                    AppColors.primary.withOpacity(0.2),
+                                onChanged: (_) => _vm.switchRole(context, user),
+                              ),
+                            )
                           ],
                         ),
                       ),

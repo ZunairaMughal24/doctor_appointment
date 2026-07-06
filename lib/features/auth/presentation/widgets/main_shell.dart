@@ -126,13 +126,13 @@ class _PremiumNavBar extends StatelessWidget {
             bottom: MediaQuery.of(context).viewPadding.bottom,
           ),
           child: SizedBox(
-            height: 68,
+            height: 65,
             child: Row(
               children: [
                 _NavTab(
                   index: 0,
                   currentIndex: currentIndex,
-                  icon: Icons.cottage_outlined,
+                  icon: Icons.cottage_rounded,
                   activeIcon: Icons.cottage_rounded,
                   label: 'Home',
                   onTap: onTap,
@@ -140,7 +140,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 1,
                   currentIndex: currentIndex,
-                  icon: Icons.calendar_month_outlined,
+                  icon: Icons.calendar_month_rounded,
                   activeIcon: Icons.calendar_month_rounded,
                   label: apptLabel,
                   onTap: onTap,
@@ -148,7 +148,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 2,
                   currentIndex: currentIndex,
-                  icon: Icons.medical_services_outlined,
+                  icon: Icons.medical_services_rounded,
                   activeIcon: Icons.medical_services_rounded,
                   label: 'Doctors',
                   onTap: onTap,
@@ -156,7 +156,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 3,
                   currentIndex: currentIndex,
-                  icon: Icons.manage_accounts_outlined,
+                  icon: Icons.manage_accounts_rounded,
                   activeIcon: Icons.manage_accounts_rounded,
                   label: 'Profile',
                   onTap: onTap,
@@ -231,18 +231,16 @@ class _NavTab extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             // Label — always visible
             Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 10.5,
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w500,
-                color:
-                    isSelected ? AppColors.primary : AppColors.navUnselected,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected ? AppColors.primary : AppColors.navUnselected,
                 letterSpacing: 0.1,
               ),
             ),

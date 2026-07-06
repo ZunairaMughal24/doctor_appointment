@@ -35,8 +35,8 @@ class DoctorListTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8),
               child: Container(
-                width: 100,
-                height: 100,
+                width: 90,
+                height: 90,
                 decoration: const BoxDecoration(
                   color: Color.fromARGB(255, 255, 255, 255),
                   shape: BoxShape.circle,
