@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 
@@ -40,26 +41,49 @@ class DoctorHomeHeader extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            '${_greeting()},',
-            style: const TextStyle(color: Colors.white70, fontSize: 15),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            name.isNotEmpty ? 'Dr. ${name.split(' ').first}' : 'Doctor',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.6),
+                width: 2,
+              ),
+            ),
+            child: const CircleAvatar(
+              radius: 24,
+              backgroundColor: Colors.white,
+              backgroundImage: AssetImage(AppAssets.appLogo),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            '$weekday, ${now.day} ${months[now.month - 1]} ${now.year}',
-            style: const TextStyle(color: Colors.white60, fontSize: 13),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${_greeting()},',
+                  style: const TextStyle(color: Colors.white70, fontSize: 15),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  name.isNotEmpty ? 'Dr. ${name.split(' ').first}' : 'Doctor',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$weekday, ${now.day} ${months[now.month - 1]} ${now.year}',
+                  style: const TextStyle(color: Colors.white60, fontSize: 13),
+                ),
+              ],
+            ),
           ),
         ],
       ),
