@@ -246,7 +246,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                     builder: (context, state) => _AppointmentListBody(
                       state: state,
                       titleOf: (a) => a.patientName,
-                      isPatient: true,
+                      isPatient: false,
                       currentUserId: _uid,
                       emptyMessage: 'No patients yet',
                       emptyIcon: Icons.people_outline,
@@ -263,6 +263,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                     builder: (context, state) => _AppointmentListBody(
                       state: state,
                       titleOf: (a) => a.doctorName,
+                      isPatient: true,
                       currentUserId: _uid,
                       emptyMessage: 'No personal visits yet',
                       emptyIcon: Icons.calendar_today_outlined,

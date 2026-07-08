@@ -83,16 +83,20 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                           radius: 38,
                           backgroundColor: AppColors.primaryLight,
                           child: Icon(
-                            isVideo
-                                ? Icons.videocam_rounded
-                                : Icons.medical_services_outlined,
+                            _vm.isDoctorViewer
+                                ? Icons.person_rounded
+                                : (isVideo
+                                    ? Icons.videocam_rounded
+                                    : Icons.medical_services_outlined),
                             color: AppColors.primary,
                             size: 36,
                           ),
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          _vm.appointment.doctorName,
+                          _vm.isDoctorViewer
+                              ? _vm.appointment.patientName
+                              : _vm.appointment.doctorName,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 20,

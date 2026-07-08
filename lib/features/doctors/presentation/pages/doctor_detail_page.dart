@@ -294,7 +294,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                           reviews: _vm.reviews,
                           loading: _vm.reviewsLoading,
                           rating: data.rating,
-                          limit: 3,
+                          limit: 2,
                           onSeeAll: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => DoctorReviewsPage(

@@ -16,6 +16,7 @@ import '../widgets/profile_widgets.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/modern_bottom_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../features/doctors/presentation/pages/doctor_reviews_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -398,12 +399,56 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (user.isDoctor && !_vm.editing) ...[
                       const SizedBox(height: 28),
-                      _sectionHeader('My Ratings'),
-                      const SizedBox(height: 12),
-                      ProfileDoctorRatingsSection(
-                        reviews: _vm.reviews,
-                        loading: _vm.reviewsLoading,
-                        overallRating: _vm.doctorEntity?.rating ?? 0,
+                      _sectionHeader('Ratings & Reviews'),
+                      const SizedBox(height: 10),
+                      _card(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            backgroundColor: AppColors.primaryLight,
+                            child: Icon(
+                              Icons.star_rounded,
+                              color: Colors.amber,
+                            ),
+                          ),
+                          title: const Text(
+                            'My Reviews',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          subtitle: Text(
+                            _vm.reviewsLoading
+                                ? 'Loading ratings...'
+                                : _vm.reviews.isEmpty
+                                    ? 'No reviews yet'
+                                    : '${(_vm.doctorEntity?.rating ?? 0.0).toStringAsFixed(1)} ★ (${_vm.reviews.length} reviews)',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
+                          onTap: _vm.reviewsLoading
+                              ? null
+                              : () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => DoctorReviewsPage(
+                                        doctorName: user.name,
+                                        reviews: _vm.reviews,
+                                        rating: _vm.doctorEntity?.rating ?? 0.0,
+                                      ),
+                                    ),
+                                  );
+                                },
+                        ),
                       ),
                     ],
 
