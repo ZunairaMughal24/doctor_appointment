@@ -21,6 +21,7 @@ class DoctorHomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = MediaQuery.of(context).viewPadding.top;
     final now = DateTime.now();
     final weekday = [
       'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -33,12 +34,12 @@ class DoctorHomeHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
+      padding: EdgeInsets.fromLTRB(16, topInset + 12, 16, 24),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        gradient: AppColors.headerVerticalGradientAlt,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(14),
         ),
       ),
       child: Row(
