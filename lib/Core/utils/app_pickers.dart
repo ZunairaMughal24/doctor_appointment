@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_colors.dart';
 
 /// Centralises all system picker calls so pages never hard-code
 /// theme overrides, date ranges, or picker config.

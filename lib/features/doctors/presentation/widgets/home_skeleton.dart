@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/widgets/skeleton_loader.dart';
-import 'package:fyp/features/doctors/presentation/widgets/home_sections.dart'
+import 'package:medic/core/widgets/skeleton_loader.dart';
+import 'package:medic/features/doctors/presentation/widgets/home_sections.dart'
     show kHomeHorizontalPadding;
 
 /// Static skeleton for the home screen, shown while doctors load.

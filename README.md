@@ -40,7 +40,7 @@ The application is built strictly around Clean Architecture guidelines, separati
 ```
 
 ### Architectural Decisions
-- **State Management**: Implemented using `flutter_bloc` and `bloc_concurrency`. Blocs decouple the presentation logic from business use cases.
+- **State Management**: Implemented using `flutter_bloc` and `bloc_concurrency`. Blocs decouple the presentation logic from business use cases. One exception by design: `CurrentSession` (`core/session/`) is a small `ChangeNotifier` backed by `AuthBloc`, exposed via `provider`'s `ChangeNotifierProvider`, so any feature can ask "who's signed in" without importing `AuthBloc`/`AuthState` directly — this keeps auth internals from leaking across feature boundaries.
 - **Dependency Injection**: Orchestrated via `get_it` for lazy-singleton registration of data sources, repositories, use cases, and factories for blocs.
 - **Declarative Navigation**: Managed using `go_router` with shell routes to host persistent bottom navigation bars.
 - **Functional Error Handling**: Leverages the `dartz` library to return functional `Either<Failure, Success>` types from the repository layer, avoiding unhandled runtime exceptions.
@@ -55,6 +55,8 @@ lib/
 │   ├── errors/       # Exception and Failure classifications
 │   ├── router/       # GoRouter path mappings and route definitions
 │   ├── services/     # Core services (Image Validation, etc.)
+│   ├── session/      # CurrentSession — read-only "who's logged in" contract, so
+│   │                 #   features besides auth never import AuthBloc directly
 │   ├── theme/        # Base Material 3 colors and ThemeData configs
 │   ├── usecases/     # Domain use case abstractions
 │   ├── utils/        # Generic developer helpers

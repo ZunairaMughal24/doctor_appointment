@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/widgets/confirmation_bottom_sheet.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/widgets/confirmation_bottom_sheet.dart';
 
 /// Central utility for all user-facing feedback: toasts and confirmations.
 /// Never use raw SnackBar or AlertDialog directly in pages — use this instead.

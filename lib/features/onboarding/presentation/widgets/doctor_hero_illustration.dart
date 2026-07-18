@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/utils/app_animations.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/utils/app_animations.dart';
 
 /// Composed onboarding/welcome illustration: one large doctor portrait in an
 /// oval, with small floating doctor circles arranged around it.

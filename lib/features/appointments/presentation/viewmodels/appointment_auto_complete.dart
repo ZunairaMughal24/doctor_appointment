@@ -1,6 +1,6 @@
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/appointments/domain/usecases/update_appointment_status_usecase.dart';
+import 'package:medic/core/di/injection_container.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/appointments/domain/usecases/update_appointment_status_usecase.dart';
 
 /// Persists `completed` for confirmed appointments whose session window has
 /// ended. The UI already reflects this immediately via

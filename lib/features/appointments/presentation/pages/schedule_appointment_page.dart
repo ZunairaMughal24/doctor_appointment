@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/session/current_session.dart';
-import 'package:fyp/core/utils/app_feedback.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
-import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
-import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
-import 'package:fyp/features/appointments/presentation/widgets/schedule_widgets.dart';
-import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
-import 'package:fyp/core/widgets/custom_app_bar.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/di/injection_container.dart';
+import 'package:medic/core/router/app_router.dart';
+import 'package:medic/core/session/current_session.dart';
+import 'package:medic/core/utils/app_feedback.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_state.dart';
+import 'package:medic/features/appointments/presentation/cubit/slots_cubit.dart';
+import 'package:medic/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
+import 'package:medic/features/appointments/presentation/widgets/schedule_widgets.dart';
+import 'package:medic/features/doctors/domain/entities/doctor_entity.dart';
+import 'package:medic/core/widgets/custom_app_bar.dart';
 
 class ScheduleAppointmentPage extends StatelessWidget {
   final DoctorEntity doctor;

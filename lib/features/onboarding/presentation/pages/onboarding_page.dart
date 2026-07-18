@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:fyp/core/constants/app_assets.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/features/onboarding/presentation/viewmodels/onboarding_viewmodel.dart';
-import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
-import 'package:fyp/features/onboarding/presentation/widgets/onboarding_arts.dart';
+import 'package:medic/core/constants/app_assets.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/router/app_router.dart';
+import 'package:medic/features/onboarding/presentation/viewmodels/onboarding_viewmodel.dart';
+import 'package:medic/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
+import 'package:medic/features/onboarding/presentation/widgets/onboarding_arts.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});

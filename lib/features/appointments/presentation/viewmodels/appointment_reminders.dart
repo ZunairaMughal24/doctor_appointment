@@ -1,6 +1,6 @@
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/notifications/domain/usecases/create_reminder_usecase.dart';
+import 'package:medic/core/di/injection_container.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/notifications/domain/usecases/create_reminder_usecase.dart';
 
 /// Fires idempotent day-of reminder notifications for today's appointments,
 /// keeping this business logic out of the appointments UI.

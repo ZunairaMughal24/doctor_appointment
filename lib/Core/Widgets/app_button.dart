@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
 
 /// Shared app button used across every screen for visual consistency.
 ///

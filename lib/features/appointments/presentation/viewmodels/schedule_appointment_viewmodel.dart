@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fyp/core/session/current_session.dart';
-import 'package:fyp/core/utils/app_pickers.dart';
-import 'package:fyp/core/utils/validators.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
-import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
-import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
+import 'package:medic/core/session/current_session.dart';
+import 'package:medic/core/utils/app_pickers.dart';
+import 'package:medic/core/utils/validators.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_event.dart';
+import 'package:medic/features/appointments/presentation/cubit/slots_cubit.dart';
+import 'package:medic/features/doctors/domain/entities/doctor_entity.dart';
 
 /// Holds all non-UI state/logic for the schedule-appointment form.
 /// The page mutates this via setState and reads it during build.

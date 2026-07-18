@@ -7,19 +7,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
-import 'package:fyp/core/config/firebase_config.dart';
-import 'package:fyp/core/config/supabase_config.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/di/injection_container.dart' as di;
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/session/current_session.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
-import 'package:fyp/features/auth/presentation/session/auth_current_session.dart';
-import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
-import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
-import 'package:fyp/features/notifications/presentation/bloc/notification_bloc.dart';
+import 'package:medic/core/config/firebase_config.dart';
+import 'package:medic/core/config/supabase_config.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/di/injection_container.dart' as di;
+import 'package:medic/core/router/app_router.dart';
+import 'package:medic/core/session/current_session.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:medic/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:medic/features/auth/presentation/bloc/auth_state.dart';
+import 'package:medic/features/auth/presentation/session/auth_current_session.dart';
+import 'package:medic/features/doctors/presentation/bloc/doctor_bloc.dart';
+import 'package:medic/features/doctors/presentation/bloc/doctor_event.dart';
+import 'package:medic/features/notifications/presentation/bloc/notification_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

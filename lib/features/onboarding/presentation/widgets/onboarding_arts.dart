@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/utils/app_animations.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/utils/app_animations.dart';
 
 // ── Slide 3: "Manage your care" — overlapping patient/doctor mode cards ───────
 

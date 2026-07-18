@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/features/doctors/domain/entities/weekly_availability.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/features/doctors/domain/entities/weekly_availability.dart';
 
 /// A form widget that lets a doctor set their weekly schedule.
 /// Shows Mon–Sun toggles; each enabled day gets from/to time pickers.

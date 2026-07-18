@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/widgets/app_text_field.dart';
-import 'package:fyp/core/widgets/modern_bottom_sheet.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/widgets/app_text_field.dart';
+import 'package:medic/core/widgets/modern_bottom_sheet.dart';
 
 /// Editable field with a dropdown picker. The field itself is a full
 /// [AppTextField] (so it looks identical to every other input and stays

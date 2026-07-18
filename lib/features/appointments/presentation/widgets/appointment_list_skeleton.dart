@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fyp/core/widgets/skeleton_loader.dart';
+import 'package:medic/core/widgets/skeleton_loader.dart';
 
 /// Static skeleton for an appointments list, shown while data loads.
 /// Each row matches the footprint of [AppointmentTile].

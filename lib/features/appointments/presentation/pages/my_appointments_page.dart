@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/di/injection_container.dart';
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/core/session/current_session.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
-import 'package:fyp/features/appointments/presentation/bloc/appointment_state.dart';
-import 'package:fyp/features/appointments/presentation/widgets/appointment_list_skeleton.dart';
-import 'package:fyp/features/appointments/presentation/widgets/appointment_tile.dart';
-import 'package:fyp/features/appointments/presentation/viewmodels/appointment_auto_complete.dart';
-import 'package:fyp/features/appointments/presentation/viewmodels/appointment_reminders.dart';
-import 'package:fyp/core/widgets/custom_app_bar.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/di/injection_container.dart';
+import 'package:medic/core/router/app_router.dart';
+import 'package:medic/core/session/current_session.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_bloc.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_event.dart';
+import 'package:medic/features/appointments/presentation/bloc/appointment_state.dart';
+import 'package:medic/features/appointments/presentation/widgets/appointment_list_skeleton.dart';
+import 'package:medic/features/appointments/presentation/widgets/appointment_tile.dart';
+import 'package:medic/features/appointments/presentation/viewmodels/appointment_auto_complete.dart';
+import 'package:medic/features/appointments/presentation/viewmodels/appointment_reminders.dart';
+import 'package:medic/core/widgets/custom_app_bar.dart';
 
 class MyAppointmentsPage extends StatelessWidget {
   final bool isUser;

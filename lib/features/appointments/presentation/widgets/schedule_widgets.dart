@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fyp/core/constants/app_colors.dart';
-import 'package:fyp/core/constants/app_text_styles.dart';
-import 'package:fyp/core/widgets/app_button.dart';
-import 'package:fyp/core/widgets/app_loader.dart';
-import 'package:fyp/core/widgets/app_text_field.dart';
-import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
-import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
-import 'package:fyp/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
-import 'package:fyp/features/doctors/domain/entities/weekly_availability.dart';
+import 'package:medic/core/constants/app_colors.dart';
+import 'package:medic/core/constants/app_text_styles.dart';
+import 'package:medic/core/widgets/app_button.dart';
+import 'package:medic/core/widgets/app_loader.dart';
+import 'package:medic/core/widgets/app_text_field.dart';
+import 'package:medic/features/appointments/domain/entities/appointment_entity.dart';
+import 'package:medic/features/appointments/presentation/cubit/slots_cubit.dart';
+import 'package:medic/features/appointments/presentation/viewmodels/schedule_appointment_viewmodel.dart';
+import 'package:medic/features/doctors/domain/entities/weekly_availability.dart';
 
 class ScheduleSlotsArea extends StatelessWidget {
   final ScheduleAppointmentViewModel vm;

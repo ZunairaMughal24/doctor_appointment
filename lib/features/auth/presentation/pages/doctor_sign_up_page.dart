@@ -9,11 +9,11 @@ import '../../../../core/widgets/app_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:medic/core/router/app_router.dart';
+import 'package:medic/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:medic/features/auth/presentation/bloc/auth_state.dart';
 import '../viewmodels/doctor_sign_up_viewmodel.dart';
-import 'package:fyp/core/widgets/custom_app_bar.dart';
+import 'package:medic/core/widgets/custom_app_bar.dart';
 
 class DoctorSignUpPage extends StatefulWidget {
   const DoctorSignUpPage({super.key});
