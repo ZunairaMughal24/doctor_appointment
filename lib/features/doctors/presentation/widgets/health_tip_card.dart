@@ -48,8 +48,11 @@ class HealthTipCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.lightbulb_rounded,
-                          size: 13, color: AppColors.primary),
+                      Icon(
+                        Icons.lightbulb_rounded,
+                        size: 13,
+                        color: Colors.amber,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'DAILY WELLNESS INSIGHT',
@@ -57,7 +60,7 @@ class HealthTipCard extends StatelessWidget {
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
-                          color: AppColors.primary.withValues(alpha: 0.8),
+                          color: AppColors.textRed,
                         ),
                       ),
                     ],

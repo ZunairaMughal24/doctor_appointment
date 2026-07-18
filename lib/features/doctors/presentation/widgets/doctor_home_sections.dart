@@ -26,12 +26,27 @@ class DoctorHomeHeader extends StatelessWidget {
     final topInset = MediaQuery.of(context).viewPadding.top;
     final now = DateTime.now();
     final weekday = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-      'Friday', 'Saturday', 'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
     ][now.weekday - 1];
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
 
     return Container(
@@ -69,7 +84,8 @@ class DoctorHomeHeader extends StatelessWidget {
               children: [
                 Text(
                   '${_greeting()},',
-                  style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
+                  style:
+                      AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -129,7 +145,7 @@ class DoctorStatsStrip extends StatelessWidget {
           _StatCell(
             value: '$pending',
             label: 'Pending',
-            color: AppColors.warning,
+            color: AppColors.error,
             icon: Icons.schedule_rounded,
           ),
           const _VerticalDivider(),
@@ -237,24 +253,6 @@ class DoctorDashboardSection extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              if (count > 0) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLighter,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ],
               const Spacer(),
               if (count > 0)
                 TextButton(
@@ -275,7 +273,8 @@ class DoctorDashboardSection extends StatelessWidget {
           if (appointments.isEmpty)
             _EmptyCard(message: emptyMessage, icon: emptyIcon)
           else
-            ...appointments.map((a) => DoctorDashboardAppointmentCard(appointment: a)),
+            ...appointments
+                .map((a) => DoctorDashboardAppointmentCard(appointment: a)),
         ],
       ),
     );
@@ -293,14 +292,16 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = appointment.effectiveStatus;
     final (Color color, IconData icon) = switch (status) {
-      AppointmentStatus.pending =>
-        (AppColors.warning, Icons.schedule_rounded),
-      AppointmentStatus.confirmed =>
-        (AppColors.success, Icons.check_circle_rounded),
-      AppointmentStatus.completed =>
-        (AppColors.primary, Icons.task_alt_rounded),
-      AppointmentStatus.cancelled =>
-        (AppColors.error, Icons.cancel_rounded),
+      AppointmentStatus.pending => (AppColors.warning, Icons.schedule_rounded),
+      AppointmentStatus.confirmed => (
+          AppColors.success,
+          Icons.check_circle_rounded
+        ),
+      AppointmentStatus.completed => (
+          AppColors.primary,
+          Icons.task_alt_rounded
+        ),
+      AppointmentStatus.cancelled => (AppColors.error, Icons.cancel_rounded),
     };
 
     return Container(
@@ -363,8 +364,7 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
@@ -409,8 +409,8 @@ class _EmptyCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             message,
-            style: AppTextStyles.label
-                .copyWith(fontWeight: FontWeight.normal, color: AppColors.textSecondary),
+            style: AppTextStyles.label.copyWith(
+                fontWeight: FontWeight.normal, color: AppColors.textSecondary),
           ),
         ],
       ),
