@@ -78,6 +78,7 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
             itemCount: 5,
             itemSize: 46,
             itemPadding: const EdgeInsets.symmetric(horizontal: 5),
+            unratedColor: AppColors.divider,
             itemBuilder: (_, __) =>
                 const Icon(Icons.star_rounded, color: Colors.amber),
             onRatingUpdate: (r) => setState(() => _rating = r.toInt()),
@@ -91,7 +92,7 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
             decoration: InputDecoration(
               hintText: 'Add a comment (optional)',
               filled: true,
-              fillColor: AppColors.cardBg,
+              fillColor: AppColors.primaryLighter.withValues(alpha: 0.6),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -108,11 +109,16 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _rating == 0 ? null : _submit,
+              onPressed: _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: AppColors.divider,
+                backgroundColor:
+                    _rating == 0 ? Colors.white : AppColors.primary,
+                foregroundColor:
+                    _rating == 0 ? AppColors.primary : Colors.white,
+                elevation: _rating == 0 ? 0 : 2,
+                side: _rating == 0
+                    ? const BorderSide(color: AppColors.primary, width: 1.4)
+                    : BorderSide.none,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -121,7 +127,9 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
               child: Text(
                 'Submit Rating',
                 style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold),
+                  fontWeight: FontWeight.bold,
+                  color: _rating == 0 ? AppColors.primary : Colors.white,
+                ),
               ),
             ),
           ),
