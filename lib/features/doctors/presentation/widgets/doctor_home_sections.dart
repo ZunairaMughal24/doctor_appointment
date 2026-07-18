@@ -6,6 +6,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
+import '../../domain/entities/weekly_availability.dart';
 
 // ── Header ────────────────────────────────────────────────────────────────────
 
@@ -331,6 +332,8 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                   children: [
                     Text(
                       appointment.patientName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
@@ -338,16 +341,24 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      [
-                        appointment.appointmentDay,
-                        appointment.appointmentDate,
-                        if (appointment.appointmentTime.isNotEmpty)
-                          appointment.appointmentTime,
-                      ].join('  ·  '),
+                      '${appointment.appointmentDay}  ·  ${appointment.appointmentDate}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
+                    if (appointment.appointmentTime.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        WeeklyAvailability.to12h(appointment.appointmentTime),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
