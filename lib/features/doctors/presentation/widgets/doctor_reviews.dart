@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 
 class DoctorReviewsSection extends StatelessWidget {
@@ -29,12 +30,11 @@ class DoctorReviewsSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
+            Text(
               'Patient Reviews',
-              style: TextStyle(
+              style: AppTextStyles.h4.copyWith(
                 color: AppColors.primary,
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(width: 8),
@@ -43,8 +43,7 @@ class DoctorReviewsSection extends StatelessWidget {
               const SizedBox(width: 2),
               Text(
                 rating.toStringAsFixed(1),
-                style: const TextStyle(
-                  fontSize: 14,
+                style: AppTextStyles.body.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -65,11 +64,12 @@ class DoctorReviewsSection extends StatelessWidget {
             ),
           )
         else if (reviews.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               'No reviews yet.',
-              style: TextStyle(fontSize: 13, color: AppColors.textHint),
+              style: AppTextStyles.label
+                  .copyWith(fontWeight: FontWeight.normal, color: AppColors.textHint),
             ),
           )
         else
@@ -98,7 +98,7 @@ class DoctorReviewsSection extends StatelessWidget {
                       : hasMore
                           ? 'See All ${reviews.length} Reviews'
                           : 'See All Reviews',
-                  style: const TextStyle(
+                  style: AppTextStyles.label.copyWith(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -136,7 +136,7 @@ class DoctorReviewCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   review.patientName,
-                  style: const TextStyle(
+                  style: AppTextStyles.label.copyWith(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
@@ -160,16 +160,15 @@ class DoctorReviewCard extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               review.ratingComment,
-              style:
-                  const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              style: AppTextStyles.label.copyWith(
+                  fontWeight: FontWeight.normal, color: AppColors.textSecondary),
             ),
           ],
           if (review.createdAt != null) ...[
             const SizedBox(height: 4),
             Text(
               _formatDate(review.createdAt!),
-              style:
-                  const TextStyle(fontSize: 11, color: AppColors.textHint),
+              style: AppTextStyles.caption,
             ),
           ],
         ],

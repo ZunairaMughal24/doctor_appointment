@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/core/widgets/app_button.dart';
 import 'package:fyp/core/widgets/app_loader.dart';
 import 'package:fyp/core/widgets/app_text_field.dart';
@@ -108,7 +109,7 @@ class ScheduleSlotChip extends StatelessWidget {
             ),
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.label.copyWith(
                 color: fg,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
@@ -188,10 +189,9 @@ class ConsultationTypeOption extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.label.copyWith(
                   color: active ? Colors.white : AppColors.primary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
                 ),
               ),
             ],
@@ -212,9 +212,8 @@ class ScheduleSectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, top: 14, bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
+        style: AppTextStyles.bodyLarge.copyWith(
           color: AppColors.primary,
-          fontSize: 15,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -235,15 +234,16 @@ class VideoConsultationNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primaryLight),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
-          SizedBox(width: 8),
+          const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               "You'll connect via WhatsApp video at your booked time. "
               'Start it from the appointment in "My Appointments".',
-              style: TextStyle(
+              style: AppTextStyles.label.copyWith(
+                fontWeight: FontWeight.normal,
                 color: AppColors.textSecondary,
                 fontSize: 12.5,
                 height: 1.4,
@@ -271,7 +271,8 @@ class ScheduleHint extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        style: AppTextStyles.label.copyWith(
+            fontWeight: FontWeight.normal, color: AppColors.textSecondary),
       ),
     );
   }
@@ -308,8 +309,7 @@ class ScheduleDateSelector extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTextStyles.body.copyWith(
                   color: isPlaceholder ? AppColors.textHint : AppColors.textPrimary,
                   fontWeight: isPlaceholder ? FontWeight.normal : FontWeight.w600,
                 ),

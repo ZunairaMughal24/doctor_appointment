@@ -1,5 +1,5 @@
 import '../../domain/entities/doctor_entity.dart';
-import '../../domain/entities/weekly_availability.dart';
+import 'weekly_availability_mapper.dart';
 
 class DoctorModel extends DoctorEntity {
   const DoctorModel({
@@ -29,7 +29,7 @@ class DoctorModel extends DoctorEntity {
       location: data['location'] ?? '',
       availability: data['availability'] ?? '',
       services: data['services'] ?? '',
-      schedule: WeeklyAvailability.fromMap(
+      schedule: weeklyAvailabilityFromFirestoreMap(
         // 'schedule' is the current key; fall back to the legacy 'weeklySchedule'
         // key that was used before the naming fix.
         ((data['schedule'] ?? data['weeklySchedule']) as Map?)
@@ -49,7 +49,7 @@ class DoctorModel extends DoctorEntity {
         'number': phoneNumber,
         'location': location,
         'availability': availability,
-        'schedule': schedule.toMap(),
+        'schedule': schedule.toFirestoreMap(),
         'services': services,
         'description': description,
         'rating': rating,

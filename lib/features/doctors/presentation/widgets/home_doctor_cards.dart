@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 
 // ── Featured doctor card (horizontal carousel, gradient background) ───────────
@@ -31,27 +32,24 @@ class DoctorCardFeatured extends StatelessWidget {
           Text(name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 15,
+              style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold)),
           Text(speciality,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 13,
+              style: AppTextStyles.label.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Colors.white70)),
           const SizedBox(height: 4),
           DoctorAvailabilityBadge(availability: availability, lightText: true),
           _StarRow(
               rating: rating, color: Colors.yellow, textColor: Colors.white70),
-          const Row(children: [
-            Icon(Icons.call, size: 15, color: Colors.white),
-            SizedBox(width: 5),
+          Row(children: [
+            const Icon(Icons.call, size: 15, color: Colors.white),
+            const SizedBox(width: 5),
             Text('Contact',
-                style: TextStyle(
-                    fontSize: 12,
+                style: AppTextStyles.bodySmall.copyWith(
                     fontStyle: FontStyle.italic,
                     color: Colors.white)),
           ]),
@@ -64,10 +62,9 @@ class DoctorCardFeatured extends StatelessWidget {
               border: Border.all(color: AppColors.inputBorder),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: const Center(
+            child: Center(
               child: Text('Approach me',
-                  style: TextStyle(
-                      fontSize: 12,
+                  style: AppTextStyles.bodySmall.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryDark)),
             ),
@@ -113,15 +110,14 @@ class DoctorCardAvailable extends StatelessWidget {
                 Text(name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 14,
+                    style: AppTextStyles.body.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold)),
                 Text(speciality,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textRed)),
+                    style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textRed)),
                 const SizedBox(height: 3),
                 SizedBox(
                   width: double.maxFinite,
@@ -139,7 +135,7 @@ class DoctorCardAvailable extends StatelessWidget {
                   child: Text(experience,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
@@ -162,11 +158,11 @@ class DoctorCardAvailable extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text('Book now',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: AppTextStyles.caption.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.white)),
@@ -204,14 +200,13 @@ class DoctorCardCompact extends StatelessWidget {
         Text(name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                fontSize: 13,
+            style: AppTextStyles.label.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold)),
         Text(speciality,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: AppColors.textRed, fontSize: 12)),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textRed)),
         const SizedBox(height: 3),
         _StarRow(
             rating: rating,
@@ -257,8 +252,7 @@ class DoctorAvailabilityBadge extends StatelessWidget {
             availability.isNotEmpty ? availability : 'Not available',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 11,
+            style: AppTextStyles.caption.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -312,14 +306,13 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       child: TextField(
         controller: _controller,
         onSubmitted: (_) => _submit(),
-        style: const TextStyle(
-          fontSize: 15,
+        style: AppTextStyles.bodyLarge.copyWith(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
           hintText: 'Search doctors, specialties...',
-          hintStyle: TextStyle(
+          hintStyle: AppTextStyles.bodyLarge.copyWith(
             color: AppColors.textHint.withValues(alpha: 0.85),
             fontWeight: FontWeight.w400,
           ),
@@ -389,7 +382,7 @@ class _StarRow extends StatelessWidget {
                   ))),
       const SizedBox(width: 4),
       Text(rating.toStringAsFixed(1),
-          style: TextStyle(fontSize: 10, color: textColor)),
+          style: AppTextStyles.caption.copyWith(fontSize: 10, color: textColor)),
     ]);
   }
 }

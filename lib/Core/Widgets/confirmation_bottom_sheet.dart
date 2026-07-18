@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 
 /// Reusable modal bottom sheet for any confirm / cancel action.
 ///
@@ -64,8 +65,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
+            style: AppTextStyles.h3.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
@@ -75,8 +75,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
+            style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
               height: 1.5,
             ),
@@ -97,7 +96,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
                   ),
                   child: Text(
                     cancelLabel,
-                    style: const TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -119,7 +118,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
                   ),
                   child: Text(
                     confirmLabel,
-                    style: const TextStyle(
+                    style: AppTextStyles.body.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),

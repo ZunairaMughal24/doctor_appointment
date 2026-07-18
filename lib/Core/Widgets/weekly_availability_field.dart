@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/features/doctors/domain/entities/weekly_availability.dart';
 
 /// A form widget that lets a doctor set their weekly schedule.
@@ -157,8 +158,7 @@ class _DayRow extends StatelessWidget {
             width: 34,
             child: Text(
               day.day.substring(0, 3),
-              style: TextStyle(
-                fontSize: 13,
+              style: AppTextStyles.label.copyWith(
                 fontWeight: open ? FontWeight.w600 : FontWeight.w400,
                 color: open ? AppColors.primary : AppColors.textMuted,
               ),
@@ -175,12 +175,13 @@ class _DayRow extends StatelessWidget {
                     enabled: enabled,
                     onTap: onPickOpen,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
                       '–',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 13),
+                      style: AppTextStyles.label.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: AppColors.textSecondary),
                     ),
                   ),
                   _TimeChip(
@@ -194,8 +195,7 @@ class _DayRow extends StatelessWidget {
           ] else ...[
             Text(
               'Closed',
-              style: TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.bodySmall.copyWith(
                 fontStyle: FontStyle.italic,
                 color: AppColors.textMuted.withValues(alpha: 0.8),
               ),
@@ -236,8 +236,7 @@ class _TimeChip extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
                 color: enabled ? AppColors.primary : AppColors.textMuted,
               ),
@@ -369,15 +368,14 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
                 children: [
                   Text(
                     widget.dayName,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: AppTextStyles.h4.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
                   Text(
                     widget.label,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodySmall.copyWith(
                       fontSize: 12.5,
                       color: AppColors.textSecondary,
                     ),
@@ -418,11 +416,11 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
                       labelOf: (i) => i.toString().padLeft(2, '0'),
                       onChanged: (i) => setState(() => _hour = i),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 2),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
                       child: Text(
                         ':',
-                        style: TextStyle(
+                        style: AppTextStyles.h1.copyWith(
                           fontSize: 34,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,
@@ -493,8 +491,7 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
           // Live 12-hour preview
           Text(
             WeeklyAvailability.to12h(_result),
-            style: const TextStyle(
-              fontSize: 14,
+            style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
               letterSpacing: 0.4,
@@ -518,9 +515,8 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
               ),
               child: Text(
                 'Set ${WeeklyAvailability.to12h(_result)}',
-                style: const TextStyle(
+                style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
-                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -567,7 +563,7 @@ class _Drum extends StatelessWidget {
             return Center(
               child: AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 120),
-                style: TextStyle(
+                style: AppTextStyles.h1.copyWith(
                   fontSize: selected ? 30 : 20,
                   fontWeight:
                       selected ? FontWeight.w700 : FontWeight.w400,

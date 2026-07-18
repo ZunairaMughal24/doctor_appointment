@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/services/image_upload_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/image_picker_service.dart';
 import '../../../../core/services/image_validation_service.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/utils/validators.dart';
+import '../../domain/usecases/set_doctor_photo_usecase.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 
@@ -54,19 +55,18 @@ class DoctorSignUpViewModel {
   // ── Actions ─────────────────────────────────────────────────────────
   bool validate() => formKey.currentState?.validate() ?? false;
 
-  /// Opens the camera/gallery chooser, runs the professional-photo AI check,
-  /// and only stores the photo if it passes. Shows the specific reason on fail.
-  Future<void> pickPhoto(BuildContext context) async {
-    final file = await ImageUploadService.pickWithChooser(context);
-    if (file == null) return;
+  /// Opens the camera/gallery chooser and runs the professional-photo AI
+  /// check, only storing the photo if it passes. Returns null if the user
+  /// cancelled the picker; otherwise (ok, message) for the page to display.
+  Future<({bool ok, String message})?> pickPhoto(BuildContext context) async {
+    final file = await ImagePickerService.pickWithChooser(context);
+    if (file == null) return null;
 
     final result = await ImageValidationService.validateDoctorPhoto(file);
-    if (!result.ok) {
-      if (context.mounted) AppFeedback.showError(context, result.message);
-      return;
-    }
+    if (!result.ok) return (ok: false, message: result.message);
+
     photo = file;
-    if (context.mounted) AppFeedback.showSuccess(context, result.message);
+    return (ok: true, message: result.message);
   }
 
   void submit(BuildContext context) {
@@ -92,7 +92,8 @@ class DoctorSignUpViewModel {
   /// after sign-up succeeds, when the uid is known.
   Future<void> uploadPhotoFor(String uid) async {
     final file = photo;
-    if (file != null) await ImageUploadService.setDoctorPhoto(uid, file);
+    if (file == null) return;
+    await sl<SetDoctorPhotoUseCase>()(SetPhotoParams(uid: uid, file: file));
   }
 
   void dispose() {

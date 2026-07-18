@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/doctor_form_options.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/app_feedback.dart';
@@ -10,8 +11,6 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/weekly_availability_field.dart';
-import '../../../doctors/presentation/bloc/doctor_bloc.dart';
-import '../../../doctors/presentation/bloc/doctor_event.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 import '../viewmodels/register_as_doctor_viewmodel.dart';
@@ -59,7 +58,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
         if (state is AuthAuthenticated && state.user.hasDoctorProfile) {
           AppFeedback.showSuccess(
               context, 'Doctor profile created successfully!');
-          context.read<DoctorBloc>().add(const LoadAllDoctors());
+          // Doctor list refresh is handled by the app-root AuthBloc listener.
           context.go(AppRoutes.profile);
         } else if (state is AuthFailureState) {
           AppFeedback.showError(context, state.message);
@@ -111,23 +110,21 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Complete Your Profile',
-                            style: TextStyle(
-                              fontSize: 15,
+                            style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
                             ),
                           ),
-                          SizedBox(height: 3),
+                          const SizedBox(height: 3),
                           Text(
                             'Your name and email are pre-filled. Fill in the professional details below to get started.',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                               height: 1.4,
                             ),
@@ -243,11 +240,10 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => context.pop(),
-                child: const Text(
+                child: Text(
                   'Cancel',
-                  style: TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -263,8 +259,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
         padding: const EdgeInsets.only(top: 14, bottom: 6, left: 4),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 13,
+          style: AppTextStyles.label.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.primary,
           ),

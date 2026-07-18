@@ -18,15 +18,23 @@ import '../../features/notifications/data/repositories/notification_repository_i
 import '../../features/notifications/domain/repositories/notification_repository.dart';
 import '../../features/notifications/domain/usecases/create_reminder_usecase.dart';
 import '../../features/notifications/domain/usecases/get_notifications_usecase.dart';
+import '../../features/notifications/domain/usecases/mark_all_notifications_read_usecase.dart';
 import '../../features/notifications/domain/usecases/mark_notification_read_usecase.dart';
 import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/datasources/profile_photo_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/profile_photo_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/repositories/profile_photo_repository.dart';
 import '../../features/auth/domain/usecases/delete_account_usecase.dart';
+import '../../features/auth/domain/usecases/delete_doctor_photo_usecase.dart';
 import '../../features/auth/domain/usecases/delete_doctor_profile_usecase.dart';
+import '../../features/auth/domain/usecases/delete_user_photo_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/register_as_doctor_usecase.dart';
+import '../../features/auth/domain/usecases/set_doctor_photo_usecase.dart';
+import '../../features/auth/domain/usecases/set_user_photo_usecase.dart';
 import '../../features/auth/domain/usecases/sign_in_usecase.dart';
 import '../../features/auth/domain/usecases/sign_out_usecase.dart';
 import '../../features/auth/domain/usecases/sign_up_doctor_usecase.dart';
@@ -69,6 +77,16 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SwitchRoleUseCase(sl()));
   sl.registerLazySingleton(() => DeleteAccountUseCase(sl()));
   sl.registerLazySingleton(() => DeleteDoctorProfileUseCase(sl()));
+  sl.registerLazySingleton<ProfilePhotoRemoteDataSource>(
+    () => ProfilePhotoRemoteDataSourceImpl(firestore: sl()),
+  );
+  sl.registerLazySingleton<ProfilePhotoRepository>(
+    () => ProfilePhotoRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => SetDoctorPhotoUseCase(sl()));
+  sl.registerLazySingleton(() => SetUserPhotoUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteDoctorPhotoUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteUserPhotoUseCase(sl()));
   sl.registerFactory(
     () => AuthBloc(
       signIn: sl(),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/auth/domain/entities/user_entity.dart';
@@ -108,10 +109,9 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: Colors.white,
                 unselectedLabelColor: AppColors.primary,
-                labelStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                labelStyle: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                 unselectedLabelStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'Active'),
                   Tab(text: 'History'),
@@ -223,10 +223,9 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: Colors.white,
                 unselectedLabelColor: AppColors.primary,
-                labelStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                labelStyle: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                 unselectedLabelStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'My Patients'),
                   Tab(text: 'My Visits'),
@@ -340,7 +339,7 @@ class _AppointmentListBody extends StatelessWidget {
               onTap: () async {
                 final changed = await context.push(AppRoutes.appointmentDetail,
                     extra: appt);
-                if (changed == true) onRetry();
+                if (changed == true && context.mounted) onRetry();
               },
             );
           },
@@ -366,7 +365,7 @@ class _RetryState extends StatelessWidget {
           const Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
           const SizedBox(height: 12),
           Text(message,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 15)),
+              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted)),
           const SizedBox(height: 16),
           TextButton.icon(
             onPressed: onRetry,

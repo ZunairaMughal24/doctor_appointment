@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -53,9 +54,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           (title != null
               ? Text(
                   title!,
-                  style: TextStyle(
+                  style: AppTextStyles.h3.copyWith(
                     color: titleColor ?? Colors.white,
-                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 )

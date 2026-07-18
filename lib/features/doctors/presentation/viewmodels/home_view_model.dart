@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../../../core/router/app_router.dart';
-import '../../domain/entities/doctor_entity.dart';
 
 /// A single rotating wellness tip shown on the home screen.
 class HealthTip {
@@ -12,9 +8,9 @@ class HealthTip {
   const HealthTip({required this.icon, required this.title, required this.body});
 }
 
-/// Non-UI logic for the home screen so the page stays pure widgets:
-/// the time-of-day greeting, the deterministic "tip of the day", and the
-/// navigation into a doctor's detail page.
+/// Non-UI logic for the home screen so the page stays pure widgets: the
+/// time-of-day greeting and the deterministic "tip of the day". Navigation
+/// stays in the page — this ViewModel never touches the router.
 class HomeViewModel {
   const HomeViewModel();
 
@@ -25,9 +21,6 @@ class HomeViewModel {
     if (h < 17) return 'Good afternoon';
     return 'Good evening';
   }
-
-  void openDoctor(BuildContext context, DoctorEntity doctor) =>
-      context.push(AppRoutes.doctorDetailPath(doctor.id), extra: doctor);
 
   /// Stable for the whole calendar day (changes once per day, same for every
   /// rebuild) so it genuinely reads as a "daily" tip rather than random churn.

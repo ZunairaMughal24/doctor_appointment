@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/notification_entity.dart';
 import '../../domain/usecases/get_notifications_usecase.dart';
+import '../../domain/usecases/mark_all_notifications_read_usecase.dart';
 import '../../domain/usecases/mark_notification_read_usecase.dart';
 
 // ── Events ────────────────────────────────────────────────────────────────────

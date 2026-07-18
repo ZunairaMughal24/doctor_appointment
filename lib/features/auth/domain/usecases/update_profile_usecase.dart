@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
 
@@ -38,7 +39,7 @@ class UpdateProfileParams {
   final String? availability;
   final String? services;
   final String? description;
-  final Map<String, dynamic>? weeklySchedule;
+  final WeeklyAvailability? weeklySchedule;
 
   const UpdateProfileParams({
     required this.uid,

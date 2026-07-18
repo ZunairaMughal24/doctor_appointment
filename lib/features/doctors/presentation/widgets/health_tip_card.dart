@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../viewmodels/home_view_model.dart';
 import 'home_sections.dart' show kHomeHorizontalPadding;
 
@@ -52,7 +53,7 @@ class HealthTipCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         'DAILY WELLNESS INSIGHT',
-                        style: TextStyle(
+                        style: AppTextStyles.caption.copyWith(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
@@ -64,7 +65,7 @@ class HealthTipCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     tip.title,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyLarge.copyWith(
                       fontSize: 15.5,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -73,7 +74,7 @@ class HealthTipCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     tip.body,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodySmall.copyWith(
                       fontSize: 12.5,
                       height: 1.35,
                       color: AppColors.textSecondary,

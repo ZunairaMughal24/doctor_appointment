@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 
 /// Reusable neumorphic (soft 3D) form text field.
 ///
@@ -99,7 +100,7 @@ class AppTextField extends FormField<String> {
                                 ]
                               : null,
                           onChanged: state.didChange,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyLarge.copyWith(
                               fontSize: 16,
                               color: state.widget.enabled
                                   ? AppColors.textPrimary
@@ -107,7 +108,7 @@ class AppTextField extends FormField<String> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: state.widget.hint,
-                            hintStyle: const TextStyle(
+                            hintStyle: AppTextStyles.bodyLarge.copyWith(
                                 fontSize: 16, color: AppColors.textHint),
                             isDense: true,
                             contentPadding: const EdgeInsets.symmetric(
@@ -143,8 +144,7 @@ class AppTextField extends FormField<String> {
                     padding: const EdgeInsets.only(top: 6, left: 12),
                     child: Text(
                       state.errorText!,
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.error,
                         fontWeight: FontWeight.w500,
                       ),

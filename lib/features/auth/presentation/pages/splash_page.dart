@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/app_animations.dart';
 import '../viewmodels/splash_viewmodel.dart';
 
@@ -18,7 +20,9 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _vm.start(context);
+    _vm.resolveDestination(context).then((destination) {
+      if (mounted) context.go(destination);
+    });
   }
 
   @override
@@ -47,12 +51,11 @@ class _SplashPageState extends State<SplashPage> {
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
-              const Text(
+              Text(
                 'Medic',
-                style: TextStyle(
+                style: AppTextStyles.h1.copyWith(
                   color: AppColors.primary,
                   fontSize: 25,
-                  fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                 ),
               ),

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
+import '../../../doctors/data/models/weekly_availability_mapper.dart';
 import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
 
@@ -35,7 +37,7 @@ abstract class AuthRemoteDataSource {
     required String availability,
     required String services,
     required String description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   });
   Future<UserModel> updateProfile({
     required String uid,
@@ -48,7 +50,7 @@ abstract class AuthRemoteDataSource {
     String? availability,
     String? services,
     String? description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   });
   Future<void> switchRole({required String uid, required UserRole role});
   Future<void> signOut();
@@ -213,6 +215,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Doctor sign up failed.');
+    } catch (e) {
+      // Covers the Firestore doctor-doc write, which is a plain
+      // FirebaseException rather than FirebaseAuthException.
+      throw AuthException('Failed to complete doctor sign-up: ${e.toString()}');
     }
   }
 
@@ -228,7 +234,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String availability,
     required String services,
     required String description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   }) async {
     try {
       await firestore.collection('doctors').doc(uid).set({
@@ -246,7 +252,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'rating': 4.5,
         'isSeed': false,
         'createdAt': FieldValue.serverTimestamp(),
-        if (weeklySchedule != null) 'schedule': weeklySchedule,
+        if (weeklySchedule != null) 'schedule': weeklySchedule.toFirestoreMap(),
       });
       return UserModel(
         uid: uid,
@@ -272,7 +278,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? availability,
     String? services,
     String? description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   }) async {
     try {
       final batch = firestore.batch();
@@ -297,7 +303,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         put('availability', availability);
         put('services', services);
         put('description', description);
-        if (weeklySchedule != null) doctorData['schedule'] = weeklySchedule;
+        if (weeklySchedule != null) {
+          doctorData['schedule'] = weeklySchedule.toFirestoreMap();
+        }
 
         batch.set(doctorRef, doctorData, SetOptions(merge: true));
       }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../bloc/doctor_bloc.dart';
@@ -22,44 +23,22 @@ class AllDoctorsPage extends StatefulWidget {
 }
 
 class _AllDoctorsPageState extends State<AllDoctorsPage> {
-  static const _vm = AllDoctorsViewModel();
-
-  /// Whether the search bar is currently shown in the body.
-  bool _searchVisible = false;
-
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  String _query = '';
+  late final AllDoctorsViewModel _vm;
 
   @override
   void initState() {
     super.initState();
+    _vm = AllDoctorsViewModel(onChange: () {
+      if (mounted) setState(() {});
+    });
     final bloc = context.read<DoctorBloc>();
     if (bloc.state is DoctorInitial) bloc.add(const LoadAllDoctors());
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _focusNode.dispose();
+    _vm.dispose();
     super.dispose();
-  }
-
-  void _openSearch() {
-    setState(() => _searchVisible = true);
-    // Request focus after the frame so the TextField is in the tree
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _focusNode.requestFocus();
-    });
-  }
-
-  void _closeSearch() {
-    _focusNode.unfocus();
-    setState(() {
-      _searchVisible = false;
-      _query = '';
-      _searchController.clear();
-    });
   }
 
   @override
@@ -76,7 +55,7 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
           IconButton(
             icon: const Icon(Icons.search_rounded, color: Colors.white),
             tooltip: 'Search',
-            onPressed: _openSearch,
+            onPressed: _vm.openSearch,
           ),
         ],
       ),
@@ -85,7 +64,7 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
       body: Column(
         children: [
           // ── Search bar — shown in body, above the list ──────────────────
-          if (_searchVisible)
+          if (_vm.searchVisible)
             Container(
               color: AppColors.cardBg,
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
@@ -104,10 +83,9 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                   ],
                 ),
                 child: TextField(
-                  controller: _searchController,
-                  focusNode: _focusNode,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  controller: _vm.searchController,
+                  focusNode: _vm.focusNode,
+                  style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -115,10 +93,9 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                     hintText: widget.speciality != null
                         ? 'Search in ${widget.speciality}...'
                         : 'Search doctors, specialties...',
-                    hintStyle: TextStyle(
+                    hintStyle: AppTextStyles.body.copyWith(
                       color: AppColors.textHint.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w400,
-                      fontSize: 14,
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -137,10 +114,10 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                         size: 20,
                       ),
                       tooltip: 'Close search',
-                      onPressed: _closeSearch,
+                      onPressed: _vm.closeSearch,
                     ),
                   ),
-                  onChanged: (v) => setState(() => _query = v),
+                  onChanged: _vm.updateQuery,
                 ),
               ),
             ),
@@ -158,7 +135,6 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                   final doctors = _vm.filter(
                     doctors: state.doctors,
                     speciality: widget.speciality,
-                    query: _query,
                   );
 
                   if (doctors.isEmpty) {
@@ -167,7 +143,7 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            _query.isNotEmpty
+                            _vm.query.isNotEmpty
                                 ? Icons.search_off_rounded
                                 : Icons.person_search_rounded,
                             size: 64,
@@ -175,11 +151,10 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _query.isNotEmpty
-                                ? 'No results for "$_query"'
+                            _vm.query.isNotEmpty
+                                ? 'No results for "${_vm.query}"'
                                 : 'No doctors found',
-                            style: const TextStyle(
-                              fontSize: 15,
+                            style: AppTextStyles.bodyLarge.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -204,7 +179,9 @@ class _AllDoctorsPageState extends State<AllDoctorsPage> {
                               index % AppColors.doctorTileColors.length],
                           image: AppAssets.doctorAvatars[
                               index % AppAssets.doctorAvatars.length],
-                          onTap: () => _vm.openDoctor(context, doctor),
+                          onTap: () => context.push(
+                              AppRoutes.doctorDetailPath(doctor.id),
+                              extra: doctor),
                         );
                       },
                     ),

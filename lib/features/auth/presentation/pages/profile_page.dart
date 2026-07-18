@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/doctor_form_options.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/app_feedback.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
 import '../../../../core/widgets/app_loader.dart';
@@ -15,6 +15,7 @@ import '../viewmodels/profile_viewmodel.dart';
 import '../widgets/profile_widgets.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/modern_bottom_sheet.dart';
+import '../../../../core/services/image_picker_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../features/doctors/presentation/pages/doctor_reviews_page.dart';
 
@@ -31,10 +32,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _vm = ProfileViewModel(onChange: () {
-      if (mounted) setState(() {});
-    });
-    _vm.init(context);
+    _vm = ProfileViewModel(
+      onChange: () {
+        if (mounted) setState(() {});
+      },
+      authBloc: context.read<AuthBloc>(),
+    );
+    _vm.init();
   }
 
   @override
@@ -52,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
         } else if (state is AuthFailureState) {
           AppFeedback.showError(context, state.message);
         } else if (state is AuthAuthenticated) {
-          _vm.onAuthenticated(context, state.user);
+          _vm.onAuthenticated(state.user);
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
@@ -190,8 +194,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                               leading: const Icon(
                                                   Icons.photo_library_rounded,
                                                   color: AppColors.primary),
-                                              title: const Text('Change Photo',
-                                                  style: TextStyle(
+                                              title: Text('Change Photo',
+                                                  style: AppTextStyles.label
+                                                      .copyWith(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       color:
@@ -206,8 +211,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                               leading: const Icon(
                                                   Icons.delete_outline_rounded,
                                                   color: AppColors.error),
-                                              title: const Text('Remove Photo',
-                                                  style: TextStyle(
+                                              title: Text('Remove Photo',
+                                                  style: AppTextStyles.label
+                                                      .copyWith(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       color: AppColors.error)),
@@ -220,21 +226,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
 
                                     if (action == 'change' && context.mounted) {
-                                      final result =
-                                          await _vm.pickAndUploadImage(context);
-                                      if (result != null && context.mounted) {
-                                        if (result.ok) {
-                                          AppFeedback.showSuccess(
-                                              context, result.message);
-                                        } else {
-                                          AppFeedback.showError(
-                                              context, result.message);
+                                      final file = await ImagePickerService
+                                          .pickWithChooser(context);
+                                      if (file != null && context.mounted) {
+                                        final result =
+                                            await _vm.uploadImage(file);
+                                        if (context.mounted) {
+                                          if (result.ok) {
+                                            AppFeedback.showSuccess(
+                                                context, result.message);
+                                          } else {
+                                            AppFeedback.showError(
+                                                context, result.message);
+                                          }
                                         }
                                       }
                                     } else if (action == 'remove' &&
                                         context.mounted) {
                                       final result =
-                                          await _vm.removeProfilePhoto(context);
+                                          await _vm.removeProfilePhoto();
                                       if (context.mounted) {
                                         if (result.ok) {
                                           AppFeedback.showSuccess(
@@ -246,15 +256,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                       }
                                     }
                                   } else {
-                                    final result =
-                                        await _vm.pickAndUploadImage(context);
-                                    if (result != null && context.mounted) {
-                                      if (result.ok) {
-                                        AppFeedback.showSuccess(
-                                            context, result.message);
-                                      } else {
-                                        AppFeedback.showError(
-                                            context, result.message);
+                                    final file = await ImagePickerService
+                                        .pickWithChooser(context);
+                                    if (file != null && context.mounted) {
+                                      final result =
+                                          await _vm.uploadImage(file);
+                                      if (context.mounted) {
+                                        if (result.ok) {
+                                          AppFeedback.showSuccess(
+                                              context, result.message);
+                                        } else {
+                                          AppFeedback.showError(
+                                              context, result.message);
+                                        }
                                       }
                                     }
                                   }
@@ -283,8 +297,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         child: Text(
                           user.isDoctor ? 'Doctor Mode' : 'Patient Mode',
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: AppTextStyles.label.copyWith(
                             fontWeight: FontWeight.bold,
                             color: user.isDoctor
                                 ? Colors.white
@@ -309,7 +322,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             icon: Icons.person_outline,
                             enabled: _vm.editing,
                             maxLength: 40,
-                            validator: (v) => Validators.required(v, 'Name'),
+                            validator: _vm.nameValidator,
                           ),
                           ProfileLabeledField(
                             label: 'Email',
@@ -318,7 +331,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             enabled: _vm.editing,
                             keyboardType: TextInputType.emailAddress,
                             maxLength: 60,
-                            validator: Validators.email,
+                            validator: _vm.emailValidator,
                           ),
                           if (user.isDoctor) ...[
                             const SizedBox(height: 16),
@@ -330,8 +343,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.medical_services_outlined,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.specialities,
-                              validator: (v) =>
-                                  Validators.required(v, 'Speciality'),
+                              validator: _vm.specialityValidator,
                             ),
                             ProfileLabeledField(
                               label: 'Experience',
@@ -339,8 +351,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.workspace_premium_outlined,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.experienceYears,
-                              validator: (v) =>
-                                  Validators.required(v, 'Experience'),
+                              validator: _vm.experienceValidator,
                             ),
                             ProfileLabeledField(
                               label: 'Phone Number',
@@ -348,7 +359,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.phone_outlined,
                               enabled: _vm.editing,
                               keyboardType: TextInputType.phone,
-                              validator: Validators.phone,
+                              validator: _vm.phoneValidator,
                             ),
                             ProfileLabeledField(
                               label: 'Clinic / Hospital Location',
@@ -356,8 +367,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.location_on_outlined,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.locations,
-                              validator: (v) =>
-                                  Validators.required(v, 'Location'),
+                              validator: _vm.locationValidator,
                             ),
                             ProfileAvailabilitySection(
                               schedule: _vm.weeklySchedule,
@@ -370,8 +380,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               icon: Icons.list_alt_outlined,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.services,
-                              validator: (v) =>
-                                  Validators.required(v, 'Services'),
+                              validator: _vm.servicesValidator,
                             ),
                             ProfileLabeledField(
                               label: 'About / Description',
@@ -380,8 +389,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               enabled: _vm.editing,
                               maxLines: 4,
                               maxLength: 300,
-                              validator: (v) =>
-                                  Validators.required(v, 'Description'),
+                              validator: _vm.descriptionValidator,
                             ),
                           ],
                         ],
@@ -393,7 +401,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         label: 'Save Changes',
                         icon: Icons.check_rounded,
                         loading: state is AuthLoading,
-                        onPressed: () => _vm.saveProfile(context, user),
+                        onPressed: () => _vm.saveProfile(user),
                       ),
                     ],
 
@@ -411,11 +419,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: Colors.amber,
                             ),
                           ),
-                          title: const Text(
+                          title: Text(
                             'My Reviews',
-                            style: TextStyle(
+                            style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.bold,
-                              fontSize: 15,
                               color: AppColors.primary,
                             ),
                           ),
@@ -425,8 +432,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 : _vm.reviews.isEmpty
                                     ? 'No reviews yet'
                                     : '${(_vm.doctorEntity?.rating ?? 0.0).toStringAsFixed(1)} ★ (${_vm.reviews.length} reviews)',
-                            style: const TextStyle(
-                              fontSize: 12,
+                            style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -476,9 +482,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     user.isDoctor
                                         ? 'Switch to Patient Mode'
                                         : 'Switch to Doctor Mode',
-                                    style: const TextStyle(
+                                    style: AppTextStyles.bodyLarge.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 15,
                                       color: AppColors.primary,
                                     ),
                                   ),
@@ -486,8 +491,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     user.isDoctor
                                         ? 'Browse doctors & book appointments'
                                         : 'Manage your patient appointments',
-                                    style: const TextStyle(
-                                        fontSize: 12,
+                                    style: AppTextStyles.bodySmall.copyWith(
                                         color: AppColors.textSecondary),
                                   ),
                                 ],
@@ -504,7 +508,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 inactiveThumbColor: AppColors.primary,
                                 inactiveTrackColor:
                                     AppColors.primary.withOpacity(0.2),
-                                onChanged: (_) => _vm.switchRole(context, user),
+                                onChanged: (_) => _vm.switchRole(user),
                               ),
                             )
                           ],
@@ -527,17 +531,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: AppColors.primary,
                             ),
                           ),
-                          title: const Text(
+                          title: Text(
                             'Register as Doctor',
-                            style: TextStyle(
+                            style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.bold,
-                              fontSize: 15,
                               color: AppColors.primary,
                             ),
                           ),
-                          subtitle: const Text(
+                          subtitle: Text(
                             'Add a professional profile to manage patient appointments',
-                            style: TextStyle(fontSize: 12),
+                            style: AppTextStyles.bodySmall,
                           ),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
@@ -565,11 +568,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           backgroundColor: AppColors.dangerLight,
                           child: Icon(Icons.logout, color: AppColors.error),
                         ),
-                        title: const Text(
+                        title: Text(
                           'Sign Out',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
                             color: AppColors.error,
                           ),
                         ),
@@ -582,7 +584,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             isDanger: true,
                           );
                           if (!confirmed || !context.mounted) return;
-                          final error = await _vm.signOut(context);
+                          final error = await _vm.signOut();
                           if (error != null && context.mounted) {
                             AppFeedback.showError(context, error);
                           }
@@ -600,17 +602,16 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Icon(Icons.delete_forever_rounded,
                               color: AppColors.error),
                         ),
-                        title: const Text(
+                        title: Text(
                           'Delete Account',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
                             color: AppColors.error,
                           ),
                         ),
-                        subtitle: const Text(
+                        subtitle: Text(
                           'Permanently remove your account and all data',
-                          style: TextStyle(fontSize: 12),
+                          style: AppTextStyles.bodySmall,
                         ),
                         onTap: () async {
                           if (user.isDoctor) {
@@ -624,7 +625,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               isDanger: true,
                             );
                             if (!removeProfile || !context.mounted) return;
-                            _vm.dispatchDeleteDoctorProfile(context);
+                            _vm.dispatchDeleteDoctorProfile();
 
                             final deleteAccount =
                                 await AppFeedback.showConfirmation(
@@ -636,7 +637,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               isDanger: true,
                             );
                             if (!deleteAccount || !context.mounted) return;
-                            _vm.dispatchDeleteAccount(context);
+                            _vm.dispatchDeleteAccount();
                           } else {
                             final confirmed =
                                 await AppFeedback.showConfirmation(
@@ -648,7 +649,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               isDanger: true,
                             );
                             if (!confirmed || !context.mounted) return;
-                            _vm.dispatchDeleteAccount(context);
+                            _vm.dispatchDeleteAccount();
                           }
                         },
                       ),
@@ -673,8 +674,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _sectionHeader(String title) => Text(
         title,
-        style: const TextStyle(
-          fontSize: 13,
+        style: AppTextStyles.label.copyWith(
           fontWeight: FontWeight.bold,
           color: AppColors.textSecondary,
           letterSpacing: 0.8,

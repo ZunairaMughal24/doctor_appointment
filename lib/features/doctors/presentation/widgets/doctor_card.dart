@@ -145,7 +145,7 @@ class DoctorCard extends StatelessWidget {
       child: Center(
         child: Text(
           doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : 'D',
-          style: TextStyle(
+          style: AppTextStyles.h4.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: size * 0.35,

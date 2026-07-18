@@ -72,28 +72,6 @@ class WeeklyAvailability extends Equatable {
   /// Whether the doctor has any open day at all.
   bool get hasAnyOpenDay => days.any((d) => d.isOpen);
 
-  // ── Firestore mapping ───────────────────────────────────────────────────────
-
-  factory WeeklyAvailability.fromMap(Map<String, dynamic>? map) {
-    if (map == null || map.isEmpty) return standard;
-    return WeeklyAvailability([
-      for (final day in weekdayNames)
-        if (map[day] is Map)
-          DayHours(
-            day: day,
-            open: (map[day] as Map)['open'] as String?,
-            close: (map[day] as Map)['close'] as String?,
-          )
-        else
-          DayHours(day: day),
-    ]);
-  }
-
-  Map<String, dynamic> toMap() => {
-        for (final d in days)
-          d.day: d.isOpen ? {'open': d.open, 'close': d.close} : null,
-      };
-
   /// Converts a 24-hour 'HH:mm' slot to a 12-hour label, e.g. '09:00' → '9:00 AM'.
   static String to12h(String hhmm) {
     final parts = hhmm.split(':');

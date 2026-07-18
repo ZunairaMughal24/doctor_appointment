@@ -1,26 +1,33 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/services/image_upload_service.dart';
 import '../../../../core/services/image_validation_service.dart';
 import '../../../../core/utils/connectivity.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../doctors/domain/entities/doctor_entity.dart';
 import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 import '../../../appointments/domain/usecases/get_doctor_reviews_usecase.dart';
 import '../../../doctors/domain/usecases/get_doctor_by_id_usecase.dart';
-import '../../../doctors/presentation/bloc/doctor_bloc.dart';
-import '../../../doctors/presentation/bloc/doctor_event.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/usecases/delete_doctor_photo_usecase.dart';
+import '../../domain/usecases/delete_user_photo_usecase.dart';
+import '../../domain/usecases/set_doctor_photo_usecase.dart';
+import '../../domain/usecases/set_user_photo_usecase.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../../../../core/errors/exceptions.dart';
 
 class ProfileViewModel {
-  ProfileViewModel({required this.onChange});
+  ProfileViewModel({
+    required this.onChange,
+    required AuthBloc authBloc,
+  }) : _authBloc = authBloc;
+
   final VoidCallback onChange;
+  final AuthBloc _authBloc;
 
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -35,6 +42,22 @@ class ProfileViewModel {
   WeeklyAvailability _weeklySchedule = WeeklyAvailability.standard;
   WeeklyAvailability get weeklySchedule => _weeklySchedule;
   void updateSchedule(WeeklyAvailability s) => _set(() => _weeklySchedule = s);
+
+  // ── Validators ──────────────────────────────────────────────────────
+  String? Function(String?) get nameValidator =>
+      (v) => Validators.required(v, 'Name');
+  String? Function(String?) get emailValidator => Validators.email;
+  String? Function(String?) get specialityValidator =>
+      (v) => Validators.required(v, 'Speciality');
+  String? Function(String?) get experienceValidator =>
+      (v) => Validators.required(v, 'Experience');
+  String? Function(String?) get phoneValidator => Validators.phone;
+  String? Function(String?) get locationValidator =>
+      (v) => Validators.required(v, 'Location');
+  String? Function(String?) get servicesValidator =>
+      (v) => Validators.required(v, 'Services');
+  String? Function(String?) get descriptionValidator =>
+      (v) => Validators.required(v, 'Description');
 
   bool editing = false;
   bool doctorLoaded = false;
@@ -52,10 +75,10 @@ class ProfileViewModel {
     onChange();
   }
 
-  void init(BuildContext context) {
-    final state = context.read<AuthBloc>().state;
+  void init() {
+    final state = _authBloc.state;
     if (state is! AuthAuthenticated) {
-      context.read<AuthBloc>().add(const AuthCheckRequested());
+      _authBloc.add(const AuthCheckRequested());
     }
     final user = state is AuthAuthenticated ? state.user : null;
     cachedUser = user;
@@ -66,7 +89,7 @@ class ProfileViewModel {
 
   void setEditing(bool value) => _set(() => editing = value);
 
-  void onAuthenticated(BuildContext context, UserEntity user) {
+  void onAuthenticated(UserEntity user) {
     cachedUser = user;
     nameController.text = user.name;
     emailController.text = user.email;
@@ -76,7 +99,6 @@ class ProfileViewModel {
       _weeklySchedule = WeeklyAvailability.standard;
     }
     if (user.isDoctor && !doctorLoaded) loadDoctorProfile(user.uid);
-    context.read<DoctorBloc>().add(const LoadAllDoctors());
   }
 
   Future<void> loadDoctorProfile(String uid) async {
@@ -109,15 +131,13 @@ class ProfileViewModel {
     );
   }
 
-  /// Picks and uploads a profile photo.
-  /// Returns null if the user cancelled. Otherwise returns (ok, message) where
-  /// ok=true is success and ok=false means an error — the page shows the message.
-  Future<({bool ok, String message})?> pickAndUploadImage(BuildContext context) async {
+  /// Uploads [file] as the profile photo.
+  /// Returns (ok, message) where ok=true is success and ok=false means an
+  /// error — the page shows the message. Picking the file itself is the
+  /// View's job (it needs BuildContext to show the camera/gallery chooser).
+  Future<({bool ok, String message})> uploadImage(File file) async {
     final user = cachedUser;
-    if (user == null) return null;
-
-    final file = await ImageUploadService.pickWithChooser(context);
-    if (file == null) return null;
+    if (user == null) return (ok: false, message: 'User not signed in.');
 
     if (user.isDoctor) {
       _set(() => uploadingImage = true);
@@ -127,76 +147,65 @@ class ProfileViewModel {
     }
 
     _set(() => uploadingImage = true);
-    try {
-      if (user.isDoctor) {
-        await ImageUploadService.setDoctorPhoto(user.uid, file);
-        await loadDoctorProfile(user.uid);
-      } else {
-        await ImageUploadService.setUserPhoto(user.uid, file);
-        if (context.mounted) {
-          context.read<AuthBloc>().add(const AuthCheckRequested());
-        }
-      }
-      return (ok: true, message: 'Profile picture updated successfully!');
-    } on ImageUploadException catch (e) {
-      debugPrint('[ProfileVM] ImageUploadException caught: ${e.message}');
-      return (ok: false, message: e.message);
-    } catch (e, st) {
-      debugPrint('[ProfileVM] Unexpected upload error: $e');
-      debugPrint('$st');
-      return (ok: false, message: 'Something went wrong while uploading your photo. Please try again.');
-    } finally {
-      _set(() => uploadingImage = false);
+    final params = SetPhotoParams(uid: user.uid, file: file);
+    final either = user.isDoctor
+        ? await sl<SetDoctorPhotoUseCase>()(params)
+        : await sl<SetUserPhotoUseCase>()(params);
+    _set(() => uploadingImage = false);
+
+    String? errorMessage;
+    either.fold((failure) => errorMessage = failure.userMessage, (_) {});
+    if (errorMessage != null) return (ok: false, message: errorMessage!);
+
+    if (user.isDoctor) {
+      await loadDoctorProfile(user.uid);
+    } else {
+      _authBloc.add(const AuthCheckRequested());
     }
+    return (ok: true, message: 'Profile picture updated successfully!');
   }
 
   /// Removes the current profile photo and clears it in databases.
-  Future<({bool ok, String message})> removeProfilePhoto(BuildContext context) async {
+  Future<({bool ok, String message})> removeProfilePhoto() async {
     final user = cachedUser;
     if (user == null) return (ok: false, message: 'User not signed in.');
 
     _set(() => uploadingImage = true);
-    try {
-      if (user.isDoctor) {
-        await ImageUploadService.deleteDoctorPhoto(user.uid);
-        await loadDoctorProfile(user.uid);
-      } else {
-        await ImageUploadService.deleteUserPhoto(user.uid);
-        if (context.mounted) {
-          context.read<AuthBloc>().add(const AuthCheckRequested());
-        }
-      }
-      return (ok: true, message: 'Profile picture removed successfully!');
-    } on ImageUploadException catch (e) {
-      debugPrint('[ProfileVM] ImageUploadException during deletion: ${e.message}');
-      return (ok: false, message: e.message);
-    } catch (e, st) {
-      debugPrint('[ProfileVM] Unexpected deletion error: $e');
-      debugPrint('$st');
-      return (ok: false, message: 'Something went wrong while removing your photo.');
-    } finally {
-      _set(() => uploadingImage = false);
+    final either = user.isDoctor
+        ? await sl<DeleteDoctorPhotoUseCase>()(user.uid)
+        : await sl<DeleteUserPhotoUseCase>()(user.uid);
+    _set(() => uploadingImage = false);
+
+    String? errorMessage;
+    either.fold((failure) => errorMessage = failure.userMessage, (_) {});
+    if (errorMessage != null) return (ok: false, message: errorMessage!);
+
+    if (user.isDoctor) {
+      await loadDoctorProfile(user.uid);
+    } else {
+      _authBloc.add(const AuthCheckRequested());
     }
+    return (ok: true, message: 'Profile picture removed successfully!');
   }
 
-  void saveProfile(BuildContext context, UserEntity user) {
+  void saveProfile(UserEntity user) {
     if (!(formKey.currentState?.validate() ?? false)) {
       onChange();
       return;
     }
-    context.read<AuthBloc>().add(AuthUpdateProfileRequested(
-          uid: user.uid,
-          name: nameController.text.trim(),
-          email: emailController.text.trim(),
-          speciality: user.isDoctor ? specialityController.text.trim() : null,
-          experience: user.isDoctor ? experienceController.text.trim() : null,
-          phoneNumber: user.isDoctor ? phoneController.text.trim() : null,
-          location: user.isDoctor ? locationController.text.trim() : null,
-          availability: user.isDoctor ? _buildAvailabilityString() : null,
-          services: user.isDoctor ? servicesController.text.trim() : null,
-          description: user.isDoctor ? descriptionController.text.trim() : null,
-          weeklySchedule: user.isDoctor ? _weeklySchedule.toMap() : null,
-        ));
+    _authBloc.add(AuthUpdateProfileRequested(
+      uid: user.uid,
+      name: nameController.text.trim(),
+      email: emailController.text.trim(),
+      speciality: user.isDoctor ? specialityController.text.trim() : null,
+      experience: user.isDoctor ? experienceController.text.trim() : null,
+      phoneNumber: user.isDoctor ? phoneController.text.trim() : null,
+      location: user.isDoctor ? locationController.text.trim() : null,
+      availability: user.isDoctor ? _buildAvailabilityString() : null,
+      services: user.isDoctor ? servicesController.text.trim() : null,
+      description: user.isDoctor ? descriptionController.text.trim() : null,
+      weeklySchedule: user.isDoctor ? _weeklySchedule : null,
+    ));
     _set(() => editing = false);
   }
 
@@ -207,39 +216,39 @@ class ProfileViewModel {
     if (user.isDoctor) loadDoctorProfile(user.uid);
   }
 
-  void switchRole(BuildContext context, UserEntity user) {
+  void switchRole(UserEntity user) {
     final newRole =
         user.role == UserRole.doctor ? UserRole.patient : UserRole.doctor;
-    context.read<AuthBloc>().add(AuthSwitchRoleRequested(newRole));
+    _authBloc.add(AuthSwitchRoleRequested(newRole));
   }
 
   /// Checks internet then dispatches sign-out.
   /// Returns an error message if offline, null on success.
-  Future<String?> signOut(BuildContext context) async {
+  Future<String?> signOut() async {
     final online = await Connectivity.hasInternet();
-    if (!context.mounted) return null;
     if (!online) {
       return 'No internet connection. Connect to the internet to sign out.';
     }
-    context.read<AuthBloc>().add(const AuthSignOutRequested());
+    _authBloc.add(const AuthSignOutRequested());
     return null;
   }
 
-  void dispatchDeleteDoctorProfile(BuildContext context) {
+  void dispatchDeleteDoctorProfile() {
     final user = cachedUser;
     if (user == null) return;
-    context.read<AuthBloc>().add(AuthDeleteDoctorProfileRequested(
-          uid: user.uid,
-          name: user.name,
-          email: user.email,
-        ));
-    context.read<DoctorBloc>().add(const LoadAllDoctors());
+    // AuthBloc re-emits AuthAuthenticated once the account reverts to a
+    // patient; the app-root listener reloads the doctor list from that.
+    _authBloc.add(AuthDeleteDoctorProfileRequested(
+      uid: user.uid,
+      name: user.name,
+      email: user.email,
+    ));
   }
 
-  void dispatchDeleteAccount(BuildContext context) {
+  void dispatchDeleteAccount() {
     final user = cachedUser;
     if (user == null) return;
-    context.read<AuthBloc>().add(AuthDeleteAccountRequested(user.uid));
+    _authBloc.add(AuthDeleteAccountRequested(user.uid));
   }
 
   String _buildAvailabilityString() {

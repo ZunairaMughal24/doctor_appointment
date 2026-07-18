@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_loader.dart';
@@ -67,10 +68,10 @@ class _SearchViewState extends State<_SearchView> {
         titleWidget: TextField(
           controller: _vm.controller,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: AppTextStyles.body.copyWith(color: Colors.white),
+          decoration: InputDecoration(
             hintText: 'Search doctors, specialties...',
-            hintStyle: TextStyle(color: Colors.white70),
+            hintStyle: AppTextStyles.body.copyWith(color: Colors.white70),
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
@@ -111,16 +112,16 @@ class _SearchViewState extends State<_SearchView> {
                 if (state is DoctorLoading) return const AppLoader();
                 if (state is DoctorsLoaded) {
                   if (state.doctors.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.search_off,
+                          const Icon(Icons.search_off,
                               size: 64, color: AppColors.textHint),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Text('No results found',
-                              style:
-                                  TextStyle(color: AppColors.textSecondary)),
+                              style: AppTextStyles.body
+                                  .copyWith(color: AppColors.textSecondary)),
                         ],
                       ),
                     );
@@ -175,7 +176,7 @@ class _SpecialtyChip extends StatelessWidget {
         onSelected: (_) => onTap(),
         selectedColor: AppColors.primary,
         checkmarkColor: Colors.white,
-        labelStyle: TextStyle(
+        labelStyle: AppTextStyles.label.copyWith(
           color: selected ? Colors.white : AppColors.primary,
           fontSize: 12.5,
           fontWeight: FontWeight.w600,

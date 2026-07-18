@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 /// Branded loading indicator: three dots that pulse in sequence, in the app
 /// primary colour. Used instead of a bare [CircularProgressIndicator] for a
@@ -62,9 +63,8 @@ class _AppLoaderState extends State<AppLoader>
             const SizedBox(height: 16),
             Text(
               widget.message!,
-              style: const TextStyle(
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 14,
               ),
             ),
           ],
@@ -93,9 +93,8 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 14,
               ),
             ),
             if (onRetry != null) ...[

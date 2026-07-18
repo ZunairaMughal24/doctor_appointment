@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/core/widgets/confirmation_bottom_sheet.dart';
 
 /// Central utility for all user-facing feedback: toasts and confirmations.
@@ -80,9 +81,8 @@ class AppFeedback {
               Expanded(
                 child: Text(
                   message,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: Colors.white,
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

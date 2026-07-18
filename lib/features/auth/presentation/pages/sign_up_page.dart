@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_error_banner.dart';
@@ -75,23 +76,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     alignment: Alignment.topCenter,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 28),
+                Padding(
+                  padding: const EdgeInsets.only(left: 28),
                   child: Text(
                     "Create Account",
-                    style: TextStyle(
+                    style: AppTextStyles.h1.copyWith(
                       fontSize: 25,
-                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 28, right: 20),
+                Padding(
+                  padding: const EdgeInsets.only(left: 28, right: 20),
                   child: Text(
                     "Please enter your name, email and password to create account",
-                    style: TextStyle(
-                      fontSize: 15,
+                    style: AppTextStyles.bodyLarge.copyWith(
                       color: AppColors.textHint,
                     ),
                   ),
@@ -168,10 +167,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 TextButton(
                   onPressed: () => context.push(AppRoutes.signIn),
-                  child: const Text("Already have an account?",
-                      style: TextStyle(
+                  child: Text("Already have an account?",
+                      style: AppTextStyles.h4.copyWith(
                           fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
                           color: AppColors.primary),
                       textAlign: TextAlign.center),
                 ),

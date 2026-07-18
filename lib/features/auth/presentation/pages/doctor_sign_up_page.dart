@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/doctor_form_options.dart';
+import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -8,8 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
-import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import '../viewmodels/doctor_sign_up_viewmodel.dart';
@@ -62,7 +62,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
               debugPrint('Photo upload failed after doctor sign-up: $e');
             }
             if (!context.mounted) return;
-            context.read<DoctorBloc>().add(const LoadAllDoctors());
+            // Doctor list refresh is handled by the app-root AuthBloc listener.
             context.go(AppRoutes.appointments);
           }
         },
@@ -81,8 +81,15 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            await _vm.pickPhoto(context);
-                            if (mounted) setState(() {});
+                            final result = await _vm.pickPhoto(context);
+                            if (!context.mounted) return;
+                            setState(() {});
+                            if (result == null) return;
+                            if (result.ok) {
+                              AppFeedback.showSuccess(context, result.message);
+                            } else {
+                              AppFeedback.showError(context, result.message);
+                            }
                           },
                           child: CircleAvatar(
                             radius: 48,
@@ -97,27 +104,26 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Please upload a photo with a plain white background, '
                           'face centered and looking straight at the camera.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 12, color: AppColors.textSecondary),
+                          style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           _vm.photo == null
                               ? 'Tap to add a photo (required)'
                               : 'Tap to change photo',
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.primary),
+                          style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.primary),
                         ),
                         if (_vm.attemptedWithoutPhoto && _vm.photo == null) ...[
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'Profile photo is required.',
-                            style: TextStyle(
-                                fontSize: 12,
+                            style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.error,
                                 fontWeight: FontWeight.w500),
                           ),
@@ -237,7 +243,7 @@ class _DoctorSignUpPageState extends State<DoctorSignUpPage> {
       padding: const EdgeInsets.only(left: 15, top: 10),
       child: Text(
         text,
-        style: const TextStyle(
+        style: AppTextStyles.h3.copyWith(
           fontWeight: FontWeight.bold,
           color: AppColors.primary,
           fontSize: 17,

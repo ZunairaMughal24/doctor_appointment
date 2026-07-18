@@ -12,9 +12,17 @@ class DoctorRepositoryImpl implements DoctorRepository {
 
   @override
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors() async {
-    // Data source never throws for this call — it returns seeds on any error
-    final doctors = await remoteDataSource.getAllDoctors();
-    return Right(doctors);
+    try {
+      // Data source falls back to bundled seeds on any error, but we still
+      // guard here so a future change to that behavior can't leak a raw
+      // exception past this layer.
+      final doctors = await remoteDataSource.getAllDoctors();
+      return Right(doctors);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override

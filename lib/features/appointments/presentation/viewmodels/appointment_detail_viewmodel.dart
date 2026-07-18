@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/communication_launcher.dart';
-import '../../../../core/utils/app_feedback.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../../domain/usecases/submit_rating_usecase.dart';
 import '../../domain/usecases/update_appointment_status_usecase.dart';
@@ -51,8 +50,9 @@ class AppointmentDetailViewModel {
     onChange();
   }
 
-  Future<void> updateStatus(
-    BuildContext context,
+  /// Updates the appointment status. Returns the outcome so the page can
+  /// show the appropriate feedback (success/error banner).
+  Future<({bool ok, String message})> updateStatus(
     AppointmentStatus status, {
     required bool asDoctor,
   }) async {
@@ -64,12 +64,10 @@ class AppointmentDetailViewModel {
         actorIsDoctor: asDoctor,
       ),
     );
-    result.fold(
+    return result.fold(
       (failure) {
         _set(() => _busy = false);
-        if (context.mounted) {
-          AppFeedback.showError(context, failure.userMessage);
-        }
+        return (ok: false, message: failure.userMessage);
       },
       (_) {
         _set(() {
@@ -77,40 +75,19 @@ class AppointmentDetailViewModel {
           _busy = false;
           _changed = true;
         });
-        if (context.mounted) {
-          AppFeedback.showSuccess(
-            context,
-            switch (status) {
-              AppointmentStatus.confirmed => 'Appointment confirmed.',
-              AppointmentStatus.completed => 'Appointment marked as completed.',
-              _ => 'Appointment cancelled.',
-            },
-          );
-        }
+        final message = switch (status) {
+          AppointmentStatus.confirmed => 'Appointment confirmed.',
+          AppointmentStatus.completed => 'Appointment marked as completed.',
+          _ => 'Appointment cancelled.',
+        };
+        return (ok: true, message: message);
       },
     );
   }
 
-  Future<void> confirmCancel(
-    BuildContext context, {
-    required bool asDoctor,
-  }) async {
-    final ok = await AppFeedback.showConfirmation(
-      context,
-      title: 'Cancel appointment',
-      message: 'Are you sure you want to cancel this appointment?',
-      confirmLabel: 'Cancel appointment',
-      cancelLabel: 'Keep it',
-      isDanger: true,
-    );
-    if (ok && context.mounted) {
-      await updateStatus(context, AppointmentStatus.cancelled,
-          asDoctor: asDoctor);
-    }
-  }
-
-  Future<void> submitRating(
-    BuildContext context, {
+  /// Submits the patient's rating. Returns an error message on failure, or
+  /// null on success (the page shows the rating inline — no success banner).
+  Future<String?> submitRating({
     required int rating,
     required String comment,
   }) async {
@@ -121,12 +98,10 @@ class AppointmentDetailViewModel {
       rating: rating,
       comment: comment,
     ));
-    result.fold(
+    return result.fold(
       (failure) {
         _set(() => _ratingBusy = false);
-        if (context.mounted) {
-          AppFeedback.showError(context, failure.userMessage);
-        }
+        return failure.userMessage;
       },
       (_) {
         _set(() {
@@ -135,11 +110,14 @@ class AppointmentDetailViewModel {
           _justRating = rating;
           _justComment = comment;
         });
+        return null;
       },
     );
   }
 
-  Future<void> joinOnWhatsApp(BuildContext context) async {
+  /// Launches WhatsApp for the video consult. Returns an error message on
+  /// failure, or null on success.
+  Future<String?> joinOnWhatsApp() async {
     final asDoctor = isDoctorViewer;
     final phone = contactPhone;
     final greeting = asDoctor
@@ -160,9 +138,6 @@ class AppointmentDetailViewModel {
           '(${_appt.appointmentDay}, ${_appt.appointmentTime}).',
     );
     debugPrint('[Join/WhatsApp] launch result ok=$ok');
-    if (!ok && context.mounted) {
-      AppFeedback.showError(
-          context, 'Could not open WhatsApp. Make sure it is installed.');
-    }
+    return ok ? null : 'Could not open WhatsApp. Make sure it is installed.';
   }
 }

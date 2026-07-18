@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 /// Bottom sheet for submitting a 1–5 star rating with an optional comment.
 /// Pops with `({int rating, String comment})` on submit, or null on dismiss.
@@ -52,10 +53,9 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
             ),
           ),
           const SizedBox(height: 22),
-          const Text(
+          Text(
             'Rate Your Experience',
-            style: TextStyle(
-              fontSize: 18,
+            style: AppTextStyles.h3.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
@@ -64,8 +64,8 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
           Text(
             'How was your appointment with ${widget.doctorName}?',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.label.copyWith(
+              fontWeight: FontWeight.normal,
               color: AppColors.textSecondary,
             ),
           ),
@@ -101,8 +101,7 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
                 borderSide:
                     const BorderSide(color: AppColors.primary, width: 1.5),
               ),
-              counterStyle: const TextStyle(
-                  fontSize: 11, color: AppColors.textHint),
+              counterStyle: AppTextStyles.caption,
             ),
           ),
           const SizedBox(height: 16),
@@ -119,10 +118,10 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Submit Rating',
-                style:
-                    TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),

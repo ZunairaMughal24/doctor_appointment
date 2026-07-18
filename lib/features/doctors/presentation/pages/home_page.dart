@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart';
+import 'package:fyp/core/router/app_router.dart';
 
 import 'package:fyp/features/auth/domain/entities/user_entity.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
@@ -80,12 +82,14 @@ class _PatientHomeView extends StatelessWidget {
                   const SizedBox(height: 8),
                   FeaturedDoctorsSection(
                     doctors: doctors,
-                    onTap: (d) => vm.openDoctor(context, d),
+                    onTap: (d) =>
+                        context.push(AppRoutes.doctorDetailPath(d.id), extra: d),
                   ),
                   const CategoriesSection(),
                   AvailableDoctorsSection(
                     doctors: doctors,
-                    onTap: (d) => vm.openDoctor(context, d),
+                    onTap: (d) =>
+                        context.push(AppRoutes.doctorDetailPath(d.id), extra: d),
                   ),
                   const SizedBox(height: 4),
                   const HomeSectionTitle(
@@ -96,7 +100,8 @@ class _PatientHomeView extends StatelessWidget {
                   const SizedBox(height: 8),
                   RecommendedDoctorsSection(
                     doctors: doctors,
-                    onTap: (d) => vm.openDoctor(context, d),
+                    onTap: (d) =>
+                        context.push(AppRoutes.doctorDetailPath(d.id), extra: d),
                   ),
                   const SizedBox(height: 24),
                 ],

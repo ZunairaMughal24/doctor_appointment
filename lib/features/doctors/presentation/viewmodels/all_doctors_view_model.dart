@@ -1,29 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/app_router.dart';
 import '../../domain/entities/doctor_entity.dart';
 
-/// Logic for the All Doctors list, keeping the page pure UI. Filtering is done
-/// in-memory against the already-loaded list so repeat visits never refetch.
+/// Logic and search-bar state for the All Doctors list, keeping the page pure
+/// UI. Filtering is done in-memory against the already-loaded list so repeat
+/// visits never refetch.
 class AllDoctorsViewModel {
-  const AllDoctorsViewModel();
+  AllDoctorsViewModel({required this.onChange});
+  final VoidCallback onChange;
 
-  /// Returns [doctors] narrowed to a [speciality] (optionally) and further filtered
-  /// by a search [query] (matching name or speciality).
+  final searchController = TextEditingController();
+  final focusNode = FocusNode();
+
+  bool searchVisible = false;
+  String query = '';
+
+  bool _disposed = false;
+
+  void _set(VoidCallback fn) {
+    fn();
+    onChange();
+  }
+
+  void openSearch() {
+    _set(() => searchVisible = true);
+    // Request focus after the frame so the TextField is in the tree.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_disposed) focusNode.requestFocus();
+    });
+  }
+
+  void closeSearch() {
+    focusNode.unfocus();
+    _set(() {
+      searchVisible = false;
+      query = '';
+      searchController.clear();
+    });
+  }
+
+  void updateQuery(String value) => _set(() => query = value);
+
+  /// Returns [doctors] narrowed to a [speciality] (optionally) and further
+  /// filtered by the current search query (matching name or speciality).
   List<DoctorEntity> filter({
     required List<DoctorEntity> doctors,
     String? speciality,
-    String query = '',
   }) {
-    // 1. First filter by speciality if provided
     var list = doctors;
     if (speciality != null && speciality.trim().isNotEmpty) {
       final s = speciality.toLowerCase();
       list = list.where((d) => d.speciality.toLowerCase() == s).toList();
     }
 
-    // 2. Then filter by query if provided
     if (query.trim().isNotEmpty) {
       final q = query.toLowerCase();
       list = list
@@ -36,6 +65,9 @@ class AllDoctorsViewModel {
     return list;
   }
 
-  void openDoctor(BuildContext context, DoctorEntity doctor) =>
-      context.push(AppRoutes.doctorDetailPath(doctor.id), extra: doctor);
+  void dispose() {
+    _disposed = true;
+    searchController.dispose();
+    focusNode.dispose();
+  }
 }

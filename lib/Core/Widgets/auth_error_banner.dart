@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 
 class AuthErrorBanner extends StatelessWidget {
   final String message;
@@ -23,9 +24,8 @@ class AuthErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: AppTextStyles.label.copyWith(
                 color: AppColors.error,
-                fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
             ),

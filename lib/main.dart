@@ -4,14 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
+import 'package:fyp/core/config/firebase_config.dart';
 import 'package:fyp/core/config/supabase_config.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart' as di;
 import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_bloc.dart';
 import 'package:fyp/features/doctors/presentation/bloc/doctor_event.dart';
 import 'package:fyp/features/notifications/presentation/bloc/notification_bloc.dart';
@@ -21,14 +23,17 @@ void main() async {
 
   try {
     await dotenv.load(fileName: '.env');
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('Failed to load .env — falling back to unconfigured '
+        'Firebase/Supabase (features requiring them will be disabled): $e');
+  }
 
   await Firebase.initializeApp(
-      options: const FirebaseOptions(
-          appId: '1:201017378885:android:91bb9b88ca8b98e9f47b2c',
-          apiKey: 'AIzaSyBaPOGgycLamuvQVXfEc53usmrlIB8Tc3w',
-          messagingSenderId: '201017378885',
-          projectId: 'final-project-e6c97'));
+      options: FirebaseOptions(
+          appId: FirebaseConfig.appId,
+          apiKey: FirebaseConfig.apiKey,
+          messagingSenderId: FirebaseConfig.messagingSenderId,
+          projectId: FirebaseConfig.projectId));
 
   // Initialize Supabase (used only for profile-photo storage).
   if (SupabaseConfig.isConfigured) {
@@ -70,22 +75,32 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => di.sl<AppointmentBloc>()),
         BlocProvider(create: (context) => di.sl<NotificationBloc>()),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: "Medic",
-        theme: ThemeData(
-          textTheme: GoogleFonts.nunitoTextTheme(),
-          appBarTheme: const AppBarTheme(
-            iconTheme: IconThemeData(color: Colors.white),
-            backgroundColor: AppColors.primary,
-            systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.dark,
+      // Refreshes the global doctor list on every auth transition (sign-in,
+      // profile update, role switch, doctor-profile deletion, etc.) so no
+      // individual feature needs to reach into DoctorBloc itself to do this.
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            context.read<DoctorBloc>().add(const LoadAllDoctors());
+          }
+        },
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: "Medic",
+          theme: ThemeData(
+            textTheme: GoogleFonts.nunitoTextTheme(),
+            appBarTheme: const AppBarTheme(
+              iconTheme: IconThemeData(color: Colors.white),
+              backgroundColor: AppColors.primary,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.light,
+                statusBarBrightness: Brightness.dark,
+              ),
             ),
           ),
+          routerConfig: AppRouter.router,
         ),
-        routerConfig: AppRouter.router,
       ),
     );
   }

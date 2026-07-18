@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../domain/entities/appointment_entity.dart';
 
 class AppointmentStatusBadge extends StatelessWidget {
@@ -29,7 +30,7 @@ class AppointmentStatusBadge extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             status.label,
-            style: TextStyle(
+            style: AppTextStyles.label.copyWith(
               color: color,
               fontSize: 12.5,
               fontWeight: FontWeight.bold,
@@ -53,14 +54,15 @@ class SessionCompletedBanner extends StatelessWidget {
         color: AppColors.primaryLighter,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.task_alt_rounded, color: AppColors.primary),
-          SizedBox(width: 10),
+          const Icon(Icons.task_alt_rounded, color: AppColors.primary),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Session completed — this appointment has ended.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: AppTextStyles.label.copyWith(
+                  fontWeight: FontWeight.normal, color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -81,14 +83,15 @@ class AppointmentJoinHint extends StatelessWidget {
         color: AppColors.primaryLighter,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
-          SizedBox(width: 10),
+          const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'The video join button will appear at your appointment time.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: AppTextStyles.label.copyWith(
+                  fontWeight: FontWeight.normal, color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -124,9 +127,8 @@ class AppointmentDetailRow extends StatelessWidget {
               const SizedBox(width: 14),
               Text(
                 label,
-                style: const TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 14,
                 ),
               ),
               const SizedBox(width: 16),
@@ -135,9 +137,8 @@ class AppointmentDetailRow extends StatelessWidget {
                   value.isEmpty ? '—' : value,
                   textAlign: TextAlign.right,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.primary,
-                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -181,8 +182,7 @@ class AppointmentRatingDisplay extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 'Your rating: $rating / 5',
-                style: const TextStyle(
-                  fontSize: 13,
+                style: AppTextStyles.label.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
@@ -193,7 +193,7 @@ class AppointmentRatingDisplay extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               comment,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ],

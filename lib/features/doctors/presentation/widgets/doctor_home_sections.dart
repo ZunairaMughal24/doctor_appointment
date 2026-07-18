@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 
@@ -67,21 +68,21 @@ class DoctorHomeHeader extends StatelessWidget {
               children: [
                 Text(
                   '${_greeting()},',
-                  style: const TextStyle(color: Colors.white70, fontSize: 15),
+                  style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   name.isNotEmpty ? 'Dr. ${name.split(' ').first}' : 'Doctor',
-                  style: const TextStyle(
+                  style: AppTextStyles.h1.copyWith(
                     color: Colors.white,
                     fontSize: 26,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '$weekday, ${now.day} ${months[now.month - 1]} ${now.year}',
-                  style: const TextStyle(color: Colors.white60, fontSize: 13),
+                  style: AppTextStyles.label.copyWith(
+                      fontWeight: FontWeight.normal, color: Colors.white60),
                 ),
               ],
             ),
@@ -174,18 +175,16 @@ class _StatCell extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               value,
-              style: TextStyle(
+              style: AppTextStyles.h2.copyWith(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
+              style: AppTextStyles.caption.copyWith(
                 fontSize: 11.5,
-                color: AppColors.textSecondary,
               ),
             ),
           ],
@@ -233,9 +232,7 @@ class DoctorDashboardSection extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                style: AppTextStyles.h4.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -250,8 +247,7 @@ class DoctorDashboardSection extends StatelessWidget {
                   ),
                   child: Text(
                     '$count',
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: AppTextStyles.bodySmall.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
@@ -264,8 +260,8 @@ class DoctorDashboardSection extends StatelessWidget {
                   onPressed: () => context.push(AppRoutes.appointments),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    textStyle: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600),
+                    textStyle: AppTextStyles.label
+                        .copyWith(fontWeight: FontWeight.w600),
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -335,8 +331,7 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                   children: [
                     Text(
                       appointment.patientName,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
@@ -349,8 +344,7 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                         if (appointment.appointmentTime.isNotEmpty)
                           appointment.appointmentTime,
                       ].join('  ·  '),
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -366,8 +360,7 @@ class DoctorDashboardAppointmentCard extends StatelessWidget {
                 ),
                 child: Text(
                   status.label,
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.caption.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
@@ -405,8 +398,8 @@ class _EmptyCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             message,
-            style: const TextStyle(
-                fontSize: 13, color: AppColors.textSecondary),
+            style: AppTextStyles.label
+                .copyWith(fontWeight: FontWeight.normal, color: AppColors.textSecondary),
           ),
         ],
       ),

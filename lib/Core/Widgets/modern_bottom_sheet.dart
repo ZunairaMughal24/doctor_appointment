@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 /// Shared modern bottom-sheet shell — rounded top, a grab handle, a title row
 /// and an optional subtitle. Used for the dropdown option picker and the photo
@@ -68,7 +69,7 @@ class ModernBottomSheet extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: AppTextStyles.h4.copyWith(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
@@ -78,7 +79,7 @@ class ModernBottomSheet extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: const TextStyle(
+                          style: AppTextStyles.bodySmall.copyWith(
                             fontSize: 12.5,
                             color: AppColors.textSecondary,
                           ),

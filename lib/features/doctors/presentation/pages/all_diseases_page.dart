@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_container.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
@@ -85,17 +86,15 @@ class AllDiseasesPage extends StatelessWidget {
                         children: [
                           Text(
                             entry.name,
-                            style: const TextStyle(
-                              fontSize: 16, // Industry-level size
-                              fontWeight: FontWeight.w600, // Bold font weight
-                              color: AppColors.textRed, // Text color red
+                            style: AppTextStyles.h4.copyWith(
+                              fontSize: 16,
+                              color: AppColors.textRed,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             entry.subtitle,
-                            style: const TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.label.copyWith(
                               fontWeight: FontWeight.w400,
                               color: AppColors.textMuted,
                               height: 1.3,

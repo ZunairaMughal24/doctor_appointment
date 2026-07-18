@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
+import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/features/onboarding/presentation/viewmodels/onboarding_viewmodel.dart';
 import 'package:fyp/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
 import 'package:fyp/features/onboarding/presentation/widgets/onboarding_arts.dart';
@@ -67,13 +70,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 opacity: _vm.isLast ? 0 : 1,
                 duration: const Duration(milliseconds: 200),
                 child: TextButton(
-                  onPressed: _vm.isLast ? null : () => _vm.finish(context),
-                  child: const Text(
+                  onPressed:
+                      _vm.isLast ? null : () => context.go(AppRoutes.welcome),
+                  child: Text(
                     'Skip',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyLarge.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
                     ),
                   ),
                 ),
@@ -105,15 +108,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(16),
                   child: InkWell(
-                    onTap: () => _vm.next(context),
+                    onTap: () {
+                      if (_vm.isLast) {
+                        context.go(AppRoutes.welcome);
+                      } else {
+                        _vm.next();
+                      }
+                    },
                     borderRadius: BorderRadius.circular(16),
                     child: Center(
                       child: Text(
                         _vm.isLast ? 'Get Started' : 'Next',
-                        style: const TextStyle(
+                        style: AppTextStyles.h4.copyWith(
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -174,9 +181,8 @@ class _SlideView extends StatelessWidget {
           Text(
             slide.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: AppTextStyles.h1.copyWith(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
@@ -184,8 +190,7 @@ class _SlideView extends StatelessWidget {
           Text(
             slide.subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
+            style: AppTextStyles.bodyLarge.copyWith(
               height: 1.5,
               color: AppColors.textSecondary,
             ),

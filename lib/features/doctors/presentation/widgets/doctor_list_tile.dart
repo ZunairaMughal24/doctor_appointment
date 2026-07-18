@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/doctor_entity.dart';
 import 'home_doctor_cards.dart';
@@ -73,34 +74,30 @@ class DoctorListTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(doctor.name,
-                        style: const TextStyle(
+                        style: AppTextStyles.h4.copyWith(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         )),
                     Text(doctor.speciality,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyles.body.copyWith(
                           color: AppColors.textRed,
                         )),
                     const SizedBox(height: 4),
                     Text('${doctor.experience} of Experience',
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textMuted,
                         )),
                     Row(children: [
                       const Icon(Icons.star, color: Colors.amber, size: 16),
                       const SizedBox(width: 4),
                       Text('${doctor.rating}',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.primary,
                           )),
                     ]),
                     Text(doctor.location,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.primary)),
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: AppColors.primary)),
                     const SizedBox(height: 2),
                     DoctorAvailabilityBadge(availability: doctor.availability),
                   ],

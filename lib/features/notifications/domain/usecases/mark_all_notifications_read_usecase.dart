@@ -4,11 +4,11 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/notification_repository.dart';
 
-class MarkNotificationReadUseCase implements UseCase<void, String> {
+class MarkAllNotificationsReadUseCase implements UseCase<void, String> {
   final NotificationRepository repository;
-  MarkNotificationReadUseCase(this.repository);
+  MarkAllNotificationsReadUseCase(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(String notificationId) =>
-      repository.markAsRead(notificationId);
+  Future<Either<Failure, void>> call(String userId) =>
+      repository.markAllRead(userId);
 }

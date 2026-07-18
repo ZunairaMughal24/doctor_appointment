@@ -62,7 +62,7 @@ class RegisterAsDoctorViewModel {
           availability: _buildAvailabilityString(),
           services: servicesController.text.trim(),
           description: descriptionController.text.trim(),
-          weeklySchedule: _schedule.toMap(),
+          weeklySchedule: _schedule,
         ));
   }
 

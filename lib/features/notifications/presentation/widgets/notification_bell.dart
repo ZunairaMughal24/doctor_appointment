@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -64,7 +65,7 @@ class _NotificationBellState extends State<NotificationBell> {
                   child: Text(
                     unread > 9 ? '9+' : '$unread',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: AppTextStyles.caption.copyWith(
                       color: Colors.white,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,

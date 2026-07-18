@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../../domain/entities/user_entity.dart';
 
 abstract class AuthEvent extends Equatable {
@@ -73,7 +74,7 @@ class AuthRegisterAsDoctorRequested extends AuthEvent {
   final String availability;
   final String services;
   final String description;
-  final Map<String, dynamic>? weeklySchedule;
+  final WeeklyAvailability? weeklySchedule;
 
   const AuthRegisterAsDoctorRequested({
     required this.uid,
@@ -105,7 +106,7 @@ class AuthUpdateProfileRequested extends AuthEvent {
   final String? availability;
   final String? services;
   final String? description;
-  final Map<String, dynamic>? weeklySchedule;
+  final WeeklyAvailability? weeklySchedule;
 
   const AuthUpdateProfileRequested({
     required this.uid,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/appointment_entity.dart';
 
@@ -46,9 +47,8 @@ class AppointmentTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.primaryDark,
-                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -59,8 +59,7 @@ class AppointmentTile extends StatelessWidget {
                       const SizedBox(width: 3),
                       Text(
                         speciality,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textRed,
                           fontWeight: FontWeight.w500,
                         ),
@@ -73,8 +72,9 @@ class AppointmentTile extends StatelessWidget {
                   children: [
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.textSecondary),
+                      style: AppTextStyles.label.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: AppColors.textSecondary),
                     ),
                     const SizedBox(width: 8),
                     _StatusChip(status: status),
@@ -111,9 +111,8 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: TextStyle(
+        style: AppTextStyles.caption.copyWith(
           color: color,
-          fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -142,8 +141,8 @@ class AppointmentEmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style:
-                const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style: AppTextStyles.bodyLarge.copyWith(
+                fontSize: 16, color: AppColors.textSecondary),
           ),
         ],
       ),

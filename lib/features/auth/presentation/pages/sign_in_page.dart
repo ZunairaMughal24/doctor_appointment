@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_error_banner.dart';
@@ -77,24 +78,22 @@ class _SignInPageState extends State<SignInPage> {
                     alignment: Alignment.topCenter,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 28),
+                Padding(
+                  padding: const EdgeInsets.only(left: 28),
                   child: Text(
                     "Login",
-                    style: TextStyle(
+                    style: AppTextStyles.h1.copyWith(
                       fontSize: 25,
-                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 28, right: 20),
+                Padding(
+                  padding: const EdgeInsets.only(left: 28, right: 20),
                   child: Text(
                     "Please enter your email and password access your account",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color.fromARGB(255, 133, 143, 148),
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: const Color.fromARGB(255, 133, 143, 148),
                     ),
                   ),
                 ),
@@ -154,15 +153,14 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 TextButton(
                   onPressed: () => context.push(AppRoutes.signUp),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(right: 4),
+                        padding: const EdgeInsets.only(right: 4),
                         child: Text("Don't have an account?",
-                            style: TextStyle(
+                            style: AppTextStyles.h3.copyWith(
                                 fontSize: 17.0,
-                                fontWeight: FontWeight.bold,
                                 color: AppColors.primary),
                             textAlign: TextAlign.center),
                       ),

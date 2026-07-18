@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../domain/entities/notification_entity.dart';
 import '../bloc/notification_bloc.dart';
@@ -164,7 +165,7 @@ class _NotificationTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notification.title,
-                            style: TextStyle(
+                            style: AppTextStyles.body.copyWith(
                               fontSize: 14.5,
                               fontWeight:
                                   unread ? FontWeight.bold : FontWeight.w600,
@@ -186,7 +187,7 @@ class _NotificationTile extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       notification.body,
-                      style: const TextStyle(
+                      style: AppTextStyles.body.copyWith(
                         fontSize: 13,
                         height: 1.4,
                         color: AppColors.textSecondary,
@@ -196,10 +197,7 @@ class _NotificationTile extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         _timeAgo(notification.createdAt!),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textHint,
-                        ),
+                        style: AppTextStyles.caption,
                       ),
                     ],
                   ],
@@ -235,17 +233,16 @@ class _SwipeReadBackground extends StatelessWidget {
         color: AppColors.success.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.done_all_rounded, color: AppColors.success, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.done_all_rounded, color: AppColors.success, size: 20),
+          const SizedBox(width: 8),
           Text(
             'Mark read',
-            style: TextStyle(
+            style: AppTextStyles.label.copyWith(
               color: AppColors.success,
               fontWeight: FontWeight.bold,
-              fontSize: 13,
             ),
           ),
         ],
@@ -269,8 +266,8 @@ class _Centered extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style:
-                const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style: AppTextStyles.bodyLarge.copyWith(
+                fontSize: 16, color: AppColors.textSecondary),
           ),
         ],
       ),

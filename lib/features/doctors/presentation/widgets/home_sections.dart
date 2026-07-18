@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../domain/entities/doctor_entity.dart';
@@ -73,8 +74,7 @@ class HomeHeader extends StatelessWidget {
                         children: [
                           Text(
                             greeting,
-                            style: TextStyle(
-                              fontSize: 12.5,
+                            style: AppTextStyles.label.copyWith(
                               fontWeight: FontWeight.w500,
                               color: Colors.white.withValues(alpha: 0.85),
                               letterSpacing: 0.3,
@@ -85,7 +85,7 @@ class HomeHeader extends StatelessWidget {
                             username.isNotEmpty ? username : 'Welcome',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: AppTextStyles.h2.copyWith(
                               fontSize: 22,
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -94,12 +94,11 @@ class HomeHeader extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 1),
-                          const Text(
+                          Text(
                             'Your health, our priority.',
-                            style: TextStyle(
-                              fontSize: 12.5,
+                            style: AppTextStyles.label.copyWith(
                               fontWeight: FontWeight.w400,
-                              color: Color.fromARGB(179, 255, 255, 255),
+                              color: const Color.fromARGB(179, 255, 255, 255),
                               letterSpacing: 0.1,
                               fontStyle: FontStyle.italic,
                             ),
@@ -194,8 +193,7 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontSize: 15,
+          style: AppTextStyles.bodyLarge.copyWith(
             fontWeight: FontWeight.w800,
             color: accent ? AppColors.textRed : AppColors.primary,
             letterSpacing: -0.2,
@@ -204,10 +202,9 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12.5,
+          style: AppTextStyles.label.copyWith(
             fontWeight: FontWeight.w500,
-            color: Color.fromARGB(255, 109, 112, 114),
+            color: const Color.fromARGB(255, 109, 112, 114),
             letterSpacing: 0.1,
           ),
         ),
@@ -241,7 +238,7 @@ class HomeSectionTitle extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: AppTextStyles.h3.copyWith(
               fontSize: 17.5,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
@@ -252,10 +249,9 @@ class HomeSectionTitle extends StatelessWidget {
             const SizedBox(height: 1),
             Text(
               subtitle!,
-              style: const TextStyle(
-                fontSize: 12.5,
+              style: AppTextStyles.label.copyWith(
                 fontWeight: FontWeight.w400,
-                color: Color.fromARGB(255, 109, 112, 114),
+                color: const Color.fromARGB(255, 109, 112, 114),
                 letterSpacing: 0.1,
               ),
             ),
@@ -289,9 +285,9 @@ class FeaturedDoctorsSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Top Specialists',
-                style: TextStyle(
+                style: AppTextStyles.h3.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -299,12 +295,11 @@ class FeaturedDoctorsSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 3),
-              const Text(
+              Text(
                 'Highly rated, verified medical professionals',
-                style: TextStyle(
-                  fontSize: 12.5,
+                style: AppTextStyles.label.copyWith(
                   fontWeight: FontWeight.w400,
-                  color: Color.fromARGB(255, 109, 112, 114),
+                  color: const Color.fromARGB(255, 109, 112, 114),
                   letterSpacing: 0.1,
                 ),
               ),
@@ -542,8 +537,7 @@ class _CategoryTile extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
+              style: AppTextStyles.label.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textRed,
               ),
@@ -818,7 +812,7 @@ class _SectionHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: AppTextStyles.h3.copyWith(
                     fontSize: 17.5,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
@@ -829,10 +823,10 @@ class _SectionHeader extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: AppTextStyles.label.copyWith(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w500,
-                      color: Color.fromARGB(255, 109, 112, 114),
+                      color: const Color.fromARGB(255, 109, 112, 114),
                       letterSpacing: 0.1,
                     ),
                   ),
@@ -846,9 +840,9 @@ class _SectionHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-              child: const Text(
+              child: Text(
                 'View All',
-                style: TextStyle(
+                style: AppTextStyles.label.copyWith(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textRed,

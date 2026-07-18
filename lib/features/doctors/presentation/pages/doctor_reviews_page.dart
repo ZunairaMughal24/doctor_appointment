@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../appointments/domain/entities/appointment_entity.dart';
 import '../widgets/doctor_reviews.dart';
@@ -26,16 +27,16 @@ class DoctorReviewsPage extends StatelessWidget {
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: reviews.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.reviews_outlined,
+                  const Icon(Icons.reviews_outlined,
                       size: 64, color: AppColors.textHint),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     'No reviews yet',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyLarge.copyWith(
                         fontSize: 16, color: AppColors.textSecondary),
                   ),
                 ],
@@ -65,16 +66,15 @@ class DoctorReviewsPage extends StatelessWidget {
                             rating > 0
                                 ? rating.toStringAsFixed(1)
                                 : 'No rating',
-                            style: const TextStyle(
+                            style: AppTextStyles.h1.copyWith(
                               fontSize: 24,
-                              fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
                           Text(
                             '${reviews.length} patient review${reviews.length == 1 ? '' : 's'}',
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.label.copyWith(
+                              fontWeight: FontWeight.normal,
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
                           ),
@@ -83,8 +83,7 @@ class DoctorReviewsPage extends StatelessWidget {
                       const Spacer(),
                       Text(
                         doctorName,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: AppTextStyles.label.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.white.withValues(alpha: 0.9),
                         ),

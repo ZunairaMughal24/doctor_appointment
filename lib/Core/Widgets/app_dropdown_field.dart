@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/core/widgets/app_text_field.dart';
 import 'package:fyp/core/widgets/modern_bottom_sheet.dart';
 
@@ -108,7 +109,7 @@ class _OptionsSheet extends StatelessWidget {
                       Expanded(
                         child: Text(
                           option,
-                          style: TextStyle(
+                          style: AppTextStyles.body.copyWith(
                             fontSize: 14.5,
                             fontWeight:
                                 selected ? FontWeight.bold : FontWeight.w500,

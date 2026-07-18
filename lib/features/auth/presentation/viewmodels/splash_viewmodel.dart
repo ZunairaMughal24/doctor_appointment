@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../bloc/auth_bloc.dart';
@@ -13,9 +12,10 @@ import '../bloc/auth_state.dart';
 class SplashViewModel {
   const SplashViewModel();
 
-  /// Triggers the auth check, then (after a minimum splash time) routes once
-  /// auth resolves.
-  Future<void> start(BuildContext context) async {
+  /// Triggers the auth check, then (after a minimum splash time) resolves to
+  /// the route the page should navigate to once auth settles. The ViewModel
+  /// never touches the router itself.
+  Future<String> resolveDestination(BuildContext context) async {
     final bloc = context.read<AuthBloc>();
     bloc.add(const AuthCheckRequested());
 
@@ -27,7 +27,7 @@ class SplashViewModel {
       await bloc.stream.firstWhere((s) => destinationFor(s) != null);
     }
 
-    if (context.mounted) context.go(destinationFor(bloc.state)!);
+    return destinationFor(bloc.state)!;
   }
 
   String? destinationFor(AuthState state) {

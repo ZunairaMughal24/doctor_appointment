@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:fyp/core/constants/app_assets.dart';
 import 'package:fyp/core/constants/app_colors.dart';
+import 'package:fyp/core/constants/app_text_styles.dart';
+import 'package:fyp/core/router/app_router.dart';
 import 'package:fyp/core/utils/app_animations.dart';
 import 'package:fyp/core/widgets/app_button.dart';
-import 'package:fyp/features/onboarding/presentation/viewmodels/welcome_viewmodel.dart';
 
 /// Landing screen for unauthenticated users.
 ///
@@ -16,7 +18,6 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const vm = WelcomeViewModel();
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Column(
@@ -49,24 +50,24 @@ class WelcomePage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const FadeSlideIn(
-                    delay: Duration(milliseconds: 150),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 150),
                     child: Text(
                       'Welcome to Medic',
-                      style: TextStyle(
+                      style: AppTextStyles.h1.copyWith(
                         fontSize: 26,
-                        fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const FadeSlideIn(
-                    delay: Duration(milliseconds: 300),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 300),
                     child: Text(
                       'Your trusted healthcare companion — find doctors, book visits, and stay on top of your care.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.normal,
                         fontSize: 14.5,
                         height: 1.5,
                         color: AppColors.textSecondary,
@@ -79,7 +80,7 @@ class WelcomePage extends StatelessWidget {
                     child: AppButton(
                       label: 'Sign In',
                       height: 54,
-                      onPressed: () => vm.goSignIn(context),
+                      onPressed: () => context.go(AppRoutes.signIn),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -88,7 +89,7 @@ class WelcomePage extends StatelessWidget {
                     child: AppButton.outlined(
                       label: 'Create Account',
                       height: 54,
-                      onPressed: () => vm.goSignUp(context),
+                      onPressed: () => context.go(AppRoutes.signUp),
                     ),
                   ),
                 ],

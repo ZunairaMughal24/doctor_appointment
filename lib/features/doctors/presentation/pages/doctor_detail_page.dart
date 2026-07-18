@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
@@ -114,25 +115,22 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             children: [
                               Text(
                                 data.name,
-                                style: const TextStyle(
+                                style: AppTextStyles.h3.copyWith(
                                   color: AppColors.primary,
                                   fontSize: 17,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 data.speciality,
-                                style: const TextStyle(
+                                style: AppTextStyles.bodyLarge.copyWith(
                                   color: AppColors.textRed,
-                                  fontSize: 15,
                                 ),
                               ),
                               Text(
                                 '${data.experience} of experience',
-                                style: const TextStyle(
+                                style: AppTextStyles.label.copyWith(
                                   color: AppColors.primary,
                                   fontStyle: FontStyle.italic,
-                                  fontSize: 13,
                                 ),
                               ),
                             ],
@@ -156,22 +154,20 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Contact Number',
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodyLarge.copyWith(
                                     color: AppColors.primary,
-                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
                                   'Clinic reception line',
-                                  style: TextStyle(
+                                  style: AppTextStyles.body.copyWith(
                                     color: AppColors.textSecondary,
-                                    fontSize: 14,
                                   ),
                                 ),
                               ],
@@ -188,18 +184,18 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                                         'Could not open the dialer on this device.');
                                   }
                                 },
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.call,
+                                      const Icon(Icons.call,
                                           color: Colors.white, size: 16),
-                                      SizedBox(width: 6),
+                                      const SizedBox(width: 6),
                                       Text(
                                         'Call Assistant',
-                                        style: TextStyle(
+                                        style: AppTextStyles.label.copyWith(
                                           color: Colors.white,
                                           fontSize: 12.5,
                                           fontWeight: FontWeight.w600,
@@ -213,20 +209,18 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 2),
-                        const Text(
+                        Text(
                           'Description',
-                          style: TextStyle(
+                          style: AppTextStyles.h4.copyWith(
                             color: AppColors.primary,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           data.description.isNotEmpty
                               ? data.description
                               : 'No description available.',
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -241,51 +235,45 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                         ),
                         Text(
                           data.location,
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: AppTextStyles.body.copyWith(
                             color: AppColors.textRed,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Availability',
-                          style: TextStyle(
+                          style: AppTextStyles.h4.copyWith(
                             color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                         Text(
                           data.availability,
-                          style: const TextStyle(
+                          style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
-                            fontSize: 14,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'Weekly Schedule',
-                          style: TextStyle(
+                          style: AppTextStyles.h4.copyWith(
                             color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
                             fontSize: 15,
                           ),
                         ),
                         const SizedBox(height: 6),
                         _WeeklyScheduleTable(schedule: data.schedule),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'Services',
-                          style: TextStyle(
+                          style: AppTextStyles.h4.copyWith(
                             color: AppColors.primary,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           data.services,
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -360,8 +348,7 @@ class _ScheduleRow extends StatelessWidget {
         children: [
           Text(
             hours.day,
-            style: const TextStyle(
-              fontSize: 14,
+            style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
@@ -370,16 +357,14 @@ class _ScheduleRow extends StatelessWidget {
               ? Text(
                   '${WeeklyAvailability.to12h(hours.open!)} – '
                   '${WeeklyAvailability.to12h(hours.close!)}',
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 )
-              : const Text(
+              : Text(
                   'Closed',
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.body.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.textHint,
                   ),

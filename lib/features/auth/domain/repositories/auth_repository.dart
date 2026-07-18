@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../doctors/domain/entities/weekly_availability.dart';
 import '../entities/user_entity.dart';
 
 abstract class AuthRepository {
@@ -38,7 +39,7 @@ abstract class AuthRepository {
     required String availability,
     required String services,
     required String description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   });
 
   Future<Either<Failure, UserEntity>> updateProfile({
@@ -52,7 +53,7 @@ abstract class AuthRepository {
     String? availability,
     String? services,
     String? description,
-    Map<String, dynamic>? weeklySchedule,
+    WeeklyAvailability? weeklySchedule,
   });
 
   Future<Either<Failure, void>> switchRole({
