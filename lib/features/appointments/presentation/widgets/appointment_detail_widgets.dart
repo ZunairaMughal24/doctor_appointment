@@ -42,6 +42,43 @@ class AppointmentStatusBadge extends StatelessWidget {
   }
 }
 
+class AppointmentHeaderAvatar extends StatelessWidget {
+  final IconData icon;
+  final String name;
+  final AppointmentStatus status;
+
+  const AppointmentHeaderAvatar({
+    super.key,
+    required this.icon,
+    required this.name,
+    required this.status,
+  });
+
+  static const double _avatarRadius = 38;
+  static const double _iconSize = 36;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: _avatarRadius,
+          backgroundColor: AppColors.primaryLight,
+          child: Icon(icon, color: AppColors.primary, size: _iconSize),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          name,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.h2.copyWith(fontSize: 20, color: AppColors.primary),
+        ),
+        const SizedBox(height: 10),
+        AppointmentStatusBadge(status: status),
+      ],
+    );
+  }
+}
+
 class SessionCompletedBanner extends StatelessWidget {
   const SessionCompletedBanner({super.key});
 

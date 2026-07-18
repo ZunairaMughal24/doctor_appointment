@@ -41,6 +41,10 @@ dependencies:
   flutter_bloc: ^8.1.6
   bloc_concurrency: ^0.2.0
   equatable: ^2.0.5
+  # Already a transitive dep of flutter_bloc; declared directly only for
+  # ChangeNotifierProvider, used to expose the single small CurrentSession
+  # cross-cutting value — screens still use flutter_bloc exclusively.
+  provider: ^6.1.5
 
   # Dependency Injection
   get_it: ^7.6.4

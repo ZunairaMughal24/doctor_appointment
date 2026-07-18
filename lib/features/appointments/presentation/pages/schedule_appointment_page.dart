@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/core/session/current_session.dart';
 import 'package:fyp/core/utils/app_feedback.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
@@ -42,7 +43,10 @@ class _ScheduleViewState extends State<_ScheduleView> {
   @override
   void initState() {
     super.initState();
-    _vm = ScheduleAppointmentViewModel(widget.doctor);
+    _vm = ScheduleAppointmentViewModel(
+      widget.doctor,
+      session: context.read<CurrentSession>(),
+    );
   }
 
   @override

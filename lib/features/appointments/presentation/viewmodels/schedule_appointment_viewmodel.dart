@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fyp/core/session/current_session.dart';
 import 'package:fyp/core/utils/app_pickers.dart';
 import 'package:fyp/core/utils/validators.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
 import 'package:fyp/features/appointments/presentation/cubit/slots_cubit.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/doctors/domain/entities/doctor_entity.dart';
 
 /// Holds all non-UI state/logic for the schedule-appointment form.
 /// The page mutates this via setState and reads it during build.
 class ScheduleAppointmentViewModel {
+  ScheduleAppointmentViewModel(this.doctor, {required CurrentSession session})
+      : _session = session;
+
   final DoctorEntity doctor;
-  ScheduleAppointmentViewModel(this.doctor);
+  final CurrentSession _session;
 
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -83,11 +85,6 @@ class ScheduleAppointmentViewModel {
 
   // ── Coordination (context-bound) ─────────────────────────────────────────────
 
-  String _uid(BuildContext context) {
-    final s = context.read<AuthBloc>().state;
-    return s is AuthAuthenticated ? s.user.uid : '';
-  }
-
   /// Shows the date picker, updates selection and refreshes live availability.
   /// Returns true if a date was chosen so the page can rebuild.
   Future<bool> pickDate(BuildContext context) async {
@@ -114,13 +111,14 @@ class ScheduleAppointmentViewModel {
   /// missing pieces.
   /// Returns an error message if validation fails, null if the booking was dispatched.
   String? submit(BuildContext context) {
-    if (_uid(context).isEmpty) return 'Please sign in to book an appointment.';
+    final uid = _session.uid;
+    if (uid.isEmpty) return 'Please sign in to book an appointment.';
     if (!validateFields()) return null;
     if (!hasDate) return 'Please select an appointment date.';
     if (!hasTime) return 'Please select an available time slot.';
     context
         .read<AppointmentBloc>()
-        .add(BookAppointment(buildAppointment(patientId: _uid(context))));
+        .add(BookAppointment(buildAppointment(patientId: uid)));
     return null;
   }
 

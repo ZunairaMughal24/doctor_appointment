@@ -5,10 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
+import 'package:fyp/core/session/current_session.dart';
 
-import 'package:fyp/features/auth/domain/entities/user_entity.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
@@ -37,9 +35,7 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final isDoctor = authState is AuthAuthenticated &&
-        authState.user.role == UserRole.doctor;
+    final isDoctor = context.watch<CurrentSession>().isDoctor;
     return isDoctor ? const _DoctorHomeView() : const _PatientHomeView();
   }
 }
@@ -52,8 +48,7 @@ class _PatientHomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const vm = HomeViewModel();
-    final authState = context.watch<AuthBloc>().state;
-    final username = authState is AuthAuthenticated ? authState.user.name : '';
+    final username = context.watch<CurrentSession>().name;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -126,10 +121,7 @@ class _DoctorHomeView extends StatefulWidget {
 class _DoctorHomeViewState extends State<_DoctorHomeView> {
   late final AppointmentBloc _bloc;
 
-  String get _uid {
-    final s = context.read<AuthBloc>().state;
-    return s is AuthAuthenticated ? s.user.uid : '';
-  }
+  String get _uid => context.read<CurrentSession>().uid;
 
   @override
   void initState() {
@@ -145,14 +137,13 @@ class _DoctorHomeViewState extends State<_DoctorHomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final user = authState is AuthAuthenticated ? authState.user : null;
+    final session = context.watch<CurrentSession>();
 
     final doctorState = context.watch<DoctorBloc>().state;
     final myDoctor = doctorState is DoctorsLoaded
         ? doctorState.doctors
             .cast<DoctorEntity?>()
-            .firstWhere((d) => d?.id == user?.uid, orElse: () => null)
+            .firstWhere((d) => d?.id == session.uid, orElse: () => null)
         : null;
 
     return BlocProvider.value(
@@ -177,7 +168,7 @@ class _DoctorHomeViewState extends State<_DoctorHomeView> {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.zero,
                 children: [
-                  DoctorHomeHeader(name: user?.name ?? ''),
+                  DoctorHomeHeader(name: session.name),
                   const SizedBox(height: 4),
                   DoctorStatsStrip(
                     pending: pending.length,

@@ -6,9 +6,7 @@ import 'package:fyp/core/constants/app_colors.dart';
 import 'package:fyp/core/constants/app_text_styles.dart';
 import 'package:fyp/core/di/injection_container.dart';
 import 'package:fyp/core/router/app_router.dart';
-import 'package:fyp/features/auth/domain/entities/user_entity.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:fyp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fyp/core/session/current_session.dart';
 import 'package:fyp/features/appointments/domain/entities/appointment_entity.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_bloc.dart';
 import 'package:fyp/features/appointments/presentation/bloc/appointment_event.dart';
@@ -25,9 +23,7 @@ class MyAppointmentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final isDoctor = authState is AuthAuthenticated &&
-        authState.user.role == UserRole.doctor;
+    final isDoctor = context.watch<CurrentSession>().isDoctor;
 
     if (isDoctor) {
       return const _DoctorAppointmentsTabs();
@@ -54,8 +50,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final s = context.read<AuthBloc>().state;
-    _uid = s is AuthAuthenticated ? s.user.uid : '';
+    _uid = context.read<CurrentSession>().uid;
     context.read<AppointmentBloc>().add(LoadUserAppointments(_uid));
   }
 
@@ -177,8 +172,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final s = context.read<AuthBloc>().state;
-    _uid = s is AuthAuthenticated ? s.user.uid : '';
+    _uid = context.read<CurrentSession>().uid;
     _patientsBloc = sl<AppointmentBloc>()..add(LoadDoctorAppointments(_uid));
     _visitsBloc = sl<AppointmentBloc>()..add(LoadUserAppointments(_uid));
   }

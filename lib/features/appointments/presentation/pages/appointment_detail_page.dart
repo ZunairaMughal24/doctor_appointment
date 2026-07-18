@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/session/current_session.dart';
+import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../viewmodels/appointment_detail_viewmodel.dart';
 import '../widgets/appointment_detail_widgets.dart';
@@ -26,11 +26,9 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   @override
   void initState() {
     super.initState();
-    final s = context.read<AuthBloc>().state;
-    final uid = s is AuthAuthenticated ? s.user.uid : '';
     _vm = AppointmentDetailViewModel(
       appointment: widget.appointment,
-      viewerUid: uid,
+      viewerUid: context.read<CurrentSession>().uid,
       onChange: () {
         if (mounted) setState(() {});
       },
@@ -46,11 +44,49 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       builder: (_) => RatingBottomSheet(doctorName: _vm.appointment.doctorName),
     );
     if (result == null || !mounted) return;
-    await _vm.submitRating(
-      context,
+    final error = await _vm.submitRating(
       rating: result.rating,
       comment: result.comment,
     );
+    if (error != null && mounted) {
+      AppFeedback.showError(context, error);
+    }
+  }
+
+  /// Runs a status update and shows the resulting success/error feedback.
+  Future<void> _handleStatusUpdate(
+    AppointmentStatus status, {
+    required bool asDoctor,
+  }) async {
+    final result = await _vm.updateStatus(status, asDoctor: asDoctor);
+    if (!mounted) return;
+    if (result.ok) {
+      AppFeedback.showSuccess(context, result.message);
+    } else {
+      AppFeedback.showError(context, result.message);
+    }
+  }
+
+  /// Shows the cancel confirmation dialog, then applies the cancellation.
+  Future<void> _confirmCancel({required bool asDoctor}) async {
+    final ok = await AppFeedback.showConfirmation(
+      context,
+      title: 'Cancel appointment',
+      message: 'Are you sure you want to cancel this appointment?',
+      confirmLabel: 'Cancel appointment',
+      cancelLabel: 'Keep it',
+      isDanger: true,
+    );
+    if (ok && mounted) {
+      await _handleStatusUpdate(AppointmentStatus.cancelled, asDoctor: asDoctor);
+    }
+  }
+
+  Future<void> _joinOnWhatsApp() async {
+    final error = await _vm.joinOnWhatsApp();
+    if (error != null && mounted) {
+      AppFeedback.showError(context, error);
+    }
   }
 
   @override
@@ -77,36 +113,16 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   Center(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 38,
-                          backgroundColor: AppColors.primaryLight,
-                          child: Icon(
-                            _vm.isDoctorViewer
-                                ? Icons.person_rounded
-                                : (isVideo
-                                    ? Icons.videocam_rounded
-                                    : Icons.medical_services_outlined),
-                            color: AppColors.primary,
-                            size: 36,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          _vm.isDoctorViewer
-                              ? _vm.appointment.patientName
-                              : _vm.appointment.doctorName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        AppointmentStatusBadge(status: _vm.appointment.effectiveStatus),
-                      ],
+                    child: AppointmentHeaderAvatar(
+                      icon: _vm.isDoctorViewer
+                          ? Icons.person_rounded
+                          : (isVideo
+                              ? Icons.videocam_rounded
+                              : Icons.medical_services_outlined),
+                      name: _vm.isDoctorViewer
+                          ? _vm.appointment.patientName
+                          : _vm.appointment.doctorName,
+                      status: _vm.appointment.effectiveStatus,
                     ),
                   ),
                   const SizedBox(height: 28),
@@ -161,14 +177,24 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     );
   }
 
+  /// Assembles every action section (role-specific buttons, then the
+  /// video/completion section), inserting a gap between sections that are
+  /// actually non-empty. Each `_xxxSection` below only decides *what* to
+  /// show — spacing between sections is decided here, once.
   List<Widget> _actions() {
+    final sections = [
+      if (_vm.isDoctorViewer)
+        _doctorActions()
+      else if (_vm.isPatientViewer)
+        _patientActions(),
+      _videoAndCompletionSection(),
+    ].where((section) => section.isNotEmpty);
+
     final widgets = <Widget>[];
-    if (_vm.isDoctorViewer) {
-      widgets.addAll(_doctorActions());
-    } else if (_vm.isPatientViewer) {
-      widgets.addAll(_patientActions());
+    for (final section in sections) {
+      if (widgets.isNotEmpty) widgets.add(const SizedBox(height: 12));
+      widgets.addAll(section);
     }
-    widgets.addAll(_videoAndCompletionSection(widgets.isNotEmpty));
     return widgets;
   }
 
@@ -182,15 +208,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
-              : () => _vm.updateStatus(context, AppointmentStatus.confirmed, asDoctor: true),
+              : () =>
+                  _handleStatusUpdate(AppointmentStatus.confirmed, asDoctor: true),
         ),
         const SizedBox(height: 12),
-        AppButton.outlined(
-          label: 'Decline',
-          icon: Icons.cancel_outlined,
-          color: AppColors.error,
-          onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
-        ),
+        _cancelButton('Decline', asDoctor: true),
       ];
     }
     if (status == AppointmentStatus.confirmed) {
@@ -202,15 +224,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
-              : () => _vm.updateStatus(context, AppointmentStatus.completed, asDoctor: true),
+              : () =>
+                  _handleStatusUpdate(AppointmentStatus.completed, asDoctor: true),
         ),
         const SizedBox(height: 12),
-        AppButton.outlined(
-          label: 'Cancel Appointment',
-          icon: Icons.cancel_outlined,
-          color: AppColors.error,
-          onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: true),
-        ),
+        _cancelButton('Cancel Appointment', asDoctor: true),
       ];
     }
     return [];
@@ -222,44 +240,44 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         status == AppointmentStatus.completed) {
       return [];
     }
-    return [
-      AppButton.outlined(
-        label: 'Cancel Appointment',
-        icon: Icons.cancel_outlined,
-        color: AppColors.error,
-        onPressed: _vm.busy ? null : () => _vm.confirmCancel(context, asDoctor: false),
-      ),
-    ];
+    return [_cancelButton('Cancel Appointment', asDoctor: false)];
   }
 
-  List<Widget> _videoAndCompletionSection(bool hasPreceding) {
+  Widget _cancelButton(String label, {required bool asDoctor}) {
+    return AppButton.outlined(
+      label: label,
+      icon: Icons.cancel_outlined,
+      color: AppColors.error,
+      onPressed: _vm.busy ? null : () => _confirmCancel(asDoctor: asDoctor),
+    );
+  }
+
+  List<Widget> _videoAndCompletionSection() {
     final appt = _vm.appointment;
-    final status = appt.effectiveStatus;
-    final gap = hasPreceding ? [const SizedBox(height: 12)] : <Widget>[];
 
     if (appt.isJoinable) {
       return [
-        ...gap,
         AppButton(
           label: 'Join on WhatsApp',
           icon: Icons.videocam_rounded,
           color: AppColors.success,
-          onPressed: () => _vm.joinOnWhatsApp(context),
+          onPressed: _joinOnWhatsApp,
         ),
       ];
     }
-    if (status == AppointmentStatus.completed) {
-      return [...gap, ..._completedWidgets(appt)];
+    if (appt.effectiveStatus == AppointmentStatus.completed) {
+      return _completedWidgets();
     }
     if (appt.isVideo &&
         appt.status == AppointmentStatus.confirmed &&
         appt.startsAt != null) {
-      return [...gap, const AppointmentJoinHint()];
+      return [const AppointmentJoinHint()];
     }
     return [];
   }
 
-  List<Widget> _completedWidgets(AppointmentEntity appt) {
+  List<Widget> _completedWidgets() {
+    final appt = _vm.appointment;
     final alreadyRated = appt.hasRating || _vm.hasJustRated;
     return [
       const SessionCompletedBanner(),
