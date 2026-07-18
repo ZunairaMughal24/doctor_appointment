@@ -125,7 +125,7 @@ class _PatientAppointmentsState extends State<_PatientAppointments>
                     isPatient: true,
                     currentUserId: uid,
                     emptyMessage: 'No active appointments',
-                    emptyIcon: Icons.event_available_outlined,
+                    emptyIcon: Icons.event_available_rounded,
                     onRetry: () => context
                         .read<AppointmentBloc>()
                         .add(LoadUserAppointments(uid)),
@@ -242,7 +242,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                       isPatient: false,
                       currentUserId: _uid,
                       emptyMessage: 'No patients yet',
-                      emptyIcon: Icons.people_outline,
+                      emptyIcon: Icons.people_rounded,
                       onRetry: () =>
                           _patientsBloc.add(LoadDoctorAppointments(_uid)),
                     ),
@@ -259,7 +259,7 @@ class _DoctorAppointmentsTabsState extends State<_DoctorAppointmentsTabs>
                       isPatient: true,
                       currentUserId: _uid,
                       emptyMessage: 'No personal visits yet',
-                      emptyIcon: Icons.calendar_today_outlined,
+                      emptyIcon: Icons.calendar_today_rounded,
                       onRetry: () =>
                           _visitsBloc.add(LoadUserAppointments(_uid)),
                     ),
@@ -356,7 +356,7 @@ class _RetryState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
+          const Icon(Icons.error_rounded, size: 48, color: AppColors.textMuted),
           const SizedBox(height: 12),
           Text(message,
               style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted)),

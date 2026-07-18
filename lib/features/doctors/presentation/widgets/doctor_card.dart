@@ -87,12 +87,12 @@ class DoctorCard extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(Icons.work_outline,
+                  const Icon(Icons.work_rounded,
                       size: 13, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
                   Text(doctor.experience, style: AppTextStyles.caption),
                   const SizedBox(width: 12),
-                  const Icon(Icons.schedule_outlined,
+                  const Icon(Icons.schedule_rounded,
                       size: 13, color: AppColors.success),
                   const SizedBox(width: 4),
                   Expanded(

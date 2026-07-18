@@ -38,7 +38,8 @@ class ScheduleSlotsArea extends StatelessWidget {
           return ScheduleHint('Could not load slots: ${state.message}');
         }
 
-        final booked = state is SlotsLoaded ? state.bookedTimes : const <String>[];
+        final booked =
+            state is SlotsLoaded ? state.bookedTimes : const <String>[];
         final slots = vm.slotsForSelectedDay;
         if (slots.isEmpty) {
           return const ScheduleHint('No slots available on this day.');
@@ -126,7 +127,8 @@ class ScheduleSlotChip extends StatelessWidget {
 class ConsultationToggle extends StatelessWidget {
   final ConsultationType selected;
   final ValueChanged<ConsultationType> onChanged;
-  const ConsultationToggle({super.key, required this.selected, required this.onChanged});
+  const ConsultationToggle(
+      {super.key, required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +187,8 @@ class ConsultationTypeOption extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(icon, color: active ? Colors.white : AppColors.primary, size: 24),
+              Icon(icon,
+                  color: active ? Colors.white : AppColors.primary, size: 24),
               const SizedBox(height: 6),
               Text(
                 label,
@@ -236,7 +239,7 @@ class VideoConsultationNote extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+          const Icon(Icons.info_rounded, color: AppColors.primary, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -305,13 +308,17 @@ class ScheduleDateSelector extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.calendar_today, color: AppColors.primary, size: 20),
+              const Icon(Icons.calendar_today,
+                  color: AppColors.primary, size: 20),
               const SizedBox(width: 12),
               Text(
                 label,
                 style: AppTextStyles.body.copyWith(
-                  color: isPlaceholder ? AppColors.textHint : AppColors.textPrimary,
-                  fontWeight: isPlaceholder ? FontWeight.normal : FontWeight.w600,
+                  color: isPlaceholder
+                      ? AppColors.textHint
+                      : AppColors.textPrimary,
+                  fontWeight:
+                      isPlaceholder ? FontWeight.normal : FontWeight.w600,
                 ),
               ),
             ],
@@ -353,7 +360,8 @@ class ScheduleField extends StatelessWidget {
 class ScheduleSubmitButton extends StatelessWidget {
   final bool loading;
   final VoidCallback onTap;
-  const ScheduleSubmitButton({super.key, required this.loading, required this.onTap});
+  const ScheduleSubmitButton(
+      {super.key, required this.loading, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

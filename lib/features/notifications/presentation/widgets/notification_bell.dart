@@ -15,7 +15,8 @@ import '../bloc/notification_bloc.dart';
 class NotificationBell extends StatefulWidget {
   final Color color;
   final double size;
-  const NotificationBell({super.key, this.color = Colors.white, this.size = 28});
+  const NotificationBell(
+      {super.key, this.color = Colors.white, this.size = 28});
 
   @override
   State<NotificationBell> createState() => _NotificationBellState();
@@ -44,8 +45,12 @@ class _NotificationBellState extends State<NotificationBell> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: Icon(Icons.notifications_none_rounded,
-                  size: widget.size, color: widget.color),
+              icon: Icon(
+                  unread > 0
+                      ? Icons.notifications_active_rounded
+                      : Icons.notifications_none_rounded,
+                  size: widget.size,
+                  color: widget.color),
               onPressed: () => context.push(AppRoutes.notifications),
             ),
             if (unread > 0)

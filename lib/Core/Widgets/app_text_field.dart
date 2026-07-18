@@ -124,8 +124,8 @@ class AppTextField extends FormField<String> {
                             splashRadius: 20,
                             icon: Icon(
                               state._obscured
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
                               color: AppColors.primary,
                               size: 21,
                             ),

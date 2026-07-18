@@ -376,7 +376,9 @@ class _StarRow extends StatelessWidget {
           children: List.generate(
               5,
               (i) => Icon(
-                    i < rating.round() ? Icons.star : Icons.star_border,
+                    i < rating.round()
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
                     size: 10,
                     color: color,
                   ))),

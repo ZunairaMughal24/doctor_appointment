@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 color: AppColors.divider),
                                             ListTile(
                                               leading: const Icon(
-                                                  Icons.delete_outline_rounded,
+                                                  Icons.delete_rounded,
                                                   color: AppColors.error),
                                               title: Text('Remove Photo',
                                                   style: AppTextStyles.label
@@ -319,7 +319,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ProfileLabeledField(
                             label: 'Full Name',
                             controller: _vm.nameController,
-                            icon: Icons.person_outline,
+                            icon: Icons.person_rounded,
                             enabled: _vm.editing,
                             maxLength: 40,
                             validator: _vm.nameValidator,
@@ -327,7 +327,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ProfileLabeledField(
                             label: 'Email',
                             controller: _vm.emailController,
-                            icon: Icons.email_outlined,
+                            icon: Icons.email_rounded,
                             enabled: _vm.editing,
                             keyboardType: TextInputType.emailAddress,
                             maxLength: 60,
@@ -340,7 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'Speciality',
                               controller: _vm.specialityController,
-                              icon: Icons.medical_services_outlined,
+                              icon: Icons.medical_services_rounded,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.specialities,
                               validator: _vm.specialityValidator,
@@ -348,7 +348,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'Experience',
                               controller: _vm.experienceController,
-                              icon: Icons.workspace_premium_outlined,
+                              icon: Icons.workspace_premium_rounded,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.experienceYears,
                               validator: _vm.experienceValidator,
@@ -356,7 +356,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'Phone Number',
                               controller: _vm.phoneController,
-                              icon: Icons.phone_outlined,
+                              icon: Icons.phone_rounded,
                               enabled: _vm.editing,
                               keyboardType: TextInputType.phone,
                               validator: _vm.phoneValidator,
@@ -364,7 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'Clinic / Hospital Location',
                               controller: _vm.locationController,
-                              icon: Icons.location_on_outlined,
+                              icon: Icons.location_on_rounded,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.locations,
                               validator: _vm.locationValidator,
@@ -377,7 +377,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'Services',
                               controller: _vm.servicesController,
-                              icon: Icons.list_alt_outlined,
+                              icon: Icons.list_alt_rounded,
                               enabled: _vm.editing,
                               options: DoctorFormOptions.services,
                               validator: _vm.servicesValidator,
@@ -385,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ProfileLabeledField(
                               label: 'About / Description',
                               controller: _vm.descriptionController,
-                              icon: Icons.info_outline,
+                              icon: Icons.info_rounded,
                               enabled: _vm.editing,
                               maxLines: 4,
                               maxLength: 300,
@@ -469,8 +469,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             Icon(
                               user.isDoctor
-                                  ? Icons.medical_services_outlined
-                                  : Icons.person_outlined,
+                                  ? Icons.medical_services_rounded
+                                  : Icons.person_rounded,
                               color: AppColors.primary,
                             ),
                             const SizedBox(width: 12),
@@ -527,7 +527,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.primaryLight,
                             child: Icon(
-                              Icons.medical_services_outlined,
+                              Icons.medical_services_rounded,
                               color: AppColors.primary,
                             ),
                           ),

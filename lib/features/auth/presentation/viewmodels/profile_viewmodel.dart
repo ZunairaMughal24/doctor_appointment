@@ -70,7 +70,10 @@ class ProfileViewModel {
   List<AppointmentEntity> get reviews => _reviews;
   bool get reviewsLoading => _reviewsLoading;
 
+  bool _disposed = false;
+
   void _set(VoidCallback fn) {
+    if (_disposed) return;
     fn();
     onChange();
   }
@@ -261,6 +264,7 @@ class ProfileViewModel {
   }
 
   void dispose() {
+    _disposed = true;
     nameController.dispose();
     emailController.dispose();
     specialityController.dispose();

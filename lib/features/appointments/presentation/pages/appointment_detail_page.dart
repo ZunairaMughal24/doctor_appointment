@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session/current_session.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_container.dart';
 import '../../domain/entities/appointment_entity.dart';
 import '../viewmodels/appointment_detail_viewmodel.dart';
 import '../widgets/appointment_detail_widgets.dart';
@@ -109,64 +110,74 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  Center(
+                  AppContainer(
+                    borderRadius: 19,
+                    padding: const EdgeInsets.symmetric(vertical: 24),
                     child: AppointmentHeaderAvatar(
                       icon: _vm.isDoctorViewer
                           ? Icons.person_rounded
                           : (isVideo
                               ? Icons.videocam_rounded
-                              : Icons.medical_services_outlined),
+                              : Icons.medical_services_rounded),
                       name: _vm.isDoctorViewer
                           ? _vm.appointment.patientName
                           : _vm.appointment.doctorName,
                       status: _vm.appointment.effectiveStatus,
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
 
-                  if (_vm.appointment.doctorSpeciality.isNotEmpty)
-                    AppointmentDetailRow(
-                      icon: Icons.local_hospital_outlined,
-                      label: 'Speciality',
-                      value: _vm.appointment.doctorSpeciality,
+                  AppContainer(
+                    borderRadius: 19,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        if (_vm.appointment.doctorSpeciality.isNotEmpty)
+                          AppointmentDetailRow(
+                            icon: Icons.local_hospital_rounded,
+                            label: 'Speciality',
+                            value: _vm.appointment.doctorSpeciality,
+                          ),
+                        AppointmentDetailRow(
+                          icon: Icons.medical_information_rounded,
+                          label: 'Type',
+                          value: _vm.appointment.consultationType.label,
+                        ),
+                        AppointmentDetailRow(
+                          icon: Icons.event_rounded,
+                          label: 'Day',
+                          value: _vm.appointment.appointmentDay,
+                        ),
+                        AppointmentDetailRow(
+                          icon: Icons.calendar_today_rounded,
+                          label: 'Date',
+                          value: _vm.appointment.appointmentDate,
+                        ),
+                        if (_vm.appointment.appointmentTime.isNotEmpty)
+                          AppointmentDetailRow(
+                            icon: Icons.access_time_rounded,
+                            label: 'Time slot',
+                            value: _vm.appointment.appointmentTime,
+                          ),
+                        AppointmentDetailRow(
+                          icon: Icons.person_rounded,
+                          label: 'Full name',
+                          value: _vm.appointment.patientName,
+                        ),
+                        AppointmentDetailRow(
+                          icon: Icons.phone_rounded,
+                          label: 'Contact number',
+                          value: _vm.appointment.patientPhone,
+                          isLast: true,
+                        ),
+                      ],
                     ),
-                  AppointmentDetailRow(
-                    icon: Icons.medical_information_outlined,
-                    label: 'Type',
-                    value: _vm.appointment.consultationType.label,
-                  ),
-                  AppointmentDetailRow(
-                    icon: Icons.event_rounded,
-                    label: 'Day',
-                    value: _vm.appointment.appointmentDay,
-                  ),
-                  AppointmentDetailRow(
-                    icon: Icons.calendar_today_rounded,
-                    label: 'Date',
-                    value: _vm.appointment.appointmentDate,
-                  ),
-                  if (_vm.appointment.appointmentTime.isNotEmpty)
-                    AppointmentDetailRow(
-                      icon: Icons.access_time_rounded,
-                      label: 'Time slot',
-                      value: _vm.appointment.appointmentTime,
-                    ),
-                  AppointmentDetailRow(
-                    icon: Icons.person_outline_rounded,
-                    label: 'Full name',
-                    value: _vm.appointment.patientName,
-                  ),
-                  AppointmentDetailRow(
-                    icon: Icons.phone_outlined,
-                    label: 'Contact number',
-                    value: _vm.appointment.patientPhone,
-                    isLast: true,
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
                   ..._actions(),
                 ],
               ),
@@ -204,7 +215,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
       return [
         AppButton(
           label: 'Confirm Appointment',
-          icon: Icons.check_circle_outline_rounded,
+          icon: Icons.check_circle_rounded,
           loading: _vm.busy,
           onPressed: _vm.busy
               ? null
@@ -246,7 +257,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   Widget _cancelButton(String label, {required bool asDoctor}) {
     return AppButton.outlined(
       label: label,
-      icon: Icons.cancel_outlined,
+      icon: Icons.cancel_rounded,
       color: AppColors.error,
       onPressed: _vm.busy ? null : () => _confirmCancel(asDoctor: asDoctor),
     );

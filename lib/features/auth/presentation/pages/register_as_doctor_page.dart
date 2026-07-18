@@ -141,7 +141,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _textField(
                 controller: _vm.nameController,
                 hint: 'Full Name',
-                icon: Icons.person_outlined,
+                icon: Icons.person_rounded,
                 maxLength: 40,
                 validator: _vm.nameValidator,
               ),
@@ -150,7 +150,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _textField(
                 controller: _vm.emailController,
                 hint: 'Email',
-                icon: Icons.email_outlined,
+                icon: Icons.email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 maxLength: 60,
                 validator: _vm.emailValidator,
@@ -160,7 +160,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _dropdownField(
                 controller: _vm.specialityController,
                 hint: 'Select your speciality',
-                icon: Icons.medical_services_outlined,
+                icon: Icons.medical_services_rounded,
                 options: DoctorFormOptions.specialities,
                 validator: _vm.specialityValidator,
               ),
@@ -169,7 +169,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _dropdownField(
                 controller: _vm.experienceController,
                 hint: 'Select years of experience',
-                icon: Icons.workspace_premium_outlined,
+                icon: Icons.workspace_premium_rounded,
                 options: DoctorFormOptions.experienceYears,
                 validator: _vm.experienceValidator,
               ),
@@ -178,7 +178,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _textField(
                 controller: _vm.phoneController,
                 hint: 'e.g. +92 300 1234567',
-                icon: Icons.phone_outlined,
+                icon: Icons.phone_rounded,
                 keyboardType: TextInputType.phone,
                 maxLength: 15,
                 validator: _vm.phoneValidator,
@@ -188,7 +188,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _dropdownField(
                 controller: _vm.locationController,
                 hint: 'Select location',
-                icon: Icons.location_on_outlined,
+                icon: Icons.location_on_rounded,
                 options: DoctorFormOptions.locations,
                 validator: _vm.locationValidator,
               ),
@@ -197,7 +197,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _dropdownField(
                 controller: _vm.servicesController,
                 hint: 'Select a service',
-                icon: Icons.list_alt_outlined,
+                icon: Icons.list_alt_rounded,
                 options: DoctorFormOptions.services,
                 validator: _vm.servicesValidator,
               ),
@@ -220,7 +220,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               _textField(
                 controller: _vm.descriptionController,
                 hint: 'Tell patients about your experience and approach',
-                icon: Icons.info_outline,
+                icon: Icons.info_rounded,
                 maxLines: 3,
                 maxLength: 300,
                 validator: _vm.descriptionValidator,
@@ -231,7 +231,7 @@ class _RegisterAsDoctorPageState extends State<RegisterAsDoctorPage> {
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) => AppButton(
                   label: 'Create Doctor Profile',
-                  icon: Icons.check_circle_outline_rounded,
+                  icon: Icons.check_circle_rounded,
                   loading: state is AuthLoading,
                   onPressed: () => _vm.submit(context),
                 ),

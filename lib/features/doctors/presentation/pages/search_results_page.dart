@@ -116,7 +116,7 @@ class _SearchViewState extends State<_SearchView> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.search_off,
+                          const Icon(Icons.search_off_rounded,
                               size: 64, color: AppColors.textHint),
                           const SizedBox(height: 12),
                           Text('No results found',

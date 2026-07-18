@@ -25,7 +25,7 @@ class ManageCareArt extends StatelessWidget {
               dy: -34,
               angle: -0.09,
               child: _ModeCard(
-                icon: Icons.medical_services_outlined,
+                icon: Icons.medical_services_rounded,
                 label: 'Doctor Mode',
               ),
             ),
@@ -39,7 +39,7 @@ class ManageCareArt extends StatelessWidget {
               dy: 38,
               angle: 0.06,
               child: _ModeCard(
-                icon: Icons.person_outline,
+                icon: Icons.person_rounded,
                 label: 'Patient Mode',
               ),
             ),

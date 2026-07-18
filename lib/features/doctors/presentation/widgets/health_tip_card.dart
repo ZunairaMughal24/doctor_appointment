@@ -48,7 +48,7 @@ class HealthTipCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.lightbulb_outline_rounded,
+                      const Icon(Icons.lightbulb_rounded,
                           size: 13, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(

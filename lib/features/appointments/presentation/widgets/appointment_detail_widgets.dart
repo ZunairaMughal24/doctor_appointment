@@ -122,7 +122,7 @@ class AppointmentJoinHint extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+          const Icon(Icons.info_rounded, color: AppColors.primary, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

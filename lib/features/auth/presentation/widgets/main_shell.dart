@@ -133,7 +133,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 0,
                   currentIndex: currentIndex,
-                  icon: Icons.cottage_rounded,
+                  icon: Icons.cottage_outlined,
                   activeIcon: Icons.cottage_rounded,
                   label: 'Home',
                   onTap: onTap,
@@ -141,7 +141,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 1,
                   currentIndex: currentIndex,
-                  icon: Icons.calendar_month_rounded,
+                  icon: Icons.calendar_month_outlined,
                   activeIcon: Icons.calendar_month_rounded,
                   label: apptLabel,
                   onTap: onTap,
@@ -149,7 +149,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 2,
                   currentIndex: currentIndex,
-                  icon: Icons.medical_services_rounded,
+                  icon: Icons.medical_services_outlined,
                   activeIcon: Icons.medical_services_rounded,
                   label: 'Doctors',
                   onTap: onTap,
@@ -157,7 +157,7 @@ class _PremiumNavBar extends StatelessWidget {
                 _NavTab(
                   index: 3,
                   currentIndex: currentIndex,
-                  icon: Icons.manage_accounts_rounded,
+                  icon: Icons.manage_accounts_outlined,
                   activeIcon: Icons.manage_accounts_rounded,
                   label: 'Profile',
                   onTap: onTap,

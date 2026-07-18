@@ -36,7 +36,7 @@ class AppointmentTile extends StatelessWidget {
             radius: 24,
             backgroundColor: AppColors.primaryLight,
             child: Icon(
-              isPatient ? Icons.medical_services_outlined : Icons.person,
+              isPatient ? Icons.medical_services_rounded : Icons.person,
               color: AppColors.primary,
             ),
           ),

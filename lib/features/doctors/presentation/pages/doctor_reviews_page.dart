@@ -31,7 +31,7 @@ class DoctorReviewsPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.reviews_outlined,
+                  const Icon(Icons.reviews_rounded,
                       size: 64, color: AppColors.textHint),
                   const SizedBox(height: 12),
                   Text(
