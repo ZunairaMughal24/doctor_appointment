@@ -117,10 +117,10 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                     borderRadius: 19,
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: AppointmentHeaderAvatar(
-                      icon: _vm.isDoctorViewer
-                          ? Icons.person_rounded
-                          : (isVideo
-                              ? Icons.videocam_rounded
+                      icon: isVideo
+                          ? Icons.videocam_rounded
+                          : (_vm.isDoctorViewer
+                              ? Icons.person_rounded
                               : Icons.medical_services_rounded),
                       name: _vm.isDoctorViewer
                           ? _vm.appointment.patientName
