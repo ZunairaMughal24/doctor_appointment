@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/session/current_session.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_container.dart';
@@ -56,6 +58,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
     }
 
     final data = _vm.freshDoctor ?? widget.doctor!;
+    final isOwnProfile = context.watch<CurrentSession>().uid == data.id;
 
     return Scaffold(
       backgroundColor: AppColors.cardBg,
@@ -302,20 +305,22 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: SafeArea(
-          child: AppButton(
-            icon: Icons.event_available_rounded,
-            label: 'Make an Appointment',
-            onPressed: () => context.push(
-              AppRoutes.scheduleAppointment,
-              extra: data,
+      bottomNavigationBar: isOwnProfile
+          ? null
+          : Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: SafeArea(
+                child: AppButton(
+                  icon: Icons.event_available_rounded,
+                  label: 'Make an Appointment',
+                  onPressed: () => context.push(
+                    AppRoutes.scheduleAppointment,
+                    extra: data,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
