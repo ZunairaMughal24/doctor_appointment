@@ -39,31 +39,51 @@ class _SplashPageState extends State<SplashPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: screenHeight * 0.30),
-              PulseWidget(
-                minScale: 0.95,
-                maxScale: 1.05,
-                duration: const Duration(milliseconds: 1600),
-                child: Image.asset(
-                  AppAssets.appLogo,
-                  height: screenHeight * 0.1,
-                  width: screenWidth * 0.2,
+              FadeSlideIn(
+                child: SizedBox(
+                  width: screenWidth * 0.5,
+                  height: screenWidth * 0.5,
+                  child: PulseRings(
+                    maxSize: screenWidth * 0.5,
+                    color: Colors.white,
+                    child: PulseWidget(
+                      minScale: 0.95,
+                      maxScale: 1.05,
+                      duration: const Duration(milliseconds: 1600),
+                      child: Image.asset(
+                        AppAssets.appLogo,
+                        height: screenHeight * 0.1,
+                        width: screenWidth * 0.2,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
-              Text(
-                'Medic',
-                style: AppTextStyles.h1.copyWith(
-                  color: AppColors.primary,
-                  fontSize: 25,
-                  decoration: TextDecoration.none,
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 200),
+                child: Text(
+                  'Medic',
+                  style: AppTextStyles.h1.copyWith(
+                    color: AppColors.primary,
+                    fontSize: 25,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
               ),
-              SizedBox(height: screenHeight * 0.05),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(AppColors.primary),
-                strokeWidth: 2,
-              ),
+              const SizedBox(height: 6),
+              // FadeSlideIn(
+              //   delay: const Duration(milliseconds: 350),
+              //   child: Text(
+              //     'Your Trusted Healthcare Companion',
+              //     style: AppTextStyles.label.copyWith(
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w600,
+              //       color: AppColors.cardBg,
+              //       letterSpacing: 0.3,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

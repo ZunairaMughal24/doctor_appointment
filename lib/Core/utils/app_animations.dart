@@ -194,3 +194,76 @@ class _FadeSlideInState extends State<FadeSlideIn>
     );
   }
 }
+
+// ── Expanding rings (radar / heartbeat pulse) ─────────────────────────────────
+
+/// Concentric rings that continuously expand outward from [child] and fade
+/// as they grow — a radar-ping / heartbeat-pulse effect. Rings are staggered
+/// evenly across one animation cycle so there's always one mid-expansion.
+class PulseRings extends StatefulWidget {
+  final Widget child;
+  final Color color;
+  final double maxSize;
+  final int ringCount;
+  final Duration duration;
+
+  const PulseRings({
+    super.key,
+    required this.child,
+    this.color = Colors.white,
+    this.maxSize = 160,
+    this.ringCount = 3,
+    this.duration = const Duration(milliseconds: 2400),
+  });
+
+  @override
+  State<PulseRings> createState() => _PulseRingsState();
+}
+
+class _PulseRingsState extends State<PulseRings>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) => Stack(
+        alignment: Alignment.center,
+        children: [
+          for (var i = 0; i < widget.ringCount; i++) _ring(i),
+          child!,
+        ],
+      ),
+      child: widget.child,
+    );
+  }
+
+  Widget _ring(int index) {
+    final progress = (_controller.value + index / widget.ringCount) % 1.0;
+    return Container(
+      width: widget.maxSize * progress,
+      height: widget.maxSize * progress,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: widget.color.withValues(alpha: (1 - progress) * 0.5),
+          width: 1.5,
+        ),
+      ),
+    );
+  }
+}
