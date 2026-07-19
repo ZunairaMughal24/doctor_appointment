@@ -76,6 +76,76 @@ class _FloatingWidgetState extends State<FloatingWidget>
   }
 }
 
+// ── Continuous pendulum swing (rotate) ────────────────────────────────────────
+
+/// Tilts [child] a few degrees left and right in place, rotating around
+/// [alignment] (default: its own centre, so it stays put and just rocks).
+class SwingWidget extends StatefulWidget {
+  final Widget child;
+
+  /// Max tilt to either side, in radians.
+  final double maxAngle;
+  final Duration duration;
+  final Duration delay;
+  final Alignment alignment;
+
+  const SwingWidget({
+    super.key,
+    required this.child,
+    this.maxAngle = 0.12,
+    this.duration = const Duration(milliseconds: 1800),
+    this.delay = Duration.zero,
+    this.alignment = Alignment.center,
+  });
+
+  @override
+  State<SwingWidget> createState() => _SwingWidgetState();
+}
+
+class _SwingWidgetState extends State<SwingWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _angle;
+  Timer? _startTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: widget.duration);
+    _angle = Tween<double>(begin: -widget.maxAngle, end: widget.maxAngle)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    if (widget.delay == Duration.zero) {
+      _controller.repeat(reverse: true);
+    } else {
+      _startTimer = Timer(widget.delay, () {
+        if (mounted) _controller.repeat(reverse: true);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _startTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _angle,
+      builder: (_, child) => Transform.rotate(
+        angle: _angle.value,
+        alignment: widget.alignment,
+        child: child,
+      ),
+      child: widget.child,
+    );
+  }
+}
+
 // ── Continuous scale pulse ────────────────────────────────────────────────────
 
 class PulseWidget extends StatefulWidget {

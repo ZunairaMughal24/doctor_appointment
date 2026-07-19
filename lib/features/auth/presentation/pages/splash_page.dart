@@ -27,9 +27,6 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -39,51 +36,44 @@ class _SplashPageState extends State<SplashPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FadeSlideIn(
-                child: SizedBox(
-                  width: screenWidth * 0.5,
-                  height: screenWidth * 0.5,
-                  child: PulseRings(
-                    maxSize: screenWidth * 0.5,
-                    color: Colors.white,
-                    child: PulseWidget(
-                      minScale: 0.95,
-                      maxScale: 1.05,
-                      duration: const Duration(milliseconds: 1600),
-                      child: Image.asset(
-                        AppAssets.appLogo,
-                        height: screenHeight * 0.1,
-                        width: screenWidth * 0.2,
-                      ),
-                    ),
+              // Same badge treatment as the home header avatar, scaled up.
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    width: 2,
+                  ),
+                ),
+                child: SwingWidget(
+                  child: const CircleAvatar(
+                    radius: 36,
+                    backgroundColor: Colors.white,
+                    backgroundImage: AssetImage(AppAssets.appLogo),
                   ),
                 ),
               ),
-              SizedBox(height: screenHeight * 0.02),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 200),
-                child: Text(
-                  'Medic',
-                  style: AppTextStyles.h1.copyWith(
-                    color: AppColors.primary,
-                    fontSize: 25,
-                    decoration: TextDecoration.none,
-                  ),
+              const SizedBox(height: 20),
+              Text(
+                'Medic',
+                style: AppTextStyles.h1.copyWith(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.none,
                 ),
               ),
               const SizedBox(height: 6),
-              // FadeSlideIn(
-              //   delay: const Duration(milliseconds: 350),
-              //   child: Text(
-              //     'Your Trusted Healthcare Companion',
-              //     style: AppTextStyles.label.copyWith(
-              //       fontSize: 16,
-              //       fontWeight: FontWeight.w600,
-              //       color: AppColors.cardBg,
-              //       letterSpacing: 0.3,
-              //     ),
-              //   ),
-              // ),
+              Text(
+                'Your Trusted Healthcare Companion',
+                style: AppTextStyles.label.copyWith(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                ),
+              ),
             ],
           ),
         ),
