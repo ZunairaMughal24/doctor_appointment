@@ -138,6 +138,7 @@ class _NotificationTile extends StatelessWidget {
     return Material(
       color: unread ? AppColors.primaryLighter : Colors.white,
       borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),

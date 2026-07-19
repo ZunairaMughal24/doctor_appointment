@@ -59,6 +59,7 @@ class AppButton extends StatelessWidget {
     final button = Material(
       color: filled ? color : Colors.white,
       borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: disabled ? null : onPressed,
         borderRadius: radius,

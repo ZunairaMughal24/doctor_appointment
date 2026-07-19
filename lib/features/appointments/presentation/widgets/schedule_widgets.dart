@@ -97,6 +97,7 @@ class ScheduleSlotChip extends StatelessWidget {
       child: Material(
         color: bg,
         borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: isBooked ? null : onTap,
           borderRadius: BorderRadius.circular(12),
@@ -174,6 +175,7 @@ class ConsultationTypeOption extends StatelessWidget {
     return Material(
       color: active ? AppColors.primary : Colors.white,
       borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -297,6 +299,7 @@ class ScheduleDateSelector extends StatelessWidget {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),

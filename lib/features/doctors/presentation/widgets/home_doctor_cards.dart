@@ -151,6 +151,7 @@ class DoctorCardAvailable extends StatelessWidget {
             child: Material(
               color: AppColors.primaryDark,
               borderRadius: BorderRadius.circular(5),
+              clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: () {},
                 borderRadius: BorderRadius.circular(5),
@@ -334,6 +335,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
             child: Material(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(8),
+              clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: _submit,
                 borderRadius: BorderRadius.circular(8),

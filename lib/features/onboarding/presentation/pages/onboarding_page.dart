@@ -5,6 +5,7 @@ import 'package:medic/core/constants/app_assets.dart';
 import 'package:medic/core/constants/app_colors.dart';
 import 'package:medic/core/constants/app_text_styles.dart';
 import 'package:medic/core/router/app_router.dart';
+import 'package:medic/core/widgets/app_button.dart';
 import 'package:medic/features/onboarding/presentation/viewmodels/onboarding_viewmodel.dart';
 import 'package:medic/features/onboarding/presentation/widgets/doctor_hero_illustration.dart';
 import 'package:medic/features/onboarding/presentation/widgets/onboarding_arts.dart';
@@ -101,31 +102,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
             const SizedBox(height: 28),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: Material(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(16),
-                  child: InkWell(
-                    onTap: () {
-                      if (_vm.isLast) {
-                        context.go(AppRoutes.welcome);
-                      } else {
-                        _vm.next();
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Center(
-                      child: Text(
-                        _vm.isLast ? 'Get Started' : 'Next',
-                        style: AppTextStyles.h4.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              child: AppButton(
+                label: _vm.isLast ? 'Get Started' : 'Next',
+                onPressed: () {
+                  if (_vm.isLast) {
+                    context.go(AppRoutes.welcome);
+                  } else {
+                    _vm.next();
+                  }
+                },
               ),
             ),
             const SizedBox(height: 28),

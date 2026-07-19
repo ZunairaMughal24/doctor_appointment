@@ -98,6 +98,7 @@ class _OptionsSheet extends StatelessWidget {
             return Material(
               color: selected ? AppColors.primaryLighter : Colors.white,
               borderRadius: BorderRadius.circular(14),
+              clipBehavior: Clip.antiAlias,
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () => Navigator.pop(context, option),

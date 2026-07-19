@@ -47,6 +47,7 @@ class AppContainer extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,

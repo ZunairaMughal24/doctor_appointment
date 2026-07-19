@@ -18,85 +18,91 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // One continuous gradient for the whole screen — dark at the top,
+    // fading to the light background color by the time it reaches the
+    // text/buttons. No separate panel, so no boundary between two solid
+    // colors for a seam to ever show up on.
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Column(
-        children: [
-          // ── Gradient hero ───────────────────────────────────────────
-          Expanded(
-            flex: 6,
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: AppColors.headerGradient,
-              ),
-              child: const SafeArea(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 12, 91, 128),
+              Color.fromARGB(255, 140, 199, 226),
+              AppColors.background,
+            ],
+            stops: [0.0, 0.6, 0.72],
+          ),
+        ),
+        child: Column(
+          children: [
+            // ── Hero ───────────────────────────────────────────────────
+            Expanded(
+              flex: 6,
+              child: SafeArea(
                 bottom: false,
                 child: Center(child: _AvatarCluster()),
               ),
             ),
-          ),
 
-          // ── White CTA panel ─────────────────────────────────────────
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            ),
-            padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 150),
-                    child: Text(
-                      'Welcome to Medic',
-                      style: AppTextStyles.h1.copyWith(
-                        fontSize: 26,
-                        color: AppColors.primary,
+            // ── Welcome text + CTAs ─────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FadeSlideIn(
+                      delay: const Duration(milliseconds: 150),
+                      child: Text(
+                        'Welcome to Medic',
+                        style: AppTextStyles.h1.copyWith(
+                          fontSize: 26,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 300),
-                    child: Text(
-                      'Your trusted healthcare companion — find doctors, book visits, and stay on top of your care.',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 14.5,
-                        height: 1.5,
-                        color: AppColors.textSecondary,
+                    const SizedBox(height: 10),
+                    FadeSlideIn(
+                      delay: const Duration(milliseconds: 300),
+                      child: Text(
+                        'Your trusted healthcare companion — find doctors, book visits, and stay on top of your care.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14.5,
+                          height: 1.5,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 28),
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 450),
-                    child: AppButton(
-                      label: 'Sign In',
-                      height: 54,
-                      onPressed: () => context.go(AppRoutes.signIn),
+                    const SizedBox(height: 28),
+                    FadeSlideIn(
+                      delay: const Duration(milliseconds: 450),
+                      child: AppButton(
+                        label: 'Sign In',
+                        onPressed: () => context.go(AppRoutes.signIn),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  FadeSlideIn(
-                    delay: const Duration(milliseconds: 600),
-                    child: AppButton.outlined(
-                      label: 'Create Account',
-                      height: 54,
-                      onPressed: () => context.go(AppRoutes.signUp),
+                    const SizedBox(height: 14),
+                    FadeSlideIn(
+                      delay: const Duration(milliseconds: 600),
+                      child: AppButton.outlined(
+                        label: 'Create Account',
+                        onPressed: () => context.go(AppRoutes.signUp),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -224,4 +230,3 @@ class _Avatar extends StatelessWidget {
     );
   }
 }
-

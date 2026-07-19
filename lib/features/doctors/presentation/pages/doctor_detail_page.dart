@@ -178,6 +178,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             Material(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(12),
+                              clipBehavior: Clip.antiAlias,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
                                 onTap: () async {

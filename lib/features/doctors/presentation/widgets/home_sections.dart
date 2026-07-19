@@ -338,6 +338,8 @@ class _FeaturedDoctorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -583,6 +585,7 @@ class AvailableDoctorsSection extends StatelessWidget {
               return Material(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
+                clipBehavior: Clip.antiAlias,
                 child: InkWell(
                   onTap: () => onTap(doctor),
                   borderRadius: BorderRadius.circular(10),
@@ -701,6 +704,7 @@ class RecommendedDoctorsSection extends StatelessWidget {
                 child: Material(
                   color: AppColors.cardBg,
                   borderRadius: BorderRadius.circular(14),
+                  clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     onTap: () => onTap(doctor),
                     borderRadius: BorderRadius.circular(14),
